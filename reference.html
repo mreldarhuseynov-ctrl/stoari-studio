@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__hfAuthOrigin="https://auth.higgsfield.app";/**
+ * Approval client SDK — the browser half of the approval flow (paired with
+ * approve.html), injected into every app page. A real file, imported as text and
+ * bundled at deploy (see injected-sdk.ts + the router wrangler). Runs in the
+ * untrusted app page: plain ES5, idempotent (window.__hfPatched), fully
+ * try/catch-wrapped, installed inline+synchronous at <head> so it's present
+ * before any app code runs.
+ *
+ * There is exactly ONE approval trigger: window.hf.requestGeneration(model,
+ * params, opts). The app calls it on the user's Generate action; the modal is
+ * visible exactly while the returned promise is pending. Approve resolves the
+ * minted single-use intent id, which the app threads to its server function and
+ * the fnf SDK adapter sends as the submit body's confirmation_token; cancel
+ * rejects with a DOMException named AbortError (a user choice, not a failure).
+ * Enforcement is entirely server-side: the outbound spend gate 403s any
+ * POST /jobs/submit that doesn't carry a matching minted approval (see
+ * outbound-worker/src/spend-gate.ts), so an app that skips the call gets a
+ * self-describing failed submit, never a silent spend. This SDK never inspects
+ * request bodies and never opens a modal on its own.
+ */
+(function () {
+  try {
+    if (window.__hfPatched) return;
+    window.__hfPatched = true;
+    var of = window.fetch;
+    if (typeof of !== "function") return;
+    // Approval surface origin (auth.<zone>, serving the consent page at
+    // /approve). Preferred source: the origin the router stamps ahead of this
+    // script (injected-sdk.ts) — apps can be served on CUSTOM DOMAINS, where
+    // deriving from the page host would fabricate a non-existent
+    // auth.<customdomain>. Host derivation stays as the fallback for stale
+    // cached HTML that predates the stamp.
+    var APPROVE =
+      typeof window.__hfAuthOrigin === "string" && window.__hfAuthOrigin.indexOf("https://") === 0
+        ? window.__hfAuthOrigin
+        : "https://auth." + location.host.split(".").slice(1).join(".");
+    window.__hfFetches = window.__hfFetches || [];
+
+    // Single-flight: at most ONE approval modal at a time. A fast double-click (or
+    // an app firing two requests) would otherwise open a second scrim+iframe stacked
+    // on the first — so a second approve() while one is open returns the in-flight
+    // promise instead of opening another modal.
+    var openModal = null;
+
+    // The modal is a cross-origin iframe of auth.<zone>/approve: the app cannot
+    // read or script it, and WHO may frame the page is pinned server-side by its
+    // frame-ancestors. The page itself obtains the authoritative price from fnf
+    // before enabling Generate; app-supplied display prices are intentionally
+    // ignored. (The app DOM could still overlay the iframe — the spend gate's
+    // server-side job binding is what makes a spoofed click worthless.)
+    function approve(job) {
+      if (openModal) return openModal;
+      openModal = new Promise(function (resolve, reject) {
+        var grant = null;
+        var ready = false;
+        var done = false;
+        var openedAt = Date.now();
+
+        // Three parent layers so the iframe body can stay fully TRANSPARENT and
+        // still show no white edge:
+        //  - scrim: full-screen div carrying the blur (backdrop-filter samples the
+        //    real app behind it) + a dark tint.
+        //  - wrap: a rounded, overflow:hidden div that CLIPS the iframe. The iframe
+        //    overlaps the backdrop-filter scrim, so Chromium backs its layer
+        //    opaquely; the iframe's OWN border-radius doesn't reliably clip that
+        //    layer (leaving white corners), but a parent clip does. So the corners
+        //    outside the radius are clipped away → the blurred scrim shows through,
+        //    no white ring.
+        //  - frame: the iframe, fully transparent, filling wrap. Its page paints
+        //    only the card (edge-to-edge, no radius — wrap provides the rounding).
+        var scrim = document.createElement("div");
+        scrim.style.cssText =
+          "position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,0.28);" +
+          "-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)";
+        var wrap = document.createElement("div");
+        // opacity:0 until the page reports its height so the modal fades in at its
+        // final size (no empty-frame flash, no height re-center / layout shift).
+        // Round with clip-path (not just border-radius + overflow): clip-path is
+        // applied in the COMPOSITOR, so it clips the cross-origin iframe's own
+        // layer edge cleanly. border-radius/overflow only clip the shape and leave
+        // the iframe's opaque WHITE base fringing at the rounded corners (the white
+        // peek). background = card color as a second line of defense. Both the wrap
+        // and the iframe carry the clip; keep 24px in sync with the card radius.
+        wrap.style.cssText =
+          "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);" +
+          "width:min(400px,calc(100vw - 32px));height:188px;border-radius:24px;overflow:hidden;" +
+          "-webkit-clip-path:inset(0 round 24px);clip-path:inset(0 round 24px);" +
+          "background:#23262a;opacity:0;transition:opacity 0.12s ease;z-index:2147483647";
+        var frame = document.createElement("iframe");
+        // referrerPolicy="origin": the page's frame-ancestors admits a registered
+        // CUSTOM DOMAIN only when this origin arrives as the Referer (approve.ts).
+        frame.referrerPolicy = "origin";
+        frame.src = APPROVE + "/approve";
+        frame.allowTransparency = "true";
+        frame.style.cssText =
+          "display:block;width:100%;height:100%;border:0;border-radius:24px;" +
+          "-webkit-clip-path:inset(0 round 24px);clip-path:inset(0 round 24px);background:#23262a";
+        wrap.appendChild(frame);
+        var revealTimer = null;
+
+        function cleanup() {
+          if (done) return;
+          done = true;
+          clearTimeout(revealTimer);
+          window.removeEventListener("message", onMessage);
+          document.removeEventListener("keydown", onKey, true);
+          wrap.remove();
+          scrim.remove();
+        }
+
+        function beacon(outcome) {
+          if (!grant) return;
+          try {
+            var payload = JSON.stringify({
+              grant: grant,
+              outcome: outcome,
+              ms_open: Date.now() - openedAt,
+            });
+            var url = APPROVE + "/approve/outcome";
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon(url, new Blob([payload], { type: "text/plain" }));
+            } else {
+              of(url, { method: "POST", body: payload, mode: "no-cors", keepalive: true }).catch(
+                function () {},
+              );
+            }
+          } catch (e) {}
+        }
+
+        // Dismiss = the same "denied" path as the modal's Cancel button, so the
+        // caller turns it into an AbortError (a cancel, not a failure).
+        function dismiss() {
+          if (done) return;
+          cleanup();
+          beacon("denied");
+          var error = new Error("hf: denied");
+          error.hfReason = "denied";
+          reject(error);
+        }
+
+        function onKey(event) {
+          if (event.key === "Escape" || event.keyCode === 27) dismiss();
+        }
+
+        function sendRequest() {
+          if (!ready || !grant || done) return;
+          frame.contentWindow.postMessage(
+            { source: "hf-approve", type: "request", grant: grant, job: job },
+            APPROVE,
+          );
+        }
+
+        function onMessage(event) {
+          if (event.origin !== APPROVE || event.source !== frame.contentWindow) return;
+          var data = event.data || {};
+          if (data.source !== "hf-approve") return;
+          // Size the clip wrapper to the page's reported card height, and reveal
+          // ONLY once sized — modal fades in at its final height (no shift/flash).
+          if (typeof data.h === "number" && data.h > 0) {
+            wrap.style.height = data.h + "px";
+            clearTimeout(revealTimer);
+            wrap.style.opacity = "1";
+          }
+          if (data.type === "ready") {
+            ready = true;
+            sendRequest();
+            return;
+          }
+          if (data.type !== "result") return;
+          cleanup();
+          if (data.ok && typeof data.intentId === "string") {
+            resolve(data.intentId);
+            return;
+          }
+          beacon("denied");
+          var error = new Error("hf: " + (data.reason || "denied"));
+          error.hfReason = data.reason || "denied";
+          reject(error);
+        }
+
+        window.addEventListener("message", onMessage);
+        // Close on background (scrim) click and on Escape. The scrim sits behind
+        // the card (wrap), so a click on it is a click OUTSIDE the modal. Escape
+        // is captured on the parent; the page also handles Escape when focus is
+        // inside the iframe (see approve-ui).
+        scrim.addEventListener("click", dismiss);
+        document.addEventListener("keydown", onKey, true);
+        document.documentElement.appendChild(scrim);
+        document.documentElement.appendChild(wrap);
+        // Fallback: reveal at the default height if the page never reports its
+        // size, so the modal is never stuck hidden.
+        revealTimer = setTimeout(function () {
+          wrap.style.opacity = "1";
+        }, 500);
+
+        of("/__auth/approval-grant", { method: "POST" })
+          .then(function (r) {
+            return r
+              .json()
+              .catch(function () {
+                return {};
+              })
+              .then(function (b) {
+                return { s: r.status, b: b };
+              });
+          })
+          .then(function (x) {
+            if (!x.b || !x.b.grant) {
+              cleanup();
+              reject(
+                new Error(
+                  x.s === 401 ? "hf: not signed in" : "hf: approval unavailable (" + x.s + ")",
+                ),
+              );
+              return;
+            }
+            grant = x.b.grant;
+            sendRequest();
+          })
+          .catch(function (error) {
+            cleanup();
+            reject(error);
+          });
+
+        setTimeout(function () {
+          if (!done) {
+            cleanup();
+            beacon("timeout");
+            reject(new Error("hf: approval timeout"));
+          }
+        }, 120000);
+      });
+      // Release the single-flight lock once this approval settles, so the next
+      // genuine generation can open a fresh modal.
+      var release = function () {
+        openModal = null;
+      };
+      openModal.then(release, release);
+      return openModal;
+    }
+
+    // Observability-only fetch patch: request log for debugging (__hfFetches +
+    // console). No interception, no body inspection, no classification — the
+    // approval flow is driven solely by window.hf.requestGeneration.
+    window.fetch = function (input, init) {
+      try {
+        var url = typeof input === "string" ? input : (input && input.url) || String(input);
+        var method = (init && init.method) || (input && input.method) || "GET";
+        window.__hfFetches.push({ url: url, method: method, ts: Date.now() });
+        console.log("[hf-fetch]", method, url);
+      } catch (e) {}
+      return of.apply(this, arguments);
+    };
+
+    // Public SDK. The app contract (see the builder instructions and
+    // docs/generation-approval): call this on the Generate action with the SDK
+    // WIRE shape of the exact submission (wire.jobSetType + wire.params — the
+    // approval is bound server-side to the hash of {job_set_type, params} of the
+    // actual submit body), thread the resolved intent id to the server as the
+    // confirmation token, and render a cancel quietly. opts.credits is an
+    // optional display-only estimate shown in the modal. The id is a token:
+    // never logged here, and apps must not log it either.
+    window.hf = {
+      requestGeneration: function (model, params, opts) {
+        // Fail fast on a bad job identity, BEFORE any UI. The approve page
+        // (protocol.ts) silently ignores a request whose job_set_type isn't a
+        // non-empty string or whose params don't survive structured clone —
+        // which would leave the modal stuck on "Waiting for the app…" with no
+        // way to reply. A typed rejection shows the app its own bug instead.
+        if (typeof model !== "string" || !model) {
+          return Promise.reject(
+            new TypeError("hf: requestGeneration(model, params) — model must be a non-empty string"),
+          );
+        }
+        if (typeof structuredClone === "function") {
+          try {
+            structuredClone(params);
+          } catch (e) {
+            return Promise.reject(
+              new TypeError("hf: requestGeneration params must be structured-cloneable (plain JSON)"),
+            );
+          }
+        }
+        return approve({ job_set_type: model, params: params }).then(
+          function (id) {
+            console.log("[hf] approved");
+            return id;
+          },
+          // Cancel → AbortError, per the app contract ("render a quiet cancelled
+          // state"). Other failures (not signed in, unavailable, timeout) bubble
+          // as-is — those ARE failures.
+          function (e) {
+            if (e && e.hfReason === "denied") {
+              console.log("[hf] cancelled");
+              throw new DOMException("Generation cancelled", "AbortError");
+            }
+            throw e;
+          },
+        );
+      },
+    };
+  } catch (e) {}
+})();
+</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>STOARI — Architectural Visualization</title>
+<style>
+:root{
+--bg:#000000;
+--ink:#f2f4f7;
+--muted:#8b9099;
+--line:rgba(255,255,255,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);
+font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+-webkit-font-smoothing:antialiased;overflow-x:hidden}
+canvas#gl{position:fixed;inset:0;z-index:0;display:block;pointer-events:none}
+#progress{position:fixed;top:0;left:0;height:1px;background:#fff;z-index:20;width:0;
+box-shadow:0 0 12px rgba(255,255,255,.8)}
+nav{position:fixed;top:0;left:0;right:0;z-index:15;display:flex;align-items:center;
+justify-content:space-between;padding:24px 34px;pointer-events:none;
+mix-blend-mode:difference}
+.brand{display:flex;align-items:center;gap:11px;font-size:13px;letter-spacing:.34em}
+.brand svg{width:16px;height:16px}
+.navlinks{display:flex;gap:30px;font-size:10px;letter-spacing:.2em;color:#cfd3d9;pointer-events:auto}
+.navlinks a{color:inherit;text-decoration:none;opacity:.75;transition:opacity .25s}
+.navlinks a:hover{opacity:1}
+.navcta{font-size:10px;letter-spacing:.2em;border:1px solid rgba(255,255,255,.5);
+padding:11px 20px;border-radius:999px;pointer-events:auto;text-decoration:none;color:#fff;
+transition:background .25s,color .25s}
+.navcta:hover{background:#fff;color:#000}
+#counter{position:fixed;right:34px;bottom:28px;z-index:15;font-size:10px;letter-spacing:.22em;
+color:var(--muted);mix-blend-mode:difference}
+#counter b{color:#fff;font-weight:400}
+main{position:relative;z-index:10}
+section{min-height:100svh;display:flex;align-items:center;padding:120px 34px;position:relative}
+.col{max-width:520px;width:100%}
+.col.right{margin-left:auto;text-align:right}
+section::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+background:linear-gradient(90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.55) 34%, transparent 62%)}
+section.rev::before{background:linear-gradient(270deg, rgba(0,0,0,.90) 0%, rgba(0,0,0,.66) 36%, transparent 66%)}
+section.hero::before{background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,.9) 100%)}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.3em;
+color:var(--muted);margin-bottom:26px}
+.eyebrow i{width:22px;height:1px;background:var(--muted);display:block}
+h1{font-size:clamp(34px,6.4vw,84px);line-height:.98;letter-spacing:-.035em;font-weight:400}
+h2{font-size:clamp(26px,3.6vw,46px);line-height:1.06;letter-spacing:-.025em;font-weight:400}
+.lede{margin-top:26px;font-size:13px;line-height:1.85;color:var(--muted);max-width:420px}
+.col.right .lede{margin-left:auto}
+.rule{height:1px;background:var(--line);margin:38px 0 28px}
+.list{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line);
+border-bottom:1px solid var(--line)}
+.list .row{background:#000;display:flex;gap:18px;align-items:baseline;padding:17px 2px}
+.list .row .n{font-size:10px;color:var(--muted);letter-spacing:.16em;min-width:26px}
+.list .row .t{font-size:13px;letter-spacing:.02em}
+.list .row .d{font-size:11px;color:var(--muted);margin-left:auto;text-align:right;
+max-width:210px;line-height:1.6}
+.stats{display:flex;gap:52px;flex-wrap:wrap;margin-top:38px}
+.stat .v{font-size:clamp(30px,4vw,48px);line-height:1;letter-spacing:-.03em}
+.stat .k{font-size:10px;letter-spacing:.22em;color:var(--muted);margin-top:11px}
+.steps{display:grid;gap:24px;margin-top:34px}
+.step{display:grid;grid-template-columns:38px 1fr;gap:18px;align-items:start}
+.step .sn{font-size:10px;letter-spacing:.16em;color:var(--muted);padding-top:4px}
+.step .st{font-size:14px;margin-bottom:8px}
+.step .sd{font-size:11.5px;line-height:1.75;color:var(--muted)}
+.bigmail{display:inline-block;margin-top:30px;font-size:clamp(18px,2.6vw,30px);
+letter-spacing:-.02em;color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.3);
+padding-bottom:6px;transition:border-color .3s}
+.bigmail:hover{border-color:#fff}
+.meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:56px;font-size:10px;
+letter-spacing:.2em;color:var(--muted)}
+.cue{position:absolute;left:34px;bottom:34px;font-size:10px;letter-spacing:.26em;
+color:var(--muted);display:flex;align-items:center;gap:12px}
+.cue .bar{width:44px;height:1px;background:rgba(255,255,255,.28);position:relative;overflow:hidden}
+.cue .bar::after{content:'';position:absolute;inset:0;background:#fff;
+animation:sweep 2.4s cubic-bezier(.7,0,.3,1) infinite}
+@keyframes sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.in .rv{opacity:1;transform:none}
+.in .rv:nth-child(2){transition-delay:.07s}
+.in .rv:nth-child(3){transition-delay:.14s}
+.in .rv:nth-child(4){transition-delay:.21s}
+.in .rv:nth-child(5){transition-delay:.28s}
+#loader{position:fixed;inset:0;z-index:60;background:#000;display:flex;
+flex-direction:column;align-items:center;justify-content:center;gap:18px;
+transition:opacity .9s ease;font-size:11px;letter-spacing:.4em;color:var(--muted)}
+#loader.hide{opacity:0;pointer-events:none;visibility:hidden}
+#bar{width:170px;height:1px;background:rgba(255,255,255,.15);overflow:hidden}
+#barIn{height:100%;width:0;background:#fff;transition:width .18s}
+@media(max-width:820px){
+nav{padding:16px 18px}.navlinks{display:none}
+section{padding:168px 18px 92px;min-height:100svh;align-items:flex-end}
+section::before,section.rev::before,section.hero::before{
+background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.22) 17%, rgba(0,0,0,.88) 33%, rgba(0,0,0,.95) 100%)}
+h2{font-size:clamp(24px,7vw,34px)}
+.lede{font-size:12px;margin-top:20px}
+.steps{gap:18px}
+.col.right{text-align:left;margin-left:0}
+.col.right .lede{margin-left:0}
+.list .row{flex-direction:column;gap:6px;padding:14px 2px}
+.list .row .d{margin-left:0;text-align:left;max-width:none}
+.stats{gap:30px}
+.cue{left:18px;bottom:26px}
+#counter{right:18px;bottom:26px}
+}
+</style>
+</head>
+<body>
+<div id="loader"><div>STOARI</div><div id="bar"><div id="barIn"></div></div><div id="pct">0%</div></div>
+<div id="progress"></div>
+<canvas id="gl"></canvas>
+<nav>
+<div class="brand">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+<circle cx="12" cy="4" r="2"/><path d="M12 6v14M5 13a7 7 0 0 0 14 0M7 11H3M21 11h-4"/>
+</svg><span>STOARI</span>
+</div>
+<div class="navlinks">
+<a href="#work">WORK</a><a href="#scale">SCALE</a><a href="#method">METHOD</a>
+</div>
+<a class="navcta" href="#contact">START A PROJECT</a>
+</nav>
+<main>
+<section class="hero" data-shape="0" data-label="INDEX">
+<div class="col">
+<div class="eyebrow rv"><i></i>ARCHITECTURAL VISUALIZATION</div>
+<h1 class="rv">Buildings before<br>they exist</h1>
+<p class="lede rv">Cinematic visualization and video for premium real estate and construction — built from surveys, drawings and real site conditions.</p>
+</div>
+<div class="cue"><span class="bar"></span>SCROLL</div>
+</section>
+<section id="work" data-shape="1" data-label="CAPABILITY">
+<div class="col">
+<div class="eyebrow rv"><i></i>01 — CAPABILITY</div>
+<h2 class="rv">Every surface,<br>before the first brick</h2>
+<p class="lede rv">The model is the deliverable. Geometry is locked to the drawings, materials are matched to specification, light is set to the real orientation of the site.</p>
+<div class="rule rv"></div>
+<div class="list rv">
+<div class="row"><span class="n">01</span><span class="t">Exterior stills</span><span class="d">Facades, landscape and context at final resolution</span></div>
+<div class="row"><span class="n">02</span><span class="t">Interior stills</span><span class="d">Furnished scenes with specified finishes</span></div>
+<div class="row"><span class="n">03</span><span class="t">Film &amp; animation</span><span class="d">Camera moves, fly-throughs, construction sequences</span></div>
+<div class="row"><span class="n">04</span><span class="t">Immersive walkthrough</span><span class="d">Real-time navigation of the finished volume</span></div>
+</div>
+</div>
+</section>
+<section id="scale" class="rev" data-shape="2" data-label="SCALE">
+<div class="col right">
+<div class="eyebrow rv"><i></i>02 — SCALE</div>
+<h2 class="rv">From a single villa<br>to a whole district</h2>
+<p class="lede rv">The same pipeline handles a private house and a master plan of two hundred blocks. Nothing is redrawn between scales — the model carries through.</p>
+<div class="stats rv">
+<div class="stat"><div class="v">1:1</div><div class="k">SURVEY ACCURATE</div></div>
+<div class="stat"><div class="v">8K</div><div class="k">DELIVERY</div></div>
+<div class="stat"><div class="v">72h</div><div class="k">FIRST DRAFT</div></div>
+</div>
+</div>
+</section>
+<section id="method" data-shape="3" data-label="METHOD">
+<div class="col">
+<div class="eyebrow rv"><i></i>03 — METHOD</div>
+<h2 class="rv">Four passes,<br>no guesswork</h2>
+<div class="steps rv">
+<div class="step"><div class="sn">01</div><div><div class="st">Intake</div><div class="sd">Drawings, survey, site photographs and material schedule are collected before any modelling starts.</div></div></div>
+<div class="step"><div class="sn">02</div><div><div class="st">Geometry lock</div><div class="sd">The volume is built and confirmed against the plans. Nothing downstream moves after this point.</div></div></div>
+<div class="step"><div class="sn">03</div><div><div class="st">Light &amp; material</div><div class="sd">Sun position from the real coordinates and orientation. Finishes matched to the specification.</div></div></div>
+<div class="step"><div class="sn">04</div><div><div class="st">Delivery</div><div class="sd">Stills, film and source files, in the formats your team already works in.</div></div></div>
+</div>
+</div>
+</section>
+<section id="contact" class="rev" data-shape="0" data-label="CONTACT">
+<div class="col right">
+<div class="eyebrow rv"><i></i>04 — CONTACT</div>
+<h2 class="rv">Send the drawings.<br>See it standing.</h2>
+<a class="bigmail rv" href="mailto:hello@stoari.com">hello@stoari.com</a>
+<div class="meta rv"><span>STOARI STUDIO</span><span>VISUALIZATION &amp; FILM</span><span>WORLDWIDE</span></div>
+</div>
+</section>
+</main>
+<div id="counter"><b id="cNow">01</b> / 05 &nbsp;·&nbsp; <span id="cLabel">INDEX</span></div>
+<script>
+(function(){
+"use strict";
+const isCoarse = matchMedia('(pointer: coarse)').matches || innerWidth < 820;
+const COUNT   = isCoarse ? 15000 : 46000;
+const RINGN   = isCoarse ? 4200  : 9000;
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl', {antialias:false, alpha:false, premultipliedAlpha:false});
+if(!gl){ document.getElementById('loader').innerHTML='WEBGL NOT AVAILABLE'; return; }
+function compile(t,src){
+const s=gl.createShader(t); gl.shaderSource(s,src); gl.compileShader(s);
+if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+return s;
+}
+function link(vs,fs){
+const p=gl.createProgram();
+gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));
+gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs));
+gl.linkProgram(p);
+if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+return p;
+}
+const pProg = link(`
+attribute vec3 aPos; attribute float aGlow; attribute float aRand;
+uniform mat4 uMV, uP; uniform float uSize;
+varying float vG, vR;
+void main(){
+vG=aGlow; vR=aRand;
+vec4 mv = uMV * vec4(aPos,1.0);
+gl_PointSize = uSize * aRand * (1.0 + vG*2.0) * (640.0 / max(-mv.z, 1.0));
+gl_Position = uP * mv;
+}`,`
+precision mediump float;
+uniform float uAlpha;
+varying float vG, vR;
+void main(){
+vec2 d = gl_PointCoord - 0.5;
+float r = length(d);
+if(r > 0.5) discard;
+float core = smoothstep(0.5, 0.0, r);
+core *= core;
+float lum = mix(0.55, 0.95, clamp(vR-0.35, 0.0, 1.0));
+lum = mix(lum, 1.0, clamp(vG*1.8, 0.0, 1.0));
+gl_FragColor = vec4(vec3(lum), core * uAlpha * (0.34 + vG*0.66));
+}`);
+const PL={
+aPos:gl.getAttribLocation(pProg,'aPos'),
+aGlow:gl.getAttribLocation(pProg,'aGlow'),
+aRand:gl.getAttribLocation(pProg,'aRand'),
+uMV:gl.getUniformLocation(pProg,'uMV'),
+uP:gl.getUniformLocation(pProg,'uP'),
+uSize:gl.getUniformLocation(pProg,'uSize'),
+uAlpha:gl.getUniformLocation(pProg,'uAlpha')
+};
+const QUAD_VS = `
+attribute vec2 aP; varying vec2 vUv;
+void main(){ vUv = aP*0.5 + 0.5; gl_Position = vec4(aP,0.0,1.0); }`;
+const brightProg = link(QUAD_VS, `
+precision mediump float; uniform sampler2D uTex; varying vec2 vUv;
+void main(){
+vec3 c = texture2D(uTex, vUv).rgb;
+float l = dot(c, vec3(0.2126,0.7152,0.0722));
+gl_FragColor = vec4(c * smoothstep(0.16, 0.62, l), 1.0);
+}`);
+const blurProg = link(QUAD_VS, `
+precision mediump float; uniform sampler2D uTex; uniform vec2 uDir; varying vec2 vUv;
+void main(){
+vec3 s  = texture2D(uTex, vUv).rgb * 0.2270270270;
+s += (texture2D(uTex, vUv + uDir*1.3846153846).rgb + texture2D(uTex, vUv - uDir*1.3846153846).rgb) * 0.3162162162;
+s += (texture2D(uTex, vUv + uDir*3.2307692308).rgb + texture2D(uTex, vUv - uDir*3.2307692308).rgb) * 0.0702702703;
+gl_FragColor = vec4(s, 1.0);
+}`);
+const compProg = link(QUAD_VS, `
+precision mediump float;
+uniform sampler2D uScene, uBloom; uniform float uAmt;
+varying vec2 vUv;
+void main(){
+vec3 c = texture2D(uScene, vUv).rgb;
+vec3 b = texture2D(uBloom, vUv).rgb;
+c += b * uAmt;
+vec2 q = vUv - 0.5;
+c *= 1.0 - dot(q,q) * 0.42;
+c = c / (c + vec3(1.25)) * 2.05;
+gl_FragColor = vec4(c, 1.0);
+}`);
+const quadBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+function drawQuad(prog){
+const l = gl.getAttribLocation(prog,'aP');
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.enableVertexAttribArray(l);
+gl.vertexAttribPointer(l, 2, gl.FLOAT, false, 0, 0);
+gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+function makeFBO(w,h){
+const tex=gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D,tex);
+gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+const fb=gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
+gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
+gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+return {fb,tex,w,h};
+}
+let sceneFBO=null, bloomA=null, bloomB=null;
+function segSampler(){
+const segs=[]; let total=0;
+return {
+add(a,b,weight){
+const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2];
+const len=Math.sqrt(dx*dx+dy*dy+dz*dz)*(weight||1);
+total+=len; segs.push({a,b,acc:total});
+return this;
+},
+sample(n,jitter){
+const out=[]; const j=jitter===undefined?2.2:jitter;
+for(let i=0;i<n;i++){
+const r=Math.random()*total;
+let lo=0,hi=segs.length-1;
+while(lo<hi){ const m=(lo+hi)>>1; if(segs[m].acc<r) lo=m+1; else hi=m; }
+const s=segs[lo], t=Math.random();
+out.push([
+s.a[0]+(s.b[0]-s.a[0])*t + (Math.random()-0.5)*j,
+s.a[1]+(s.b[1]-s.a[1])*t + (Math.random()-0.5)*j,
+s.a[2]+(s.b[2]-s.a[2])*t + (Math.random()-0.5)*j
+]);
+}
+return out;
+}
+};
+}
+function wordmarkPoints(text){
+const W=1600,H=440;
+const c=document.createElement('canvas'); c.width=W; c.height=H;
+const g=c.getContext('2d');
+g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle';
+const font=s=>`700 ${s}px ui-monospace, Menlo, Consolas, "Courier New", monospace`;
+let size=300; g.font=font(size);
+try{ g.letterSpacing='18px'; }catch(e){}
+while(g.measureText(text).width>W*0.9 && size>40){ size-=8; g.font=font(size); }
+g.fillText(text,W/2,H/2);
+const d=g.getImageData(0,0,W,H).data, pts=[], sc=960/W;
+for(let y=0;y<H;y+=2) for(let x=0;x<W;x+=2)
+if(d[(y*W+x)*4+3]>128) pts.push([(x-W/2)*sc, -(y-H/2)*sc, (Math.random()-0.5)*26]);
+return pts;
+}
+function housePoints(n){
+const W=560,D=380,Hw=210,Hr=150;
+const x0=-W/2,x1=W/2, z0=-D/2,z1=D/2, y0=-Hw/2, y1=Hw/2, yr=y1+Hr;
+const S=segSampler();
+const P=(x,y,z)=>[x,y,z];
+[[y0,1.0],[y1,1.0]].forEach(([y,w])=>{
+S.add(P(x0,y,z0),P(x1,y,z0),w).add(P(x1,y,z0),P(x1,y,z1),w)
+.add(P(x1,y,z1),P(x0,y,z1),w).add(P(x0,y,z1),P(x0,y,z0),w);
+});
+S.add(P(x0,y0,z0),P(x0,y1,z0),1).add(P(x1,y0,z0),P(x1,y1,z0),1)
+.add(P(x1,y0,z1),P(x1,y1,z1),1).add(P(x0,y0,z1),P(x0,y1,z1),1);
+S.add(P(0,yr,z0),P(0,yr,z1),1.4);
+S.add(P(x0,y1,z0),P(0,yr,z0),1.2).add(P(x1,y1,z0),P(0,yr,z0),1.2);
+S.add(P(x0,y1,z1),P(0,yr,z1),1.2).add(P(x1,y1,z1),P(0,yr,z1),1.2);
+for(let i=1;i<9;i++){
+const x=x0+W*i/9;
+S.add(P(x,y0,z0),P(x,y1,z0),0.55);
+S.add(P(x,y0,z1),P(x,y1,z1),0.35);
+}
+for(let i=1;i<6;i++){
+const z=z0+D*i/6;
+S.add(P(x0,y0,z),P(x1,y0,z),0.30);
+}
+for(let i=1;i<9;i++){
+const x=x0+W*i/9;
+S.add(P(x,y0,z0),P(x,y0,z1),0.22);
+}
+const ym=y0+Hw*0.5;
+S.add(P(x0,ym,z0),P(x1,ym,z0),0.7).add(P(x0,ym,z1),P(x1,ym,z1),0.5)
+.add(P(x0,ym,z0),P(x0,ym,z1),0.5).add(P(x1,ym,z0),P(x1,ym,z1),0.5);
+return S.sample(n, 2.4);
+}
+function cityPoints(n){
+const S=segSampler();
+const cols=9, rows=4, cw=118, cd=118, gap=16;
+const ox=-(cols*cw+(cols-1)*gap)/2, oz=-(rows*cd+(rows-1)*gap)/2;
+let seed=7;
+const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+const cx=ox+c*(cw+gap), cz=oz+r*(cd+gap);
+const w=cw*(0.5+rnd()*0.42), d=cd*(0.5+rnd()*0.42);
+const cxx=cx+cw/2, czz=cz+cd/2;
+const h=70+rnd()*rnd()*430;
+const y0=-260, y1=y0+h;
+const X0=cxx-w/2,X1=cxx+w/2,Z0=czz-d/2,Z1=czz+d/2;
+const P=(x,y,z)=>[x,y,z];
+S.add(P(X0,y0,Z0),P(X0,y1,Z0),1).add(P(X1,y0,Z0),P(X1,y1,Z0),1)
+.add(P(X1,y0,Z1),P(X1,y1,Z1),1).add(P(X0,y0,Z1),P(X0,y1,Z1),1);
+S.add(P(X0,y1,Z0),P(X1,y1,Z0),1.3).add(P(X1,y1,Z0),P(X1,y1,Z1),1.3)
+.add(P(X1,y1,Z1),P(X0,y1,Z1),1.3).add(P(X0,y1,Z1),P(X0,y1,Z0),1.3);
+const bands=Math.max(2,Math.floor(h/58));
+for(let b=1;b<bands;b++){
+const y=y0+h*b/bands;
+S.add(P(X0,y,Z0),P(X1,y,Z0),0.30).add(P(X1,y,Z0),P(X1,y,Z1),0.22)
+.add(P(X1,y,Z1),P(X0,y,Z1),0.30).add(P(X0,y,Z1),P(X0,y,Z0),0.22);
+}
+}
+return S.sample(n, 1.8);
+}
+function ringPoints(n){
+const pts=[];
+const AX=0.92, AZ=-0.46;
+const ca=Math.cos(AX), sa=Math.sin(AX), cz=Math.cos(AZ), sz=Math.sin(AZ);
+const push=(x,y,z)=>{
+const y1=y*ca - z*sa, z1=y*sa + z*ca;
+pts.push([x*cz - y1*sz, x*sz + y1*cz, z1]);
+};
+for(let i=0;i<n;i++){
+const t=Math.random()*Math.PI*2;
+const u=Math.random();
+const r=250 + Math.pow(u,0.55)*150;
+const thin=(1-u)*26 + 4;
+push(Math.cos(t)*r, (Math.random()-0.5)*thin, Math.sin(t)*r);
+}
+for(let i=0;i<n*0.12;i++){
+const t=Math.random()*Math.PI*2;
+const r=236+Math.random()*8;
+push(Math.cos(t)*r,(Math.random()-0.5)*4,Math.sin(t)*r);
+}
+return pts;
+}
+const SHAPES=[
+{name:'INDEX',      pts: wordmarkPoints('STOARI')},
+{name:'CAPABILITY', pts: housePoints(Math.max(COUNT,20000))},
+{name:'SCALE',      pts: cityPoints(Math.max(COUNT,20000))},
+{name:'METHOD',     pts: ringPoints(Math.max(COUNT,20000))}
+];
+const pos=new Float32Array(COUNT*3), vel=new Float32Array(COUNT*3),
+home=new Float32Array(COUNT*3), from=new Float32Array(COUNT*3),
+to=new Float32Array(COUNT*3), glow=new Float32Array(COUNT),
+rnd=new Float32Array(COUNT);
+function fillTarget(buf, shape){
+const p=shape.pts, len=p.length;
+for(let i=0;i<COUNT;i++){
+const s=p[(i*7919)%len];
+buf[i*3]=s[0]; buf[i*3+1]=s[1]; buf[i*3+2]=s[2];
+}
+}
+fillTarget(home,SHAPES[0]); fillTarget(from,SHAPES[0]); fillTarget(to,SHAPES[0]);
+for(let i=0;i<COUNT;i++){
+pos[i*3]=(Math.random()-0.5)*2600;
+pos[i*3+1]=(Math.random()-0.5)*1600;
+pos[i*3+2]=(Math.random()-0.5)*1400;
+rnd[i]=0.42+Math.random()*0.98;
+}
+function mkBuf(data,usage){
+const b=gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER,b);
+gl.bufferData(gl.ARRAY_BUFFER,data,usage);
+return b;
+}
+const bPos=mkBuf(pos,gl.DYNAMIC_DRAW),
+bGlow=mkBuf(glow,gl.DYNAMIC_DRAW),
+bRand=mkBuf(rnd,gl.STATIC_DRAW);
+const ringPos=new Float32Array(RINGN*3), ringGlow=new Float32Array(RINGN),
+ringRand=new Float32Array(RINGN), ringR=new Float32Array(RINGN);
+{
+let i=0;
+const RINGS=54;
+while(i<RINGN){
+const ri=Math.floor((i/RINGN)*RINGS);
+const r=115 + Math.pow(ri/RINGS,0.88)*1190;
+const t=Math.random()*Math.PI*2;
+ringPos[i*3]=Math.cos(t)*r;
+ringPos[i*3+1]=(Math.random()-0.5)*3;
+ringPos[i*3+2]=Math.sin(t)*r;
+ringR[i]=r;
+ringRand[i]=0.5+Math.random()*0.7;
+i++;
+}
+void RINGS;
+}
+const bRingPos=mkBuf(ringPos,gl.STATIC_DRAW),
+bRingGlow=mkBuf(ringGlow,gl.DYNAMIC_DRAW),
+bRingRand=mkBuf(ringRand,gl.STATIC_DRAW);
+const STARS=900;
+const starPos=new Float32Array(STARS*3), starGlow=new Float32Array(STARS), starRand=new Float32Array(STARS);
+for(let i=0;i<STARS;i++){
+starPos[i*3]=(Math.random()-0.5)*4000;
+starPos[i*3+1]=(Math.random()-0.5)*2600;
+starPos[i*3+2]=-900-Math.random()*1800;
+starRand[i]=0.35+Math.random()*0.45;
+}
+const bStarPos=mkBuf(starPos,gl.STATIC_DRAW),
+bStarGlow=mkBuf(starGlow,gl.STATIC_DRAW),
+bStarRand=mkBuf(starRand,gl.STATIC_DRAW);
+function bindP(bp,bg,br){
+gl.bindBuffer(gl.ARRAY_BUFFER,bp); gl.enableVertexAttribArray(PL.aPos);  gl.vertexAttribPointer(PL.aPos ,3,gl.FLOAT,false,0,0);
+gl.bindBuffer(gl.ARRAY_BUFFER,bg); gl.enableVertexAttribArray(PL.aGlow); gl.vertexAttribPointer(PL.aGlow,1,gl.FLOAT,false,0,0);
+gl.bindBuffer(gl.ARRAY_BUFFER,br); gl.enableVertexAttribArray(PL.aRand); gl.vertexAttribPointer(PL.aRand,1,gl.FLOAT,false,0,0);
+}
+const MP=new Float32Array(16), MV=new Float32Array(16), MVF=new Float32Array(16);
+const FOV=55*Math.PI/180, CAM_Z=780;
+function perspective(out,fovy,aspect,near,far){
+const f=1/Math.tan(fovy/2), nf=1/(near-far);
+out.fill(0);
+out[0]=f/aspect; out[5]=f; out[10]=(far+near)*nf; out[11]=-1; out[14]=2*far*near*nf;
+}
+function setMV(out,ry,rx,k,ox,oy){
+const cy=Math.cos(ry),sy=Math.sin(ry),cx=Math.cos(rx),sx=Math.sin(rx);
+out[0]=cy*k;     out[1]=0;      out[2]=-sy*k;    out[3]=0;
+out[4]=sy*sx*k;  out[5]=cx*k;   out[6]=cy*sx*k;  out[7]=0;
+out[8]=sy*cx*k;  out[9]=-sx*k;  out[10]=cy*cx*k; out[11]=0;
+out[12]=ox||0;   out[13]=oy||0; out[14]=-CAM_Z;  out[15]=1;
+}
+function setMVFloor(out,pitch,k,dropY,ox){
+const c=Math.cos(pitch), s=Math.sin(pitch);
+out[0]=k;    out[1]=0;    out[2]=0;     out[3]=0;
+out[4]=0;    out[5]=c*k;  out[6]=s*k;   out[7]=0;
+out[8]=0;    out[9]=-s*k; out[10]=c*k;  out[11]=0;
+out[12]=ox||0; out[13]=dropY; out[14]=-CAM_Z; out[15]=1;
+}
+let ndcX=0,ndcY=0,lastInput=-1e9;
+let smX=0,smY=0,smZ=0;
+function setPointer(cx,cy){
+ndcX=(cx/innerWidth)*2-1;
+ndcY=-(cy/innerHeight)*2+1;
+lastInput=performance.now();
+}
+addEventListener('pointermove',e=>setPointer(e.clientX,e.clientY),{passive:true});
+addEventListener('touchmove',e=>{ if(e.touches[0]) setPointer(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+let shapeIdx=0, morphT=1;
+const OFFSETS = [[0,170],[250,30],[-250,30],[250,10],[-250,0]];
+let tgtOX=0, tgtOY=isCoarse?268:170, offX=0, offY=isCoarse?268:170;
+function morphTo(i){
+if(i===shapeIdx) return;
+from.set(home);
+shapeIdx=i;
+fillTarget(to,SHAPES[i]);
+morphT=0;
+}
+const sections=[].slice.call(document.querySelectorAll('section'));
+const elProgress=document.getElementById('progress');
+const elNow=document.getElementById('cNow'), elLabel=document.getElementById('cLabel');
+let scrollN=0;
+function onScroll(){
+const max=Math.max(1, document.body.scrollHeight - innerHeight);
+scrollN=Math.min(1, Math.max(0, scrollY/max));
+elProgress.style.width=(scrollN*100)+'%';
+const mid=scrollY+innerHeight*0.5;
+let idx=0;
+for(let i=0;i<sections.length;i++) if(sections[i].offsetTop<=mid) idx=i;
+morphTo(+sections[idx].dataset.shape);
+const o = OFFSETS[Math.min(idx, OFFSETS.length-1)];
+if(isCoarse){ tgtOX=0; tgtOY=268; } else { tgtOX=o[0]; tgtOY=o[1]; }
+elNow.textContent=String(idx+1).padStart(2,'0');
+elLabel.textContent=sections[idx].dataset.label;
+}
+addEventListener('scroll',onScroll,{passive:true});
+const io=new IntersectionObserver(es=>{
+es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:0.22});
+sections.forEach(s=>io.observe(s));
+const R=195, PUSH=4.2, SPRING=0.045, DAMP=0.862;
+const BASE_SIZE = isCoarse ? 2.3 : 2.1;
+let rotY=0, rotX=0, prevT=0, acc=0, modelScale=1, dpr=1;
+function resize(){
+dpr=Math.min(devicePixelRatio||1, isCoarse?2:1.75);
+const w=Math.floor(innerWidth*dpr), h=Math.floor(innerHeight*dpr);
+canvas.width=w; canvas.height=h;
+canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px';
+const aspect=innerWidth/innerHeight;
+perspective(MP,FOV,aspect,1,7000);
+const halfW=Math.tan(FOV/2)*CAM_Z*aspect;
+modelScale=Math.min(isCoarse?1:0.82, halfW*1.75/1150);
+sceneFBO=makeFBO(w,h);
+const bw=Math.max(2,w>>2), bh=Math.max(2,h>>2);
+bloomA=makeFBO(bw,bh); bloomB=makeFBO(bw,bh);
+}
+addEventListener('resize',()=>{ resize(); onScroll(); });
+resize();
+function drawScene(now){
+gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFBO.fb);
+gl.viewport(0,0,sceneFBO.w,sceneFBO.h);
+gl.clearColor(0,0,0,1);
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.disable(gl.DEPTH_TEST);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+gl.useProgram(pProg);
+gl.uniformMatrix4fv(PL.uP,false,MP);
+gl.uniform1f(PL.uSize, BASE_SIZE*Math.max(0.86, modelScale));
+setMV(MV, rotY*0.35, rotX*0.35, 1, 0, 0);
+gl.uniformMatrix4fv(PL.uMV,false,MV);
+gl.uniform1f(PL.uAlpha, 0.55);
+bindP(bStarPos,bStarGlow,bStarRand);
+gl.drawArrays(gl.POINTS,0,STARS);
+setMVFloor(MVF, -0.46, modelScale, (offY-330)*0.9, offX*0.85);
+gl.uniformMatrix4fv(PL.uMV,false,MVF);
+gl.uniform1f(PL.uAlpha, 0.95);
+gl.bindBuffer(gl.ARRAY_BUFFER,bRingGlow); gl.bufferSubData(gl.ARRAY_BUFFER,0,ringGlow);
+bindP(bRingPos,bRingGlow,bRingRand);
+gl.drawArrays(gl.POINTS,0,RINGN);
+setMV(MV, rotY, rotX, modelScale, offX, offY);
+gl.uniformMatrix4fv(PL.uMV,false,MV);
+gl.uniform1f(PL.uAlpha, 1.0);
+gl.bindBuffer(gl.ARRAY_BUFFER,bPos);  gl.bufferSubData(gl.ARRAY_BUFFER,0,pos);
+gl.bindBuffer(gl.ARRAY_BUFFER,bGlow); gl.bufferSubData(gl.ARRAY_BUFFER,0,glow);
+bindP(bPos,bGlow,bRand);
+gl.drawArrays(gl.POINTS,0,COUNT);
+}
+function post(){
+gl.disable(gl.BLEND);
+gl.bindFramebuffer(gl.FRAMEBUFFER,bloomA.fb);
+gl.viewport(0,0,bloomA.w,bloomA.h);
+gl.useProgram(brightProg);
+gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, sceneFBO.tex);
+gl.uniform1i(gl.getUniformLocation(brightProg,'uTex'),0);
+drawQuad(brightProg);
+gl.useProgram(blurProg);
+const uT=gl.getUniformLocation(blurProg,'uTex'), uD=gl.getUniformLocation(blurProg,'uDir');
+gl.uniform1i(uT,0);
+for(let i=0;i<2;i++){
+const spread=1.0+i*1.7;
+gl.bindFramebuffer(gl.FRAMEBUFFER,bloomB.fb);
+gl.viewport(0,0,bloomB.w,bloomB.h);
+gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,bloomA.tex);
+gl.uniform2f(uD, spread/bloomA.w, 0);
+drawQuad(blurProg);
+gl.bindFramebuffer(gl.FRAMEBUFFER,bloomA.fb);
+gl.viewport(0,0,bloomA.w,bloomA.h);
+gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,bloomB.tex);
+gl.uniform2f(uD, 0, spread/bloomA.h);
+drawQuad(blurProg);
+}
+gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+gl.viewport(0,0,canvas.width,canvas.height);
+gl.useProgram(compProg);
+gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,sceneFBO.tex);
+gl.uniform1i(gl.getUniformLocation(compProg,'uScene'),0);
+gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,bloomA.tex);
+gl.uniform1i(gl.getUniformLocation(compProg,'uBloom'),1);
+gl.uniform1f(gl.getUniformLocation(compProg,'uAmt'), 1.65);
+drawQuad(compProg);
+}
+function frame(now){
+requestAnimationFrame(frame);
+const dt = prevT ? Math.min(now-prevT, 50) : 16.7;
+prevT=now;
+const idle=(now-lastInput)>2800;
+if(idle){
+const t=now*0.00020;
+ndcX=Math.sin(t*1.7)*0.52;
+ndcY=Math.sin(t*1.1+1.3)*0.34;
+}
+offX += (tgtOX-offX)*0.055;
+offY += (tgtOY-offY)*0.055;
+rotY=Math.sin(now*0.00012)*0.16 + scrollN*0.5;
+rotX=Math.sin(now*0.00009)*0.06;
+const halfH=Math.tan(FOV/2)*CAM_Z;
+const wx=ndcX*halfH*(innerWidth/innerHeight)-offX, wy=ndcY*halfH-offY;
+const cy=Math.cos(-rotY), sy=Math.sin(-rotY);
+const x1=wx*cy, y1=wy, z1=-wx*sy;
+const cx=Math.cos(-rotX), sx=Math.sin(-rotX);
+const curX=x1/modelScale, curY=(y1*cx - z1*sx)/modelScale, curZ=(y1*sx + z1*cx)/modelScale;
+const k=idle?0.05:0.20;
+smX+=(curX-smX)*k; smY+=(curY-smY)*k; smZ+=(curZ-smZ)*k;
+if(morphT<1){
+morphT=Math.min(1, morphT + dt/1700);
+const t=morphT, e = t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+for(let i=0;i<COUNT*3;i++) home[i]=from[i]+(to[i]-from[i])*e;
+}
+acc+=dt;
+let steps=0;
+while(acc>=16.7 && steps<2){ acc-=16.7; steps++; }
+if(steps===0 && dt>8) steps=1;
+if(acc>40) acc=0;
+const R2=R*R;
+for(let st=0;st<steps;st++)
+for(let i=0;i<COUNT;i++){
+const i3=i*3;
+let px=pos[i3],py=pos[i3+1],pz=pos[i3+2];
+let vx=vel[i3],vy=vel[i3+1],vz=vel[i3+2];
+const dx=px-smX,dy=py-smY,dz=(pz-smZ)*0.45;
+const d2=dx*dx+dy*dy+dz*dz;
+let g=0;
+if(d2<R2){
+const d=Math.sqrt(d2)+0.001, f=1-d/R, s=(f*f)*PUSH/d;
+vx+=dx*s; vy+=dy*s; vz+=dz*s; g=f;
+}
+vx=(vx+(home[i3]  -px)*SPRING)*DAMP;
+vy=(vy+(home[i3+1]-py)*SPRING)*DAMP;
+vz=(vz+(home[i3+2]-pz)*SPRING)*DAMP;
+pos[i3]=px+vx; pos[i3+1]=py+vy; pos[i3+2]=pz+vz;
+vel[i3]=vx; vel[i3+1]=vy; vel[i3+2]=vz;
+const sp=Math.min(1,(vx*vx+vy*vy+vz*vz)*0.0035);
+glow[i]+=((g>sp?g:sp)-glow[i])*0.24;
+}
+const wt=now*0.0011;
+for(let i=0;i<RINGN;i++){
+const r=ringR[i];
+let w=Math.sin(r*0.0135 - wt*1.9);
+w=w>0?w:0; w*=w; w*=w;
+const fall=1-Math.min(1,(r-110)/1180);
+ringGlow[i]=w*fall*0.95;
+}
+drawScene(now);
+post();
+}
+let p=0;
+const barIn=document.getElementById('barIn'), pct=document.getElementById('pct');
+const tick=setInterval(()=>{
+p=Math.min(100,p+8+Math.random()*14);
+barIn.style.width=p+'%'; pct.textContent=Math.round(p)+'%';
+if(p>=100){
+clearInterval(tick);
+document.getElementById('loader').classList.add('hide');
+sections[0].classList.add('in');
+}
+},70);
+onScroll();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
