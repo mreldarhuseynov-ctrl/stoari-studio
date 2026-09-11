@@ -30,6 +30,13 @@ export const BRAND = {
   /** Digits only, country code first — that is the format wa.me expects. */
   whatsapp: '34610826619',
   whatsappLabel: '+34 610 826 619',
+  /**
+   * The same number again, as something to ring. This coast does business on
+   * the phone, and until now the site offered no way to make one: mail and
+   * WhatsApp only.
+   */
+  phone: '+34 610 826 619',
+  phoneHref: 'tel:+34610826619',
   /** Clean URL: the igsh/utm parameters on a shared link are QR tracking. */
   instagram: 'https://www.instagram.com/stoaristudio',
   instagramLabel: '@stoaristudio',
@@ -162,14 +169,38 @@ export const WORK_MEDIA = [
   },
 ]
 
-type Copy = {
+export type Copy = {
   nav: { label: string; href: string }[]
   cta: string
+  /** Sits in the corner from the hero down — one tap to the form, anywhere. */
+  stickyCta: string
   labels: string[]
+  /**
+   * The enquiry form. It did not exist until now, and that was the largest hole
+   * in the site: a developer arriving from a cold email could read the prices
+   * and then had nothing to press. Four fields and no more — every extra field
+   * costs replies.
+   */
+  form: {
+    title: [string, string]
+    lede: string
+    name: string
+    company: string
+    object: string
+    when: string
+    submit: string
+    sending: string
+    note: string
+    done: string
+    doneNote: string
+    wa: string
+  }
   hero: {
     eyebrow: string
     title: [string, string]
     lede: string
+    /** Who this is for and what it starts at — the anchor, right under the title. */
+    audience: string
     /** Their move, and it is the right one: the hero points at the prices. */
     cta: string
     cue: string
@@ -224,11 +255,27 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'QUESTIONS', href: '#faq' },
     ],
     cta: 'START A PROJECT',
+    stickyCta: 'SEND A PROPERTY',
+    form: {
+      title: ['Send the property.', 'A quote comes back today.'],
+      lede: 'Four lines. An address or a link is enough to start — drawings can follow.',
+      name: 'Your name',
+      company: 'Company',
+      object: 'The property — address, link, or a line about it',
+      when: 'When do you need it',
+      submit: 'SEND',
+      sending: 'SENDING…',
+      note: 'We use what you write here to answer you, and for nothing else.',
+      done: 'Got it.',
+      doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
+      wa: 'CONTINUE ON WHATSAPP',
+    },
     labels: ['INDEX', 'WORK', 'PACKAGES', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'LEADS & AUTOMATION', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'ARCHITECTURAL VISUALIZATION',
       title: ['Buildings before', 'they exist'],
       lede: 'Visualization, film, photography and the page that sells them — for villas, apartments and developments on the Costa del Sol. Scripts included: we say what to shoot and what to say on camera.',
+      audience: 'For developers and agents on the Costa del Sol · projects from €950',
       cta: 'SEE THE PACKAGES',
       cue: 'SCROLL',
     },
@@ -403,11 +450,27 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'PREGUNTAS', href: '#faq' },
     ],
     cta: 'EMPEZAR UN PROYECTO',
+    stickyCta: 'ENVIAR INMUEBLE',
+    form: {
+      title: ['Mándanos el inmueble.', 'El presupuesto sale hoy.'],
+      lede: 'Cuatro líneas. Con una dirección o un enlace basta para empezar; los planos pueden venir después.',
+      name: 'Tu nombre',
+      company: 'Empresa',
+      object: 'El inmueble — dirección, enlace o una línea sobre él',
+      when: 'Para cuándo lo necesitas',
+      submit: 'ENVIAR',
+      sending: 'ENVIANDO…',
+      note: 'Usamos lo que escribas aquí para responderte y para nada más.',
+      done: 'Recibido.',
+      doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp es más rápido, escribe ahí.',
+      wa: 'SEGUIR POR WHATSAPP',
+    },
     labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'LEADS Y AUTOMATIZACIÓN', 'DESPLAZAMIENTO', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'VISUALIZACIÓN ARQUITECTÓNICA',
       title: ['Ver el edificio', 'antes de construirlo'],
       lede: 'Visualización, vídeo, fotografía y la página que lo vende — para villas, apartamentos y promociones en la Costa del Sol. Guiones incluidos: decimos qué rodar y qué decir ante la cámara.',
+      audience: 'Para promotores y agentes de la Costa del Sol · proyectos desde 950 €',
       cta: 'VER LOS PAQUETES',
       cue: 'BAJAR',
     },
@@ -582,11 +645,27 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'ВОПРОСЫ', href: '#faq' },
     ],
     cta: 'НАЧАТЬ ПРОЕКТ',
+    stickyCta: 'ПРИСЛАТЬ ОБЪЕКТ',
+    form: {
+      title: ['Пришлите объект.', 'Смета вернётся сегодня.'],
+      lede: 'Четыре строки. Чтобы начать, хватит адреса или ссылки — чертежи можно прислать потом.',
+      name: 'Как вас зовут',
+      company: 'Компания',
+      object: 'Объект — адрес, ссылка или строка о нём',
+      when: 'К какому сроку нужно',
+      submit: 'ОТПРАВИТЬ',
+      sending: 'ОТПРАВЛЯЕМ…',
+      note: 'То, что вы напишете здесь, используем только чтобы ответить.',
+      done: 'Получили.',
+      doneNote: 'Смета вернётся в тот же день. Если в WhatsApp быстрее — напишите туда.',
+      wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
+    },
     labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'ЗАЯВКИ И АВТОМАТИЗАЦИЯ', 'ВЫЕЗД', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'АРХИТЕКТУРНАЯ ВИЗУАЛИЗАЦИЯ',
       title: ['Покажем объект', 'до начала стройки'],
       lede: 'Визуализация, съёмка, фотографии и сайт — под один проект и в одном стиле. Виллы, апартаменты и посёлки на Коста-дель-Соль. Сценарии входят: говорим, что снимать и что сказать в кадре.',
+      audience: 'Застройщикам и агентствам Коста-дель-Соль · проекты от 950 €',
       cta: 'СМОТРЕТЬ ПАКЕТЫ',
       cue: 'ВНИЗ',
     },

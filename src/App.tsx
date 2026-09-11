@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
 import { createField } from './field'
 import {
@@ -7,6 +7,7 @@ import {
   LANGS,
   SECTIONS,
   WORK_MEDIA,
+  type Copy,
   type Lang,
 } from './content'
 import { OFFER, type Block } from './offer'
@@ -152,6 +153,102 @@ function Packs({
   )
 }
 
+/**
+ * The enquiry form.
+ *
+ * Netlify catches the POST itself — there is no backend and nothing to keep
+ * running. The price of that is a static copy of the form in `index.html`,
+ * which is what Netlify actually reads at deploy time; this one is the React
+ * version the visitor sees. If a field is added here it has to be added there
+ * too, or the value silently never arrives.
+ *
+ * On localhost the POST 404s, which is expected and swallowed: the form still
+ * shows its thank-you so the flow can be checked without deploying.
+ */
+function Enquiry({ c }: { c: Copy }) {
+  const [sent, setSent] = useState<'idle' | 'sending' | 'done'>('idle')
+  const [f, setF] = useState({ name: '', company: '', object: '', when: '' })
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
+    setF((p) => ({ ...p, [k]: e.target.value }))
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault()
+    setSent('sending')
+    try {
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 'form-name': 'enquiry', ...f }).toString(),
+      })
+    } catch {
+      /* offline, or the dev server — the enquiry still gets acknowledged and
+         the visitor is offered WhatsApp, which is the faster route anyway */
+    }
+    setSent('done')
+  }
+
+  /* Whatever they typed travels into the WhatsApp draft, so a visitor who
+     prefers to carry on there does not have to say it twice. */
+  const draft = [f.name, f.company, f.object, f.when].filter(Boolean).join(' · ')
+  const wa = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
+    draft || c.contact.waText,
+  )}`
+
+  if (sent === 'done')
+    return (
+      <div className="formdone rv">
+        <div className="fdone">{c.form.done}</div>
+        <p className="fnote">{c.form.doneNote}</p>
+        <a className="wa" href={wa} target="_blank" rel="noreferrer">
+          {c.form.wa}
+        </a>
+      </div>
+    )
+
+  return (
+    <form className="enq rv" name="enquiry" onSubmit={submit}>
+      <input type="hidden" name="form-name" value="enquiry" />
+      <p className="hidden">
+        <label>
+          <input name="bot-field" tabIndex={-1} autoComplete="off" />
+        </label>
+      </p>
+      <div className="erow">
+        <input
+          name="name"
+          required
+          placeholder={c.form.name}
+          value={f.name}
+          onChange={set('name')}
+        />
+        <input
+          name="company"
+          placeholder={c.form.company}
+          value={f.company}
+          onChange={set('company')}
+        />
+      </div>
+      <input
+        name="object"
+        required
+        placeholder={c.form.object}
+        value={f.object}
+        onChange={set('object')}
+      />
+      <input
+        name="when"
+        placeholder={c.form.when}
+        value={f.when}
+        onChange={set('when')}
+      />
+      <button type="submit" disabled={sent === 'sending'}>
+        {sent === 'sending' ? c.form.sending : c.form.submit}
+      </button>
+      <p className="fnote">{c.form.note}</p>
+    </form>
+  )
+}
+
 export default function App() {
   useEffect(() => createField(), [])
 
@@ -196,6 +293,16 @@ export default function App() {
    * renderer owns a single continuous scroll, and routing away from it would
    * mean tearing down and rebuilding the canvas on every click.
    */
+  /* The sticky button stays out of the hero, where the hero has its own call
+     to action, and appears once the visitor is past it. */
+  const [past, setPast] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setPast(scrollY > innerHeight * 0.8)
+    onScroll()
+    addEventListener('scroll', onScroll, { passive: true })
+    return () => removeEventListener('scroll', onScroll)
+  }, [])
+
   const [open, setOpen] = useState<number | null>(null)
   const project = open === null ? null : c.works.items[open]
   const media = open === null ? null : WORK_MEDIA[open]
@@ -263,6 +370,9 @@ export default function App() {
           ))}
         </div>
         <div className="navright">
+          <a className="navtel" href={BRAND.phoneHref}>
+            {BRAND.phone}
+          </a>
           <div className="lang" role="group" aria-label="Language">
             {LANGS.map((l) => (
               <button
@@ -299,6 +409,7 @@ export default function App() {
               {c.hero.title[1]}
             </h1>
             <p className="lede rv">{c.hero.lede}</p>
+            <div className="audience rv">{c.hero.audience}</div>
             {/* The hero points at the prices, not at the form. A visitor who
                 came to find out what this costs should not have to scroll
                 past six sections to learn it. */}
@@ -586,6 +697,16 @@ export default function App() {
               <div className="oh">{c.contact.offer.headline}</div>
               <p className="od">{c.contact.offer.detail}</p>
             </div>
+            <div className="formhead rv">
+              <h3>
+                {c.form.title[0]}
+                <br />
+                {c.form.title[1]}
+              </h3>
+              <p className="lede">{c.form.lede}</p>
+            </div>
+            <Enquiry c={c} />
+
             <a className="bigmail rv" href={`mailto:${BRAND.email}`}>
               {BRAND.email}
             </a>
@@ -610,6 +731,9 @@ export default function App() {
               >
                 INSTAGRAM · {BRAND.instagramLabel}
               </a>
+              <a className="wa" href={BRAND.phoneHref}>
+                {BRAND.phone}
+              </a>
             </div>
             <div className="meta rv">
               {c.contact.meta.map((m) => (
@@ -619,6 +743,10 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      <a className={past ? 'stickycta on' : 'stickycta'} href="#contact">
+        {c.stickyCta}
+      </a>
 
       <div id="counter">
         <b id="cNow">01</b> / {String(s.length).padStart(2, '0')}&nbsp;·&nbsp;

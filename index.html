@@ -58,5 +58,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Netlify reads the form at deploy time from the static HTML, not from
+         anything React renders. This copy exists only to be read: the visible
+         form lives in App.tsx and posts to it. Add a field there and add it
+         here too, or that field silently never arrives. -->
+    <form name="enquiry" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="text" name="company" />
+      <input type="text" name="object" />
+      <input type="text" name="when" />
+    </form>
   </body>
 </html>
