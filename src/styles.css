@@ -1914,9 +1914,20 @@ h2 {
   color: var(--ink);
 }
 
+/* Full width, like the work row: the strip is pictures, and pictures stopping
+   at the text column leave a cut edge with black beside it. The column sits at
+   the gutter, so cancelling exactly that much margin puts the strip's left edge
+   on the edge of the screen. --bleed-w is the document's client width, set from
+   the same JS that measures the work row — 100vw counts the scrollbar — and is
+   the fallback if that never runs.
+
+   `container-type` used to be here for a grid row height in cqw units. That
+   grid is gone, and so is the only thing that read it. */
 .filmswrap {
-  container-type: inline-size;
   margin-top: 26px;
+  margin-left: calc(-1 * var(--gut));
+  width: var(--bleed-w, 100vw);
+  max-width: none;
 }
 
 /* A strip, not a mosaic.
@@ -1934,7 +1945,9 @@ h2 {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
-  padding-bottom: 16px;
+  /* the strip runs edge to edge, the films start and end at the gutter */
+  padding: 0 var(--gut) 16px;
+  scroll-padding-left: var(--gut);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.06);
   --fh: 320px;
@@ -2104,10 +2117,13 @@ h2 {
   transform: translate(-50%, -50%) scale(1);
 }
 
-@container (max-width: 620px) {
+/* On a phone the height cannot be a fixed number: at 220px a 16:9 film is
+   391px wide on a 375px screen, so a whole one never fits. The height is
+   derived from the width the strip actually has instead — less the gutters and
+   a sliver, so the widest ratio fits with the next film showing past it. */
+@media (max-width: 640px) {
   .films {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: calc((100cqw - 14px) / 2 * 0.88);
+    --fh: min(220px, calc((100vw - 2 * var(--gut) - 44px) * 9 / 16));
   }
 }
 
