@@ -25,6 +25,8 @@
   /* The section gutter, in one place. The full-bleed row cancels exactly this
      much margin to reach the edge of the screen, so the two cannot drift. */
   --gut: 34px;
+  /* 540px of source over two device pixels — see .hpin.on .works */
+  --work-max: 270px;
   /* The headings. Set here and used only by h1/h2 and the display numbers —
      the body is monospace on purpose and stays that way. Cormorant carries
      Cyrillic, which the Russian version needs and Archivo does not have. */
@@ -826,17 +828,36 @@ h2 {
   /* max-content makes offsetWidth the true length of the row, which is what
      the travel distance is measured from */
   width: max-content;
-  grid-auto-columns: clamp(250px, 25vw, 400px);
+  /* The cap is not a taste: the loop that plays on a card is 540px wide, so at
+     two device pixels per CSS pixel the card stops being able to fill itself
+     past 270. Above that the browser is inventing the difference, which is the
+     softness the cards had at 400. Sharper and smaller are the same change
+     here — real quality past this needs the clips re-encoded from the
+     originals, which are not in the repository. */
+  grid-auto-columns: clamp(230px, 20vw, var(--work-max));
   overflow: visible;
   margin-top: 0;
   padding: 0 var(--gut);
   will-change: transform;
 }
 
-/* The rail belongs to the strip, not to the pinned row — pinned, the page's
-   own scrollbar is the indicator. */
-.hpin.on .works::-webkit-scrollbar {
+.hpin.on .films {
+  width: max-content;
+  overflow: visible;
+  padding-bottom: 0;
+  will-change: transform;
+}
+
+/* The rail belongs to the loose strip. Pinned, the page's own scrollbar is
+   what says how much is left. */
+.hpin.on .works::-webkit-scrollbar,
+.hpin.on .films::-webkit-scrollbar {
   display: none;
+}
+
+.hpin.on .films,
+.hpin.on .works {
+  scrollbar-width: none;
 }
 
 /* One row, scrolled sideways, rather than two rows stacked. The column width
@@ -852,7 +873,7 @@ h2 {
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: none;
-  grid-auto-columns: calc((100% - 2 * 28px) / 3.15);
+  grid-auto-columns: min(calc((100% - 2 * 28px) / 3.15), var(--work-max));
   gap: 28px;
   margin-top: 40px;
   overflow-x: auto;
@@ -1923,11 +1944,10 @@ h2 {
 
    `container-type` used to be here for a grid row height in cqw units. That
    grid is gone, and so is the only thing that read it. */
+/* .filmswrap carries .hpin, which already runs it to the edge of the screen
+   and, once measured, sticks it while the page scrolls the strip sideways. */
 .filmswrap {
   margin-top: 26px;
-  margin-left: calc(-1 * var(--gut));
-  width: var(--bleed-w, 100vw);
-  max-width: none;
 }
 
 /* A strip, not a mosaic.
@@ -2342,4 +2362,28 @@ h2 {
 
 #contact .offer .oh {
   color: var(--ink);
+}
+
+/* ---- PACKAGES, FULL WIDTH ---- */
+
+/*
+ * The price grids run the width of the screen while the heading keeps a
+ * measure. The column is right-aligned here, so the negative-gutter trick the
+ * work row uses does not reach the left edge — the limit comes off the column
+ * instead, and the text blocks keep the 940px they had and stay where they
+ * were. Only the grids get the extra width, which is the only thing that
+ * wanted it: four cards at 940px were narrow enough to break every list item
+ * across three lines.
+ */
+#packages > .col {
+  max-width: none;
+  margin-left: 0;
+}
+
+#packages > .col > .eyebrow,
+#packages > .col > h2,
+#packages > .col > .lede,
+#packages > .col > .vat {
+  max-width: 940px;
+  margin-left: auto;
 }

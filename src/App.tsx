@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
 
 import { createField } from './field'
 import {
@@ -475,7 +475,8 @@ function Films({ lang }: { lang: Lang }) {
       {/* The wrapper is the size container the mosaic measures itself against:
           rows are derived from the column width, so a vertical tile stays near
           9:16 and a horizontal one near 16:9 at every screen width. */}
-      <div className="filmswrap rv">
+      <div className="filmswrap rv hpin" data-pin-speed="2.6">
+      <div className="hstage">
       <div className="films">
         {list.map((x, i) => (
           <button
@@ -510,6 +511,7 @@ function Films({ lang }: { lang: Lang }) {
             </span>
           </button>
         ))}
+      </div>
       </div>
       </div>
 
@@ -628,28 +630,34 @@ export default function App() {
    * In every case it falls back to the row this replaced, which scrolls
    * sideways on its own and is perfectly usable.
    */
-  const pinRef = useRef<HTMLDivElement>(null)
-  const stageRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const pin = pinRef.current
-    const stage = stageRef.current
-    const track = trackRef.current
-    if (!pin || !stage || !track) return
+    const pins = Array.from(document.querySelectorAll<HTMLElement>('.hpin'))
+    if (!pins.length) return
 
     const narrow = matchMedia('(max-width: 820px)')
     const still = matchMedia('(prefers-reduced-motion: reduce)')
-    let distance = 0
+
+    const rigs = pins.map((pin) => {
+      const stage = pin.querySelector<HTMLElement>('.hstage')
+      const track = stage?.firstElementChild as HTMLElement | null
+      /* 1 means a pixel of page scroll is a pixel sideways. The film strip is
+         five thousand pixels long and at 1 it would hold the page for five
+         screens, so it is given a multiplier and travels faster than the
+         scroll that drives it. */
+      const speed = Number(pin.dataset.pinSpeed || 1)
+      return { pin, stage, track, speed, distance: 0 }
+    })
+
     let frame = 0
 
     const draw = () => {
       frame = 0
-      if (!distance) return
-      /* The stage is stuck at the top, so the outer element's own top edge is
-         how far into the pin the page has come. */
-      const past = -pin.getBoundingClientRect().top
-      const p = Math.min(1, Math.max(0, past / distance))
-      track.style.transform = `translate3d(${-p * distance}px,0,0)`
+      for (const r of rigs) {
+        if (!r.distance || !r.track) continue
+        const past = -r.pin.getBoundingClientRect().top
+        const p = Math.min(1, Math.max(0, past / (r.distance / r.speed)))
+        r.track.style.transform = `translate3d(${-p * r.distance}px,0,0)`
+      }
     }
 
     const onScroll = () => {
@@ -664,40 +672,43 @@ export default function App() {
         `${document.documentElement.clientWidth}px`,
       )
       const on = !narrow.matches && !still.matches
-      pin.classList.toggle('on', on)
-      if (!on) {
-        distance = 0
-        pin.style.height = ''
-        track.style.transform = ''
-        return
+      for (const r of rigs) {
+        r.pin.classList.toggle('on', on)
+        if (!on || !r.stage || !r.track) {
+          r.distance = 0
+          r.pin.style.height = ''
+          if (r.track) r.track.style.transform = ''
+          continue
+        }
+        r.distance = Math.max(0, r.track.offsetWidth - r.stage.clientWidth)
+        r.pin.style.height = `${r.stage.clientHeight + r.distance / r.speed}px`
       }
-      distance = Math.max(0, track.offsetWidth - stage.clientWidth)
-      pin.style.height = `${stage.clientHeight + distance}px`
       draw()
     }
 
-    /* The cards are buttons. Tabbing to one that is off to the right has to
-       bring it into view, and the browser cannot do that itself when the
-       movement is a transform — so the page is scrolled to the point in the
-       pin at which that card is on screen. */
+    /* The film strip is filtered in place, so its length changes without a
+       resize and without a re-render of this effect. Watching the track covers
+       that, and late web fonts, and anything else that moves it. */
+    const ro = new ResizeObserver(() => measure())
+    for (const r of rigs) if (r.track) ro.observe(r.track)
+
     const onFocus = (e: FocusEvent) => {
-      if (!distance) return
-      const card = (e.target as HTMLElement).closest('.work') as HTMLElement | null
+      const el = e.target as HTMLElement
+      const r = rigs.find((x) => x.track && x.track.contains(el))
+      if (!r || !r.distance || !r.track || !r.stage) return
+      const card = el.closest('.work, .film') as HTMLElement | null
       if (!card) return
+      const top = r.pin.getBoundingClientRect().top + scrollY
+      const span = r.distance / r.speed
+      const seen = Math.min(r.distance, Math.max(0, (scrollY - top) * r.speed))
+      const w = r.stage.clientWidth
       const left = card.offsetLeft
       const right = left + card.offsetWidth
-      /* How far the row has already travelled, read back from the progress
-         rather than from the transform string. */
-      const top = pin.getBoundingClientRect().top + scrollY
-      const seen = Math.min(distance, Math.max(0, scrollY - top))
-      const w = stage.clientWidth
       let want = seen
       if (left < seen) want = left
       else if (right > seen + w) want = right - w
       if (want === seen) return
-      /* offsetTop would be measured from the section, which is the offset
-         parent — the page position is what scrollTo needs. */
-      scrollTo({ top: top + Math.min(distance, Math.max(0, want)) })
+      scrollTo({ top: top + Math.min(span, Math.max(0, want / r.speed)) })
     }
 
     measure()
@@ -705,17 +716,20 @@ export default function App() {
     addEventListener('resize', measure)
     narrow.addEventListener('change', measure)
     still.addEventListener('change', measure)
-    track.addEventListener('focusin', onFocus)
+    for (const r of rigs) r.track?.addEventListener('focusin', onFocus)
     return () => {
       if (frame) cancelAnimationFrame(frame)
+      ro.disconnect()
       removeEventListener('scroll', onScroll)
       removeEventListener('resize', measure)
       narrow.removeEventListener('change', measure)
       still.removeEventListener('change', measure)
-      track.removeEventListener('focusin', onFocus)
-      pin.classList.remove('on')
-      pin.style.height = ''
-      track.style.transform = ''
+      for (const r of rigs) {
+        r.track?.removeEventListener('focusin', onFocus)
+        r.pin.classList.remove('on')
+        r.pin.style.height = ''
+        if (r.track) r.track.style.transform = ''
+      }
     }
   }, [lang])
 
@@ -875,9 +889,9 @@ export default function App() {
               {c.works.title[1]}
             </h2>
             <p className="lede rv">{c.works.lede}</p>
-            <div className="hpin" ref={pinRef}>
-              <div className="hstage" ref={stageRef}>
-                <div className="works rv" ref={trackRef}>
+            <div className="hpin">
+              <div className="hstage">
+                <div className="works rv">
               {c.works.items.map((w, i) => (
                 <button
                   className="work"
