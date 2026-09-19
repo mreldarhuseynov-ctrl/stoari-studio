@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 
 import { createField } from './field'
 import {
@@ -20,6 +20,43 @@ import {
   fmtTime,
   type Kind,
 } from './films'
+
+/**
+ * A still behind each service row, keyed by the row's number rather than its
+ * position, so the three languages cannot drift apart and reordering the rows
+ * cannot silently reassign the pictures.
+ *
+ * These are matched to what the row says, not picked for looks: the plot with
+ * the volume drawn on it goes under Visualisation because that is the service,
+ * the agent's film under the agent row, the marina flight under Drone & FPV.
+ * If a row's copy changes subject, the still has to be re-checked with it.
+ */
+const SERVICE_SHOT: Record<string, string> = {
+  '01': WORK_MEDIA[0].img, // the bare plot, then the volume standing on it
+  '02': WORK_MEDIA[5].img, // the agent film
+  '03': WORK_MEDIA[3].img, // the marina, flown
+  '04': WORK_MEDIA[1].img, // the finished residence a project page is built on
+  '05': WORK_MEDIA[4].img,
+}
+
+/**
+ * A price is one string in the copy — `from €1,400`, `desde 1.400 € / mes`,
+ * `от 1 900 € / мес` — because that is how it is written and read in each
+ * language, and splitting it in the content would mean three ways to get the
+ * same number wrong. It is split here instead, for typesetting only.
+ *
+ * The amount is the first run of digits touching the currency mark, on either
+ * side of it, with the thin and non-breaking spaces the Russian copy uses. The
+ * words before it and whatever follows — `/ month`, `+ 350 €/mes` — are set
+ * small, so the figure is the only thing at size and the eye lands on it.
+ */
+const PRICE = /^(.*?)((?:€\s?[\d.,\u00a0\u202f ]*\d)|(?:\d[\d.,\u00a0\u202f ]*\s?€))(.*)$/
+
+function splitPrice(price: string) {
+  const m = PRICE.exec(price)
+  if (!m) return { pre: '', amount: price, post: '' }
+  return { pre: m[1].trim(), amount: m[2].trim(), post: m[3].trim() }
+}
 
 function Mark() {
   return (
@@ -129,20 +166,55 @@ function Packs({
         {block.title[1]}
       </h2>
       <p className="lede rv">{block.lede}</p>
-      {block.groups.map((g) => (
+      {block.groups.map((g, gi) => (
         <div className="group rv" key={g.title}>
           <div className="gtitle">
             <span className="bar" />
             {g.title}
           </div>
           <div className="packs">
-            {g.packs.map((pk) => (
-              <div className={pk.note ? 'pack on' : 'pack'} key={pk.n}>
+            {g.packs.map((pk, pi) => (
+              <div
+                className={pk.note ? 'pack on' : 'pack'}
+                key={pk.n}
+                /* A price list on a flat panel reads as a spreadsheet. Each card
+                   carries a property behind its head instead, dimmed to the
+                   card's own colour before the first line of type — the work
+                   stills are already on the page, so nothing extra is fetched.
+                   The index counts straight through the groups rather than
+                   restarting in each one: the cycle then uses every shot and
+                   still cannot repeat on two cards in a row, including across
+                   the seam between one group and the next. */
+                style={
+                  {
+                    '--shot': `url(${
+                      WORK_MEDIA[
+                        (block.groups
+                          .slice(0, gi)
+                          .reduce((n, prev) => n + prev.packs.length, 0) +
+                          pi) %
+                          WORK_MEDIA.length
+                      ].img
+                    })`,
+                  } as CSSProperties
+                }
+              >
                 {pk.note ? <span className="tag">{pk.note}</span> : null}
                 <div className="pn">{pk.n}</div>
                 <div className="pt">{pk.t}</div>
                 <div className="pc">{pk.count}</div>
-                <div className="pp">{pk.price}</div>
+                <div className="pp">
+                  {(() => {
+                    const { pre, amount, post } = splitPrice(pk.price)
+                    return (
+                      <>
+                        {pre ? <span className="ppre">{pre}</span> : null}
+                        <span className="pamt">{amount}</span>
+                        {post ? <span className="pper">{post}</span> : null}
+                      </>
+                    )
+                  })()}
+                </div>
                 <ul className="pl">
                   {pk.rows.map((r) => (
                     <li key={r}>{r}</li>
@@ -171,11 +243,14 @@ function Packs({
  * version the visitor sees. If a field is added here it has to be added there
  * too, or the value silently never arrives.
  *
- * On localhost the POST 404s, which is expected and swallowed: the form still
- * shows its thank-you so the flow can be checked without deploying.
+ * On localhost there is nothing to POST to, so in dev the send is treated as
+ * successful and the thank-you still shows — the flow can be checked without
+ * deploying. In production the opposite rule holds: `fetch` does NOT reject on
+ * a 404 or a 500, so the response is checked explicitly. A failed send must
+ * never be acknowledged, or the enquiry is lost with nobody the wiser.
  */
 function Enquiry({ c }: { c: Copy }) {
-  const [sent, setSent] = useState<'idle' | 'sending' | 'done'>('idle')
+  const [sent, setSent] = useState<'idle' | 'sending' | 'done' | 'failed'>('idle')
   const [f, setF] = useState({ name: '', company: '', object: '', when: '' })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((p) => ({ ...p, [k]: e.target.value }))
@@ -184,14 +259,23 @@ function Enquiry({ c }: { c: Copy }) {
     e.preventDefault()
     setSent('sending')
     try {
-      await fetch('/', {
+      const res = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ 'form-name': 'enquiry', ...f }).toString(),
       })
+      /* There is no form handler in front of `vite dev`, so the 404 it returns
+         is the expected answer and not a failure worth showing. */
+      if (!res.ok && !import.meta.env.DEV) {
+        setSent('failed')
+        return
+      }
     } catch {
-      /* offline, or the dev server — the enquiry still gets acknowledged and
-         the visitor is offered WhatsApp, which is the faster route anyway */
+      /* Offline, DNS, a blocked request — nothing arrived. Say so. */
+      if (!import.meta.env.DEV) {
+        setSent('failed')
+        return
+      }
     }
     setSent('done')
   }
@@ -202,6 +286,24 @@ function Enquiry({ c }: { c: Copy }) {
   const wa = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
     draft || c.contact.waText,
   )}`
+
+  /* The typed values are deliberately kept in state: the visitor retries with
+     the form still filled in, and never retypes the property twice. */
+  if (sent === 'failed')
+    return (
+      <div className="formdone rv" role="alert">
+        <div className="fdone ffail">{c.form.failed}</div>
+        <p className="fnote">{c.form.failedNote}</p>
+        <div className="frecover">
+          <button type="button" className="fretry" onClick={() => setSent('idle')}>
+            {c.form.retry}
+          </button>
+          <a className="wa" href={wa} target="_blank" rel="noreferrer">
+            {c.form.wa}
+          </a>
+        </div>
+      </div>
+    )
 
   if (sent === 'done')
     return (
@@ -253,7 +355,17 @@ function Enquiry({ c }: { c: Copy }) {
       <button type="submit" disabled={sent === 'sending'}>
         {sent === 'sending' ? c.form.sending : c.form.submit}
       </button>
-      <p className="fnote">{c.form.note}</p>
+      <p className="fnote">
+        {c.form.note}
+        {BRAND.privacyUrl && (
+          <>
+            {' '}
+            <a className="fprivacy" href={BRAND.privacyUrl} target="_blank" rel="noreferrer">
+              {c.form.privacy}
+            </a>
+          </>
+        )}
+      </p>
     </form>
   )
 }
@@ -462,6 +574,120 @@ export default function App() {
    * renderer owns a single continuous scroll, and routing away from it would
    * mean tearing down and rebuilding the canvas on every click.
    */
+  /**
+   * The work row, driven sideways by the page scrolling down.
+   *
+   * The shape is the standard one: a tall outer element, a stage stuck to the
+   * top of the viewport for as long as that element passes through it, and a
+   * track inside the stage moved with a transform. The outer height is set to
+   * the viewport plus exactly the distance the track has to travel, so one
+   * pixel of page scroll is one pixel sideways and the row neither races the
+   * scroll nor lags behind it.
+   *
+   * Three things this deliberately does NOT do:
+   *
+   * - It does not run under `prefers-reduced-motion`. Tying the viewport to a
+   *   transform is the exact thing that setting is for.
+   * - It does not run on a narrow screen. A finger already swipes the row
+   *   natively there, and pinning would take the page scroll away from it.
+   * - It does not hijack the wheel. Nothing calls preventDefault, so the page
+   *   keeps its own scrolling, its momentum and its scrollbar; the row simply
+   *   reads the position. A visitor who wants past it scrolls, as usual.
+   *
+   * In every case it falls back to the row this replaced, which scrolls
+   * sideways on its own and is perfectly usable.
+   */
+  const pinRef = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const pin = pinRef.current
+    const stage = stageRef.current
+    const track = trackRef.current
+    if (!pin || !stage || !track) return
+
+    const narrow = matchMedia('(max-width: 820px)')
+    const still = matchMedia('(prefers-reduced-motion: reduce)')
+    let distance = 0
+    let frame = 0
+
+    const draw = () => {
+      frame = 0
+      if (!distance) return
+      /* The stage is stuck at the top, so the outer element's own top edge is
+         how far into the pin the page has come. */
+      const past = -pin.getBoundingClientRect().top
+      const p = Math.min(1, Math.max(0, past / distance))
+      track.style.transform = `translate3d(${-p * distance}px,0,0)`
+    }
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(draw)
+    }
+
+    const measure = () => {
+      /* 100vw counts the scrollbar and would push the page sideways; the
+         documentElement's client width does not. */
+      document.documentElement.style.setProperty(
+        '--bleed-w',
+        `${document.documentElement.clientWidth}px`,
+      )
+      const on = !narrow.matches && !still.matches
+      pin.classList.toggle('on', on)
+      if (!on) {
+        distance = 0
+        pin.style.height = ''
+        track.style.transform = ''
+        return
+      }
+      distance = Math.max(0, track.offsetWidth - stage.clientWidth)
+      pin.style.height = `${stage.clientHeight + distance}px`
+      draw()
+    }
+
+    /* The cards are buttons. Tabbing to one that is off to the right has to
+       bring it into view, and the browser cannot do that itself when the
+       movement is a transform — so the page is scrolled to the point in the
+       pin at which that card is on screen. */
+    const onFocus = (e: FocusEvent) => {
+      if (!distance) return
+      const card = (e.target as HTMLElement).closest('.work') as HTMLElement | null
+      if (!card) return
+      const left = card.offsetLeft
+      const right = left + card.offsetWidth
+      /* How far the row has already travelled, read back from the progress
+         rather than from the transform string. */
+      const top = pin.getBoundingClientRect().top + scrollY
+      const seen = Math.min(distance, Math.max(0, scrollY - top))
+      const w = stage.clientWidth
+      let want = seen
+      if (left < seen) want = left
+      else if (right > seen + w) want = right - w
+      if (want === seen) return
+      /* offsetTop would be measured from the section, which is the offset
+         parent — the page position is what scrollTo needs. */
+      scrollTo({ top: top + Math.min(distance, Math.max(0, want)) })
+    }
+
+    measure()
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('resize', measure)
+    narrow.addEventListener('change', measure)
+    still.addEventListener('change', measure)
+    track.addEventListener('focusin', onFocus)
+    return () => {
+      if (frame) cancelAnimationFrame(frame)
+      removeEventListener('scroll', onScroll)
+      removeEventListener('resize', measure)
+      narrow.removeEventListener('change', measure)
+      still.removeEventListener('change', measure)
+      track.removeEventListener('focusin', onFocus)
+      pin.classList.remove('on')
+      pin.style.height = ''
+      track.style.transform = ''
+    }
+  }, [lang])
+
   /* The sticky button stays out of the hero, where the hero has its own call
      to action, and appears once the visitor is past it. */
   const [past, setPast] = useState(false)
@@ -618,7 +844,9 @@ export default function App() {
               {c.works.title[1]}
             </h2>
             <p className="lede rv">{c.works.lede}</p>
-            <div className="works rv">
+            <div className="hpin" ref={pinRef}>
+              <div className="hstage" ref={stageRef}>
+                <div className="works rv" ref={trackRef}>
               {c.works.items.map((w, i) => (
                 <button
                   className="work"
@@ -654,6 +882,8 @@ export default function App() {
                   <span className="more">{c.works.more}</span>
                 </button>
               ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -700,7 +930,13 @@ export default function App() {
             <div className="rule rv" />
             <div className="list rv">
               {c.services.rows.map((r) => (
-                <div className="row" key={r.n}>
+                <div
+                  className="row"
+                  key={r.n}
+                  style={
+                    { '--shot': `url(${SERVICE_SHOT[r.n]})` } as CSSProperties
+                  }
+                >
                   <span className="n">{r.n}</span>
                   <span className="t">{r.t}</span>
                   <span className="d">{r.d}</span>

@@ -50,8 +50,14 @@
          rather than whatever generic sans the system picks. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Cormorant Garamond sets the headings. The body stays monospace: that
+         is the studio's voice and the contrast between the two is the point —
+         a serif everywhere would read as any other property site. Cyrillic is
+         not optional, the site has a Russian version, and Archivo has no
+         Cyrillic at all; Cormorant does. `display=swap` so the headings are
+         never invisible while it loads. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -64,6 +70,11 @@
          form lives in App.tsx and posts to it. Add a field there and add it
          here too, or that field silently never arrives. -->
     <form name="enquiry" netlify netlify-honeypot="bot-field" hidden>
+      <!-- The honeypot is named in the attribute above and filled by the React
+           form, but it has to exist here too: this copy is the one Netlify
+           reads, and a field missing from it is a field that never arrives —
+           which is the rule stated right above, applied to itself. -->
+      <input type="text" name="bot-field" />
       <input type="text" name="name" />
       <input type="text" name="company" />
       <input type="text" name="object" />

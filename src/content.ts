@@ -40,6 +40,14 @@ export const BRAND = {
   /** Clean URL: the igsh/utm parameters on a shared link are QR tracking. */
   instagram: 'https://www.instagram.com/stoaristudio',
   instagramLabel: '@stoaristudio',
+  /**
+   * The enquiry form collects a name, a company and a property from visitors
+   * in Spain, which makes it personal data under the GDPR and the LOPDGDD: it
+   * needs a notice at the point of collection saying who holds it and on what
+   * basis. Until that page exists this stays empty, and the form prints its
+   * one-line notice without a link rather than pointing at a 404.
+   */
+  privacyUrl: '',
 } as const
 
 export const LANGS = ['en', 'es', 'ru'] as const
@@ -194,8 +202,14 @@ export type Copy = {
     submit: string
     sending: string
     note: string
+    /** Label for the privacy notice link. Only rendered if BRAND.privacyUrl is set. */
+    privacy: string
     done: string
     doneNote: string
+    /** Shown when the POST did not actually reach Netlify. */
+    failed: string
+    failedNote: string
+    retry: string
     wa: string
   }
   hero: {
@@ -269,8 +283,12 @@ export const COPY: Record<Lang, Copy> = {
       submit: 'SEND',
       sending: 'SENDING…',
       note: 'We use what you write here to answer you, and for nothing else.',
+      privacy: 'How we handle your data',
       done: 'Got it.',
       doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
+      failed: 'That did not send.',
+      failedNote: 'Nothing reached us — the enquiry is still in the form below. Try again, or write on WhatsApp, which does not depend on this.',
+      retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
     labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'AGENCY SYSTEM', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
@@ -464,8 +482,12 @@ export const COPY: Record<Lang, Copy> = {
       submit: 'ENVIAR',
       sending: 'ENVIANDO…',
       note: 'Usamos lo que escribas aquí para responderte y para nada más.',
+      privacy: 'Cómo tratamos tus datos',
       done: 'Recibido.',
       doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp es más rápido, escribe ahí.',
+      failed: 'No se ha enviado.',
+      failedNote: 'No nos ha llegado nada — lo que escribiste sigue en el formulario. Inténtalo otra vez o escríbenos por WhatsApp, que no depende de esto.',
+      retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
     labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'PELÍCULAS', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'SISTEMA PARA AGENCIAS', 'DESPLAZAMIENTO', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
@@ -659,8 +681,12 @@ export const COPY: Record<Lang, Copy> = {
       submit: 'ОТПРАВИТЬ',
       sending: 'ОТПРАВЛЯЕМ…',
       note: 'То, что вы напишете здесь, используем только чтобы ответить.',
+      privacy: 'Как мы обращаемся с данными',
       done: 'Получили.',
       doneNote: 'Смета вернётся в тот же день. Если в WhatsApp быстрее — напишите туда.',
+      failed: 'Не отправилось.',
+      failedNote: 'До нас ничего не дошло — то, что вы написали, осталось в форме. Попробуйте ещё раз или напишите в WhatsApp: он от этого не зависит.',
+      retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
     labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'СИСТЕМА ДЛЯ АГЕНТСТВА', 'ВЫЕЗД', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],

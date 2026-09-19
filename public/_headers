@@ -1,0 +1,28 @@
+# Netlify reads this file from the publish root at deploy time. It lives in
+# `public/` so Vite copies it into `dist/` verbatim — there is no build step
+# that generates it, and nothing warns you if it goes missing.
+#
+# The policy below was written against the real production output, not guessed:
+# `vite build` emits no inline <script> and no inline <style>, so neither
+# 'unsafe-inline' nor 'unsafe-eval' is needed. Add one back only after checking
+# a deploy preview — a stricter header that silently blocks the bundle is worse
+# than no header at all.
+#
+# The only third party the page loads from is Google Fonts: the stylesheet from
+# fonts.googleapis.com and the font files from fonts.gstatic.com. Self-host
+# Archivo and both of those lines come out, along with the GDPR question that
+# comes with shipping visitor IPs to Google.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=()
+  Cross-Origin-Opener-Policy: same-origin
+  X-Frame-Options: DENY
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Vite fingerprints every filename in assets/, so a cached copy can never be
+# the wrong one — these are safe to keep for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

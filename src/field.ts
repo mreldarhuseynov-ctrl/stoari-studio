@@ -696,11 +696,23 @@ void main(){
   }
   addEventListener('scroll', onScroll, { passive: true })
 
-  const io = new IntersectionObserver(
-    (es) => es.forEach((e) => { if (e.isIntersecting) e.target.classList.add('in') }),
-    { threshold: 0.22 }
-  )
-  sections.forEach((s) => io.observe(s))
+  /* 0.22 of the section has to be on screen before it reveals. A section
+     taller than about four and a half screens can never reach that fraction,
+     and would simply stay at opacity 0 for ever — which is what a pinned
+     horizontal row does to the section that holds it. The threshold is
+     therefore capped at what half a screen of that section actually comes to,
+     so a tall section reveals when half a viewport of it is showing and every
+     normal section keeps the 0.22 it had. */
+  const reveal = (e: IntersectionObserverEntry) => {
+    if (e.isIntersecting) e.target.classList.add('in')
+  }
+  const ios = sections.map((s) => {
+    const h = s.offsetHeight || innerHeight
+    const threshold = Math.min(0.22, (innerHeight * 0.5) / h)
+    const o = new IntersectionObserver((es) => es.forEach(reveal), { threshold })
+    o.observe(s)
+    return o
+  })
 
   const R = 195, PUSH = 4.2, SPRING = 0.045, DAMP = 0.862
   const BASE_SIZE = isCoarse ? 2.3 : 2.1
@@ -930,7 +942,7 @@ void main(){
     alive = false
     cancelAnimationFrame(raf)
     clearInterval(tick)
-    io.disconnect()
+    ios.forEach((o) => o.disconnect())
     ro?.disconnect()
     removeEventListener('pointermove', onPointer)
     removeEventListener('touchmove', onTouch)

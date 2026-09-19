@@ -22,6 +22,13 @@
      slot cut through the mark. The body of the site stays monospace; only the
      name and its descriptor are set in this. */
   --brand-face: Bahnschrift, 'DIN Next', 'DIN Pro', Archivo, sans-serif;
+  /* The section gutter, in one place. The full-bleed row cancels exactly this
+     much margin to reach the edge of the screen, so the two cannot drift. */
+  --gut: 34px;
+  /* The headings. Set here and used only by h1/h2 and the display numbers —
+     the body is monospace on purpose and stays that way. Cormorant carries
+     Cyrillic, which the Russian version needs and Archivo does not have. */
+  --head-face: 'Cormorant Garamond', 'Times New Roman', Times, serif;
 }
 
 * {
@@ -191,7 +198,7 @@ section {
   min-height: 100svh;
   display: flex;
   align-items: center;
-  padding: 120px 34px;
+  padding: 120px var(--gut);
   position: relative;
 }
 
@@ -270,17 +277,24 @@ section.hero::before {
 }
 
 h1 {
-  font-size: clamp(34px, 6.4vw, 84px);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
-  font-weight: 400;
+  font-family: var(--head-face);
+  /* 300 at display size: Cormorant's light weight is where its thin strokes
+     and sharp serifs actually show. 400 at 96px just looks like a book. */
+  font-weight: 300;
+  /* The monospace needed -0.035em to stop the letters drifting apart. A serif
+     drawn for text does not, and squeezing one that hard closes the counters.
+     The size comes up instead — Cormorant runs small for its point size. */
+  letter-spacing: -0.012em;
+  font-size: clamp(40px, 7.4vw, 96px);
+  line-height: 1;
 }
 
 h2 {
-  font-size: clamp(26px, 3.6vw, 46px);
-  line-height: 1.06;
-  letter-spacing: -0.025em;
-  font-weight: 400;
+  font-family: var(--head-face);
+  font-weight: 300;
+  letter-spacing: -0.008em;
+  font-size: clamp(30px, 4.2vw, 54px);
+  line-height: 1.08;
 }
 
 .lede {
@@ -315,6 +329,46 @@ h2 {
   gap: 18px;
   align-items: baseline;
   padding: 17px 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Same reasoning as the price cards, turned on its side: the row keeps its own
+   black, and the still sits on top of it under a scrim that has reached solid
+   black before the description starts.
+
+   The stops are measured from the right edge, not in percentages. `.d` is
+   pinned right at a fixed max-width of 210px, so its left edge moves as a
+   share of the row whenever the column narrows — a 60% stop is clear of it at
+   520px and straight under it at 400px. Anchoring to `100% - 232px` keeps the
+   fade closed before the text at every width, and on a column too narrow for
+   the sum the stops simply collapse and the row goes fully dark, which is the
+   safe direction to fail in. */
+.list .row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.52) 0%,
+      rgba(0, 0, 0, 0.86) calc(100% - 300px),
+      #000 calc(100% - 232px)
+    ),
+    var(--shot);
+  background-size: cover, cover;
+  background-position: center, center;
+}
+
+.list .row > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* A row without a still keeps the flat black it always had. */
+.list .row:not([style*='--shot'])::before {
+  display: none;
 }
 
 .list .row .n {
@@ -532,8 +586,11 @@ h2 {
   .navlinks {
     display: none;
   }
+  :root {
+    --gut: 18px;
+  }
   section {
-    padding: 168px 18px 92px;
+    padding: 168px var(--gut) 92px;
     min-height: 100svh;
     align-items: flex-end;
   }
@@ -573,6 +630,14 @@ h2 {
     flex-direction: column;
     gap: 6px;
     padding: 14px 2px;
+  }
+  /* Stacked, the description runs the full width and would cross a left-to-right
+     fade. The scrim goes flat and heavier instead: the still stays as texture
+     behind the row, and every line keeps its contrast. */
+  .list .row::before {
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.9)),
+      var(--shot);
   }
   .list .row .d {
     margin-left: 0;
@@ -731,11 +796,98 @@ h2 {
 
 /* Six projects: three columns gives two clean rows. Four columns would leave
    a ragged second row of two. */
+/* The work row runs the full width of the screen, not the width of the text
+   column: the column sits at the gutter, so cancelling exactly that much
+   margin puts the row's left edge on the edge of the screen. `--bleed-w` is
+   set from JS to the document's client width — 100vw counts the scrollbar and
+   would push the page sideways — and 100vw is the fallback if that never runs. */
+.hpin {
+  margin-left: calc(-1 * var(--gut));
+  width: var(--bleed-w, 100vw);
+  max-width: none;
+}
+
+.hstage {
+  display: flex;
+  align-items: center;
+}
+
+/* Only once JS has measured it: the stage stands still at the top of the
+   screen while the tall .hpin passes through it, and the row inside is moved
+   by transform. Until then the row is an ordinary sideways-scrolling strip. */
+.hpin.on .hstage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.hpin.on .works {
+  /* max-content makes offsetWidth the true length of the row, which is what
+     the travel distance is measured from */
+  width: max-content;
+  grid-auto-columns: clamp(250px, 25vw, 400px);
+  overflow: visible;
+  margin-top: 0;
+  padding: 0 var(--gut);
+  will-change: transform;
+}
+
+/* The rail belongs to the strip, not to the pinned row — pinned, the page's
+   own scrollbar is the indicator. */
+.hpin.on .works::-webkit-scrollbar {
+  display: none;
+}
+
+/* One row, scrolled sideways, rather than two rows stacked. The column width
+   is a fraction with a remainder on purpose — 3.15 cards fit, so a slice of the
+   next one is always showing and the row says it continues without needing an
+   arrow or a caption to say so.
+
+   `overscroll-behavior-x: contain` is not optional here: without it a trackpad
+   swipe that runs past the last card is handed to the browser and navigates
+   back, losing the page. Snapping is `proximity`, not `mandatory` — mandatory
+   fights momentum scrolling and makes the row feel like it is resisting. */
 .works {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  grid-auto-columns: calc((100% - 2 * 28px) / 3.15);
   gap: 28px;
   margin-top: 40px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* room for the rail below the cards */
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.06);
+}
+
+.works > .work {
+  scroll-snap-align: start;
+  /* grid items default to min-content — without this the cards refuse to
+     narrow and the track blows out instead of scrolling */
+  min-width: 0;
+}
+
+/* The rail is the affordance: a hairline that shows how much row is left. */
+.works::-webkit-scrollbar {
+  height: 2px;
+}
+
+.works::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.works::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* The 8px ring the cards carry elsewhere would be clipped by the scroll
+   container, so inside the track it sits closer. */
+.works .work:focus-visible {
+  outline-offset: 3px;
 }
 
 .work .clip {
@@ -976,7 +1128,8 @@ h2 {
 
 @media (max-width: 820px) {
   .works {
-    grid-template-columns: repeat(2, 1fr);
+    /* 2.15 on a tablet, and the gap tightens with it */
+    grid-auto-columns: calc((100% - 18px) / 2.15);
     gap: 18px;
   }
   .work .d {
@@ -1079,6 +1232,58 @@ h2 {
      running straight across the price — no amount of contrast fixes text
      sitting on a moving wireframe. */
   background: #0e1012;
+  overflow: hidden;
+}
+
+/* The property behind the head of the card. It is a pseudo-element on top of
+   the opaque background, never a background on the card itself: the rule above
+   still holds, and the field cannot come back through. The scrim starts at 0.62
+   — dark enough that the number and the tag keep their contrast — and reaches
+   the card's own colour by the bottom of the band, so no line of type ever sits
+   on a boundary. */
+.pack::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 172px;
+  z-index: 0;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(14, 16, 18, 0.62) 0%,
+      rgba(14, 16, 18, 0.86) 58%,
+      #0e1012 100%
+    ),
+    var(--shot);
+  background-size: cover, cover;
+  background-position: center, center 42%;
+}
+
+/* The highlighted card is warm, so its scrim has to be too — the neutral one
+   over the same photo reads as a dead patch next to the gold border. */
+.pack.on::before {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(21, 18, 12, 0.62) 0%,
+      rgba(21, 18, 12, 0.86) 58%,
+      #15120c 100%
+    ),
+    var(--shot);
+}
+
+/* The band is positioned, so in-flow content would paint under it. */
+.pack > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* No photo, no band: a card that somehow never gets --shot keeps the old flat
+   panel rather than showing a broken gradient over nothing. */
+.pack:not([style*='--shot'])::before {
+  display: none;
 }
 
 /* A price list read right-aligned is unreadable — the eye loses the left edge
@@ -1138,16 +1343,45 @@ h2 {
   margin-top: 4px;
 }
 
+/* Three things at one size is three things competing. `from` goes above as a
+   label, the figure is the only thing set large, and the period trails it on
+   the baseline — so `from €1,900 / month` stops wrapping into three lines of
+   equal weight and reads as one price. */
 .pp {
-  font-size: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--line);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
 }
 
-.pack.on .pp {
+.ppre {
+  flex-basis: 100%;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.pamt {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  /* the figures line up down the row */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pper {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.pack.on .pamt {
   color: var(--warm);
 }
 
@@ -1293,6 +1527,14 @@ h2 {
 }
 
 @media (max-width: 640px) {
+  /* On a phone two cards in the viewport leaves each about 150px wide and the
+     4:5 still becomes a thumbnail. One card carries the frame, and the quarter
+     of the next one still says the row runs on. */
+  .works {
+    grid-auto-columns: calc((100% - 14px) / 1.25);
+    gap: 14px;
+  }
+
   .packs {
     grid-template-columns: 1fr;
   }
@@ -1499,6 +1741,24 @@ h2 {
   color: var(--muted);
 }
 
+/* Sits inside .fnote, so it inherits the small size and only has to say that
+   it is a link — underlined rather than coloured, because the warm accent in
+   this column belongs to the submit button. */
+.fprivacy {
+  color: var(--muted-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fprivacy:hover {
+  color: var(--ink);
+}
+
+.fprivacy:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
+}
+
 .formdone {
   margin-top: 26px;
   padding: 26px;
@@ -1521,6 +1781,51 @@ h2 {
 .formdone .wa {
   display: inline-block;
   margin-top: 16px;
+}
+
+/* A send that did not arrive must not look like one that did. The panel keeps
+   the shape of the thank-you so nothing jumps, and changes only what carries
+   the meaning: the rule and the heading go to the warning colour. */
+.formdone:has(.ffail) {
+  border-color: rgba(214, 138, 94, 0.55);
+  background: #170f0b;
+}
+
+.ffail {
+  color: #e0956a;
+}
+
+.frecover {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.formdone .frecover .wa {
+  margin-top: 0;
+}
+
+.fretry {
+  padding: 12px 22px;
+  border: 0;
+  background: var(--warm);
+  color: #0b0c0d;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.fretry:hover {
+  opacity: 0.86;
+}
+
+.fretry:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
 }
 
 .hidden {
@@ -1910,4 +2215,106 @@ h2 {
   .fplay {
     transition: none;
   }
+}
+
+/* ---- PACKAGES ON IVORY ---- */
+
+/*
+ * The one light section in a black page. It is the prices, on purpose: it is
+ * where the visitor decides, and lifting it out of the film stops the whole
+ * site reading as one unbroken dark surface.
+ *
+ * It works by redefining the tokens on the section rather than by restating
+ * every colour. Everything already built from --ink, --muted, --line and
+ * --bg follows on its own; only the handful of places that hard-code a dark
+ * value are repeated below, and those are listed here so a new one cannot be
+ * added without it showing up.
+ *
+ * The point field is not hidden by a rule — the section's own background is
+ * opaque and simply covers it. That also means the scrim that fades the
+ * canvas away from the text has nothing to do here, so it is turned off.
+ */
+#packages {
+  --bg: #efece4;
+  --ink: #15171b;
+  --muted: #5c626b;
+  --muted-strong: #3b4048;
+  --line: rgba(21, 23, 27, 0.16);
+  /* --warm is a light gold made to sit on black; on ivory it is barely there.
+     This is the same hue taken down to where it reads on a pale card. */
+  --warm: #8a6524;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+#packages::before {
+  display: none;
+}
+
+/* Full width and centred: the prices are the one thing on the page that is
+   not a column of text beside an image, so they get the whole screen. */
+#packages > .col {
+  max-width: none;
+  margin-left: 0;
+  text-align: center;
+}
+
+#packages .lede {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#packages .gtitle,
+#packages.rev .gtitle {
+  justify-content: center;
+}
+
+/* A price list read centred loses the left edge the eye counts down, which is
+   the same reason the cards stay left inside a right-hand column. */
+#packages .pack,
+#packages .pack .pl li {
+  text-align: left;
+}
+
+#packages .pack {
+  background: #fbfaf7;
+  border-color: rgba(21, 23, 27, 0.14);
+}
+
+#packages .pack::before {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(251, 250, 247, 0.4) 0%,
+      rgba(251, 250, 247, 0.88) 58%,
+      #fbfaf7 100%
+    ),
+    var(--shot);
+}
+
+#packages .pack.on {
+  background: #fffdf7;
+  border-color: rgba(138, 101, 36, 0.7);
+}
+
+#packages .pack.on::before {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255, 253, 247, 0.4) 0%,
+      rgba(255, 253, 247, 0.88) 58%,
+      #fffdf7 100%
+    ),
+    var(--shot);
+}
+
+/* The tag keeps the bright gold — on a pale card it is the one thing that has
+   to stop the eye, and dark type on it still clears contrast. */
+#packages .tag {
+  background: #c9a16a;
+  color: #17130a;
+}
+
+#packages .pl li {
+  color: #3f444c;
 }
