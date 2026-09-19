@@ -1226,9 +1226,7 @@ h2 {
   position: relative;
   display: flex;
   flex-direction: column;
-  /* The top padding is the photo band plus its gap — the content begins under
-     the picture, not on top of it. */
-  padding: 188px 26px 26px;
+  padding: 30px 26px 26px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   /* Opaque, not a tint. The point cloud was showing through the cards and
      running straight across the price — no amount of contrast fixes text
@@ -1238,33 +1236,29 @@ h2 {
   overflow: hidden;
 }
 
-/* The property, at the head of the card.
- *
- * It used to sit behind the number and the title under a scrim heavy enough to
- * keep them readable, which on the ivory cards meant a near-white wash over the
- * photograph — the picture was there and you could not see it. Nothing is read
- * over it now, so the scrim is gone: the image runs at full strength and only
- * the last fifth of it dissolves into the card, so the band reads as part of
- * the card rather than a photograph pasted onto it.
- *
- * It stays a pseudo-element over an opaque card rather than a background on the
- * card itself, which is what keeps the point field from coming back through.
- */
+/* The property behind the head of the card. It is a pseudo-element on top of
+   the opaque background, never a background on the card itself: the field
+   cannot come back through. The scrim starts at 0.62 — dark enough that the
+   number and the tag keep their contrast — and reaches the card's own colour
+   by the bottom of the band, so no line of type sits on a boundary. */
 .pack::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 162px;
+  height: 172px;
   z-index: 0;
   background-image:
-    linear-gradient(to bottom, transparent 0%, transparent 74%, var(--card) 100%),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--card) 62%, transparent) 0%,
+      color-mix(in srgb, var(--card) 86%, transparent) 58%,
+      var(--card) 100%
+    ),
     var(--shot);
   background-size: cover, cover;
   background-position: center, center 42%;
-  /* the stills are graded for a dark page and go slightly flat on ivory */
-  filter: saturate(1.12) contrast(1.04);
 }
 
 /* The band is positioned, so in-flow content would paint under it. */
@@ -2211,89 +2205,86 @@ h2 {
   }
 }
 
-/* ---- PACKAGES ON IVORY ---- */
+/* ---- CONTACT ON IVORY ---- */
 
 /*
- * The one light section in a black page. It is the prices, on purpose: it is
- * where the visitor decides, and lifting it out of the film stops the whole
- * site reading as one unbroken dark surface.
+ * The one light section in a black page, at the end of it.
  *
- * It works by redefining the tokens on the section rather than by restating
- * every colour. Everything already built from --ink, --muted, --line and
- * --bg follows on its own; only the handful of places that hard-code a dark
- * value are repeated below, and those are listed here so a new one cannot be
- * added without it showing up.
+ * It was tried on the prices first, which was the wrong place: that section is
+ * the photographs and the gold, and lifting it out of the film cost more than
+ * the break was worth. Here it earns it — the page has been dark for thirteen
+ * screens, the visitor has finished looking and is being asked to write, and
+ * the change of ground is what says so.
  *
- * The point field is not hidden by a rule — the section's own background is
- * opaque and simply covers it. That also means the scrim that fades the
- * canvas away from the text has nothing to do here, so it is turned off.
+ * It works by redefining the tokens on the section rather than restating every
+ * colour: everything already built from --ink, --muted, --line and --warm
+ * follows on its own. Only the handful of places that hard-code a dark value
+ * are repeated below, and keeping them in one block is what makes a new one
+ * obvious when it is added.
+ *
+ * The point field is not hidden by a rule — the section's background is opaque
+ * and covers it. The scrim that fades the canvas away from the column has
+ * nothing to do here, so it is off.
  */
-#packages {
-  --bg: #efece4;
+#contact {
+  --bg: #f2efe9;
   --ink: #15171b;
   --muted: #5c626b;
   --muted-strong: #3b4048;
-  --line: rgba(21, 23, 27, 0.16);
-  /* --warm is a light gold made to sit on black; on ivory it is barely there.
-     This is the same hue taken down to where it reads on a pale card. */
+  --line: rgba(21, 23, 27, 0.18);
+  /* --warm is a light gold made for black; on ivory it is barely there. Same
+     hue, taken down to where it reads on a pale ground. */
   --warm: #8a6524;
   background: var(--bg);
   color: var(--ink);
 }
 
-#packages::before {
+#contact::before {
   display: none;
 }
 
-/* Full width and centred: the prices are the one thing on the page that is
-   not a column of text beside an image, so they get the whole screen. */
-#packages > .col {
-  max-width: none;
-  margin-left: 0;
-  text-align: center;
+#contact .bigmail {
+  color: var(--ink);
+  border-bottom-color: rgba(21, 23, 27, 0.32);
 }
 
-#packages .lede {
-  margin-left: auto;
-  margin-right: auto;
+#contact .bigmail:hover {
+  border-bottom-color: var(--ink);
 }
 
-#packages .gtitle,
-#packages.rev .gtitle {
-  justify-content: center;
+/* Dark gold needs light type on it, not the near-black the bright gold takes. */
+#contact .enq button,
+#contact .fretry {
+  background: var(--warm);
+  color: #fdfbf6;
 }
 
-/* A price list read centred loses the left edge the eye counts down, which is
-   the same reason the cards stay left inside a right-hand column. */
-#packages .pack,
-#packages .pack .pl li {
-  text-align: left;
+#contact .formdone {
+  border-color: rgba(138, 101, 36, 0.45);
+  background: #faf6ec;
 }
 
-/* Only the card colour changes; the band dissolves into whatever --card is, so
-   the photograph needs no separate treatment here. */
-#packages .pack {
-  --card: #fbfaf7;
-  border-color: rgba(21, 23, 27, 0.14);
+#contact .formdone:has(.ffail) {
+  border-color: rgba(150, 66, 30, 0.45);
+  background: #fbf1ea;
 }
 
-#packages .pack.on {
-  --card: #fffdf7;
-  border-color: rgba(138, 101, 36, 0.7);
-  /* The lift keeps a gold ring, but the deep black drop under it was drawn for
-     a black page, where it is invisible. On ivory it is a grey smudge. */
-  box-shadow:
-    0 0 0 1px rgba(138, 101, 36, 0.3),
-    0 18px 44px rgba(56, 44, 20, 0.14);
+#contact .ffail {
+  color: #97401c;
 }
 
-/* The tag keeps the bright gold — on a pale card it is the one thing that has
-   to stop the eye, and dark type on it still clears contrast. */
-#packages .tag {
-  background: #c9a16a;
-  color: #17130a;
+/* The offer banner is drawn in white against black: a white rule and white
+   type. Both vanish on ivory. */
+#contact .offer {
+  border-left-color: var(--ink);
 }
 
-#packages .pl li {
-  color: #3f444c;
+#contact.rev .offer,
+#contact .col.right .offer {
+  border-left-color: var(--line);
+  border-right-color: var(--ink);
+}
+
+#contact .offer .oh {
+  color: var(--ink);
 }
