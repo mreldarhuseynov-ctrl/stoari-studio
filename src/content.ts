@@ -67,19 +67,14 @@ export const SECTIONS: Section[] = [
   // by what it lists. Proof first, offer second.
   { id: 'work', wide: true, shape: 1 },
   // Prices second. A visitor who came to find out what this costs should meet
-  // the answer on the third screen, not the fifth — and the packages say what
-  // the studio does more concretely than a list of services ever did.
+  // the answer on the third screen, not the fifth.
   { id: 'packages', rev: true, wide: true, shape: 2 },
-  { id: 'services', shape: 4 },
-  // The commercial run, in the order a buyer actually decides: what a listing
-  // costs, then what an agent costs, then what a developer buys, then what it
-  // costs to fly us somewhere else. All four are wide — a price grid needs the
-  // width of four cards, and squeezing one into the 520px text measure turns
-  // the cards into columns too narrow to read a line of.
-  { id: 'program', rev: true, wide: true, shape: 5 },
-  { id: 'project', wide: true, shape: 1 },
-  // Leads and automation sits right behind the developers, because it is the
-  // answer to what happens once their film has done its work.
+  // Full films third, right after the prices: a buyer who has just read what
+  // it costs wants to see what that money buys, whole and with sound.
+  { id: 'films', wide: true, shape: 5 },
+  { id: 'services', rev: true, shape: 4 },
+  { id: 'program', wide: true, shape: 5 },
+  { id: 'project', rev: true, wide: true, shape: 1 },
   { id: 'funnel', wide: true, shape: 3 },
   { id: 'travel', rev: true, wide: true, shape: 2 },
   { id: 'how', shape: 4 },
@@ -89,10 +84,9 @@ export const SECTIONS: Section[] = [
 ]
 
 /**
- * Sides alternate from `work` to `contact` with one repeat: `funnel` follows
- * `project` on the same side. Eleven sections below the hero cannot alternate
- * cleanly and still land `contact` on the right, and the repeat sits directly
- * behind a wide section — which reads as a break in the rhythm, not as a side.
+ * Sides alternate strictly from `work` to `contact` — left, right, left, right.
+ * Twelve sections under the hero is an even number, so the alternation lands
+ * `contact` on the right without a single repeat.
  */
 
 /**
@@ -100,71 +94,80 @@ export const SECTIONS: Section[] = [
  * COPY and are matched to these frames by position, so the two arrays must
  * stay the same length.
  */
+/**
+ * Media paths go through the build's base URL rather than starting with `/`.
+ * A root-relative path only works when the site is served from the domain root;
+ * the moment it is opened anywhere else — a preview link, a subfolder — every
+ * image and every clip on the page 404s at once. That is exactly how the work
+ * cards went blank on the first preview link.
+ */
+const w = (file: string) => `${import.meta.env.BASE_URL}works/${file}`
+
 export const WORK_MEDIA = [
   {
     n: '01',
-    img: '/works/01-madronal.webp',
-    clip: '/works/01-madronal-loop.mp4',
+    img: w('01-madronal.webp'),
+    clip: w('01-madronal-loop.mp4'),
     frames: [
-      '/works/01-madronal-a.webp',
-      '/works/01-madronal-b.webp',
-      '/works/01-madronal-c.webp',
-      '/works/01-madronal-d.webp',
+      w('01-madronal-a.webp'),
+      w('01-madronal-b.webp'),
+      w('01-madronal-c.webp'),
+      w('01-madronal-d.webp'),
     ],
   },
   {
     n: '02',
-    img: '/works/02-alfa.webp',
-    clip: '/works/02-alfa-loop.mp4',
+    img: w('02-alfa.webp'),
+    clip: w('02-alfa-loop.mp4'),
     frames: [
-      '/works/02-alfa-a.webp',
-      '/works/02-alfa-b.webp',
-      '/works/02-alfa-c.webp',
-      '/works/02-alfa-d.webp',
+      w('02-alfa-a.webp'),
+      w('02-alfa-b.webp'),
+      w('02-alfa-c.webp'),
+      w('02-alfa-d.webp'),
     ],
   },
   {
     n: '03',
-    img: '/works/03-alfa-interiors.webp',
-    clip: '/works/03-alfa-interiors-loop.mp4',
+    img: w('03-alfa-interiors.webp'),
+    clip: w('03-alfa-interiors-loop.mp4'),
     frames: [
-      '/works/03-alfa-interiors-a.webp',
-      '/works/03-alfa-interiors-b.webp',
-      '/works/03-alfa-interiors-c.webp',
-      '/works/03-alfa-interiors-d.webp',
+      w('03-alfa-interiors-a.webp'),
+      w('03-alfa-interiors-b.webp'),
+      w('03-alfa-interiors-c.webp'),
+      w('03-alfa-interiors-d.webp'),
     ],
   },
   {
     n: '04',
-    img: '/works/04-marina.webp',
-    clip: '/works/04-marina-loop.mp4',
+    img: w('04-marina.webp'),
+    clip: w('04-marina-loop.mp4'),
     frames: [
-      '/works/04-marina-a.webp',
-      '/works/04-marina-b.webp',
-      '/works/04-marina-c.webp',
-      '/works/04-marina-d.webp',
+      w('04-marina-a.webp'),
+      w('04-marina-b.webp'),
+      w('04-marina-c.webp'),
+      w('04-marina-d.webp'),
     ],
   },
   {
     n: '05',
-    img: '/works/05-yinyang.webp',
-    clip: '/works/05-yinyang-loop.mp4',
+    img: w('05-yinyang.webp'),
+    clip: w('05-yinyang-loop.mp4'),
     frames: [
-      '/works/05-yinyang-a.webp',
-      '/works/05-yinyang-b.webp',
-      '/works/05-yinyang-c.webp',
-      '/works/05-yinyang-d.webp',
+      w('05-yinyang-a.webp'),
+      w('05-yinyang-b.webp'),
+      w('05-yinyang-c.webp'),
+      w('05-yinyang-d.webp'),
     ],
   },
   {
     n: '06',
-    img: '/works/06-agent.webp',
-    clip: '/works/06-agent-loop.mp4',
+    img: w('06-agent.webp'),
+    clip: w('06-agent-loop.mp4'),
     frames: [
-      '/works/06-agent-a.webp',
-      '/works/06-agent-b.webp',
-      '/works/06-agent-c.webp',
-      '/works/06-agent-d.webp',
+      w('06-agent-a.webp'),
+      w('06-agent-b.webp'),
+      w('06-agent-c.webp'),
+      w('06-agent-d.webp'),
     ],
   },
 ]
@@ -270,7 +273,7 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
       wa: 'CONTINUE ON WHATSAPP',
     },
-    labels: ['INDEX', 'WORK', 'PACKAGES', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'LEADS & AUTOMATION', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
+    labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'AGENCY SYSTEM', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'ARCHITECTURAL VISUALIZATION',
       title: ['Buildings before', 'they exist'],
@@ -280,7 +283,7 @@ export const COPY: Record<Lang, Copy> = {
       cue: 'SCROLL',
     },
     services: {
-      eyebrow: '03 — SERVICES',
+      eyebrow: '04 — SERVICES',
       title: ['Everything a project', 'needs to be sold'],
       lede: 'Most developers buy renders in one place, film in another and a website in a third, then spend weeks making them look like the same project. Here it is one studio and one look.',
       rows: [
@@ -306,8 +309,8 @@ export const COPY: Record<Lang, Copy> = {
         },
         {
           n: '05',
-          t: 'Leads & automation',
-          d: 'The WhatsApp bot that answers at once and the CRM the enquiry lands in — the half that comes after the film.',
+          t: 'Agency system',
+          d: 'Every WhatsApp answered in under thirty seconds, leads and properties in one CRM — the half that comes after the film.',
         },
       ],
     },
@@ -393,7 +396,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '08 — WHY',
+      eyebrow: '10 — WHY',
       title: ['Days, not months,', 'and in both formats'],
       lede: 'Most studios quote weeks before you see anything. Here the first look comes back in days — vertical for social and landscape for the site, the portal and the deck. Nothing has to be recut.',
       stats: [
@@ -429,7 +432,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '11 — CONTACT',
+      eyebrow: '12 — CONTACT',
       title: ['Send the drawings.', 'See it standing.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
       waText: 'Hi Eldar — I found STOARI online. I have a project on the Costa del Sol.',
@@ -465,7 +468,7 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp es más rápido, escribe ahí.',
       wa: 'SEGUIR POR WHATSAPP',
     },
-    labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'LEADS Y AUTOMATIZACIÓN', 'DESPLAZAMIENTO', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
+    labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'PELÍCULAS', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'SISTEMA PARA AGENCIAS', 'DESPLAZAMIENTO', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'VISUALIZACIÓN ARQUITECTÓNICA',
       title: ['Ver el edificio', 'antes de construirlo'],
@@ -475,7 +478,7 @@ export const COPY: Record<Lang, Copy> = {
       cue: 'BAJAR',
     },
     services: {
-      eyebrow: '03 — SERVICIOS',
+      eyebrow: '04 — SERVICIOS',
       title: ['Todo lo que hace falta', 'para vender el proyecto'],
       lede: 'Lo normal es encargar los renders en un sitio, el vídeo en otro y la web en un tercero, y luego pasar semanas haciendo que parezcan el mismo proyecto. Aquí es un solo estudio y una sola mirada.',
       rows: [
@@ -501,8 +504,8 @@ export const COPY: Record<Lang, Copy> = {
         },
         {
           n: '05',
-          t: 'Leads y automatización',
-          d: 'El bot de WhatsApp que responde al instante y el CRM donde cae la consulta — la mitad que viene después del vídeo.',
+          t: 'Sistema para agencias',
+          d: 'Cada WhatsApp contestado en menos de treinta segundos, leads y propiedades en un solo CRM — la mitad que viene después del vídeo.',
         },
       ],
     },
@@ -588,7 +591,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '08 — POR QUÉ',
+      eyebrow: '10 — POR QUÉ',
       title: ['Días, no meses,', 'y en los dos formatos'],
       lede: 'La mayoría de los estudios habla de semanas antes de que usted vea nada. Aquí la primera versión llega en días — en vertical para redes y en horizontal para la web, el portal y la presentación. No hay que remontar nada.',
       stats: [
@@ -624,7 +627,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '11 — CONTACTO',
+      eyebrow: '12 — CONTACTO',
       title: ['Envíe los planos.', 'Lo verá antes de obra.'],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
       waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
@@ -660,7 +663,7 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'Смета вернётся в тот же день. Если в WhatsApp быстрее — напишите туда.',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
-    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'ЗАЯВКИ И АВТОМАТИЗАЦИЯ', 'ВЫЕЗД', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
+    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'СИСТЕМА ДЛЯ АГЕНТСТВА', 'ВЫЕЗД', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'АРХИТЕКТУРНАЯ ВИЗУАЛИЗАЦИЯ',
       title: ['Покажем объект', 'до начала стройки'],
@@ -670,7 +673,7 @@ export const COPY: Record<Lang, Copy> = {
       cue: 'ВНИЗ',
     },
     services: {
-      eyebrow: '03 — УСЛУГИ',
+      eyebrow: '04 — УСЛУГИ',
       title: ['Всё, что нужно,', 'чтобы объект продался'],
       lede: 'Обычно рендеры заказывают в одном месте, съёмку в другом, сайт в третьем — а потом неделями сводят это к виду одного проекта. Здесь одна студия и один взгляд.',
       rows: [
@@ -696,8 +699,8 @@ export const COPY: Record<Lang, Copy> = {
         },
         {
           n: '05',
-          t: 'Заявки и автоматизация',
-          d: 'Бот в WhatsApp, который отвечает сразу, и CRM, куда падает заявка, — вторая половина, которая идёт после ролика.',
+          t: 'Система для агентства',
+          d: 'Каждый WhatsApp — ответ меньше чем за тридцать секунд, заявки и объекты в одной CRM — вторая половина, которая идёт после ролика.',
         },
       ],
     },
@@ -783,7 +786,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '08 — ПОЧЕМУ МЫ',
+      eyebrow: '10 — ПОЧЕМУ МЫ',
       title: ['Дни, а не месяцы,', 'и сразу в двух форматах'],
       lede: 'Большинство студий называют недели, прежде чем вы увидите хоть что-то. Здесь первый вариант приходит за несколько дней — и сразу вертикально для соцсетей и горизонтально для сайта, портала и презентации. Пересводить ничего не нужно.',
       stats: [
@@ -819,7 +822,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '11 — КОНТАКТ',
+      eyebrow: '12 — КОНТАКТ',
       title: ['Пришлите чертежи.', 'Покажем объект до стройки.'],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
       waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',

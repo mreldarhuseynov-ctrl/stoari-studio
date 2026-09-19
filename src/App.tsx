@@ -11,6 +11,15 @@ import {
   type Lang,
 } from './content'
 import { OFFER, type Block } from './offer'
+import {
+  FILMS,
+  FILMS_COPY,
+  filmPoster,
+  filmPreview,
+  filmSrc,
+  fmtTime,
+  type Kind,
+} from './films'
 
 function Mark() {
   return (
@@ -249,6 +258,166 @@ function Enquiry({ c }: { c: Copy }) {
   )
 }
 
+/**
+ * The full films. A mosaic rather than a grid of equal tiles: vertical films
+ * stand one column wide and two rows tall, horizontal ones lie two columns
+ * wide and one row tall, and `grid-auto-flow: dense` packs them. Every tile is
+ * cropped only slightly; the film itself always plays uncropped.
+ *
+ * Nothing heavy loads until it is asked for: posters on the page, a four-second
+ * silent preview on hover, and the film itself only when it is opened.
+ */
+function Films({ lang }: { lang: Lang }) {
+  const t = FILMS_COPY[lang]
+  const [kind, setKind] = useState<Kind | 'all'>('all')
+  const [open, setOpen] = useState<number | null>(null)
+  const list = FILMS.filter((x) => kind === 'all' || x.kind === kind)
+  const kinds = (['villas', 'fpv', 'agents', 'build', 'ai'] as Kind[]).filter((k) =>
+    FILMS.some((x) => x.kind === k),
+  )
+
+  const film = open === null ? null : list[open]
+
+  useEffect(() => {
+    if (open === null) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+      if (e.key === 'ArrowRight') setOpen((i) => (i === null ? i : (i + 1) % list.length))
+      if (e.key === 'ArrowLeft')
+        setOpen((i) => (i === null ? i : (i - 1 + list.length) % list.length))
+    }
+    document.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [open, list.length])
+
+  const hover = (on: boolean) => (e: { currentTarget: HTMLElement }) => {
+    const v = e.currentTarget.querySelector('video')
+    if (!v) return
+    if (on) void v.play().catch(() => {})
+    else {
+      v.pause()
+      v.currentTime = 0
+    }
+  }
+
+  return (
+    <>
+      <div className="eyebrow rv">
+        <i />
+        {t.eyebrow}
+      </div>
+      <h2 className="rv">
+        {t.title[0]}
+        <br />
+        {t.title[1]}
+      </h2>
+      <p className="lede rv">{t.lede}</p>
+
+      <div className="ftabs rv" role="tablist">
+        {(['all', ...kinds] as (Kind | 'all')[]).map((k) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={kind === k}
+            className={kind === k ? 'on' : ''}
+            onClick={() => setKind(k)}
+          >
+            {k === 'all' ? t.all : t.kinds[k]}
+            <span>
+              {k === 'all' ? FILMS.length : FILMS.filter((x) => x.kind === k).length}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* The wrapper is the size container the mosaic measures itself against:
+          rows are derived from the column width, so a vertical tile stays near
+          9:16 and a horizontal one near 16:9 at every screen width. */}
+      <div className="filmswrap rv">
+      <div className="films">
+        {list.map((x, i) => (
+          <button
+            key={x.id}
+            type="button"
+            className={x.vertical ? 'film v' : 'film h'}
+            onClick={() => setOpen(i)}
+            onMouseEnter={hover(true)}
+            onMouseLeave={hover(false)}
+            aria-label={`${x.title} — ${t.lines[x.id]}`}
+          >
+            <img src={filmPoster(x.id)} alt="" loading="lazy" />
+            <video muted loop playsInline preload="none" aria-hidden="true">
+              <source src={filmPreview(x.id)} type="video/mp4" />
+            </video>
+            <span className="fplay" aria-hidden="true" />
+            <span className="fbadges">
+              <span>{fmtTime(x.duration)}</span>
+              <span>{x.vertical ? '9:16' : '16:9'}</span>
+            </span>
+            <span className="fmeta">
+              <span className="fk">{t.kinds[x.kind]}</span>
+              <span className="ft">{x.title}</span>
+              <span className="fl">{t.lines[x.id]}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      </div>
+
+      {film && (
+        <div
+          className="player"
+          role="dialog"
+          aria-modal="true"
+          aria-label={film.title}
+          onClick={(e) => e.target === e.currentTarget && setOpen(null)}
+        >
+          <div className={film.vertical ? 'pbox v' : 'pbox h'}>
+            <video
+              key={film.id}
+              src={filmSrc(film.id)}
+              poster={filmPoster(film.id)}
+              controls
+              autoPlay
+              playsInline
+            />
+            <div className="pcap">
+              <span className="fk">{t.kinds[film.kind]}</span>
+              <span className="ft">{film.title}</span>
+              <span className="fl">
+                {t.lines[film.id]} · {fmtTime(film.duration)}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="pnav prev"
+            onClick={() => setOpen((open! - 1 + list.length) % list.length)}
+          >
+            {t.prev}
+          </button>
+          <button
+            type="button"
+            className="pnav next"
+            onClick={() => setOpen((open! + 1) % list.length)}
+          >
+            {t.next}
+          </button>
+          <button type="button" className="pclose" onClick={() => setOpen(null)}>
+            {t.close}
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function App() {
   useEffect(() => createField(), [])
 
@@ -338,16 +507,25 @@ export default function App() {
           makes its own stacking context, so nothing inside it — however negative
           its z-index — can ever fall behind the canvas. Out here it can.
           Absolute, not fixed: it scrolls away with the hero. */}
-      <div className="heroclip" aria-hidden="true">
+      <div
+        className="heroclip"
+        aria-hidden="true"
+        style={{
+          backgroundImage: `url(${import.meta.env.BASE_URL}hero/hero-poster.jpg)`,
+        }}
+      >
         <video
           autoPlay
           muted
           loop
           playsInline
           preload="metadata"
-          poster="/hero/hero-poster.jpg"
+          poster={`${import.meta.env.BASE_URL}hero/hero-poster.jpg`}
         >
-          <source src="/hero/hero-15s.mp4" type="video/mp4" />
+          <source
+            src={`${import.meta.env.BASE_URL}hero/hero-15s.mp4`}
+            type="video/mp4"
+          />
         </video>
       </div>
 
@@ -498,6 +676,17 @@ export default function App() {
           data-label={c.labels[3]}
         >
           <div className={col(3)}>
+            <Films lang={lang} />
+          </div>
+        </section>
+
+        <section
+          id={s[4].id}
+          className={cls(4)}
+          data-shape={s[4].shape}
+          data-label={c.labels[4]}
+        >
+          <div className={col(4)}>
             <div className="eyebrow rv">
               <i />
               {c.services.eyebrow}
@@ -522,23 +711,23 @@ export default function App() {
         </section>
 
         <section
-          id={s[4].id}
-          className={cls(4)}
-          data-shape={s[4].shape}
-          data-label={c.labels[4]}
-        >
-          <div className={col(4)}>
-            <Packs block={o.program} vat={o.vat} cta={c.cta} />
-          </div>
-        </section>
-
-        <section
           id={s[5].id}
           className={cls(5)}
           data-shape={s[5].shape}
           data-label={c.labels[5]}
         >
           <div className={col(5)}>
+            <Packs block={o.program} vat={o.vat} cta={c.cta} />
+          </div>
+        </section>
+
+        <section
+          id={s[6].id}
+          className={cls(6)}
+          data-shape={s[6].shape}
+          data-label={c.labels[6]}
+        >
+          <div className={col(6)}>
             <Packs block={o.project} vat={o.vat} cta={c.cta} />
             <div className="passes rv">
               <div className="gtitle">
@@ -561,24 +750,13 @@ export default function App() {
         </section>
 
         <section
-          id={s[6].id}
-          className={cls(6)}
-          data-shape={s[6].shape}
-          data-label={c.labels[6]}
-        >
-          <div className={col(6)}>
-            <Packs block={o.funnel} vat={o.vat} cta={c.cta} />
-          </div>
-        </section>
-
-        <section
           id={s[7].id}
           className={cls(7)}
           data-shape={s[7].shape}
           data-label={c.labels[7]}
         >
           <div className={col(7)}>
-            <Packs block={o.travel} vat={o.vat} cta={c.cta} />
+            <Packs block={o.funnel} vat={o.vat} cta={c.cta} />
           </div>
         </section>
 
@@ -589,6 +767,17 @@ export default function App() {
           data-label={c.labels[8]}
         >
           <div className={col(8)}>
+            <Packs block={o.travel} vat={o.vat} cta={c.cta} />
+          </div>
+        </section>
+
+        <section
+          id={s[9].id}
+          className={cls(9)}
+          data-shape={s[9].shape}
+          data-label={c.labels[9]}
+        >
+          <div className={col(9)}>
             <div className="eyebrow rv">
               <i />
               {o.how.eyebrow}
@@ -614,12 +803,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[9].id}
-          className={cls(9)}
-          data-shape={s[9].shape}
-          data-label={c.labels[9]}
+          id={s[10].id}
+          className={cls(10)}
+          data-shape={s[10].shape}
+          data-label={c.labels[10]}
         >
-          <div className={col(9)}>
+          <div className={col(10)}>
             <div className="eyebrow rv">
               <i />
               {c.why.eyebrow}
@@ -646,12 +835,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[10].id}
-          className={cls(10)}
-          data-shape={s[10].shape}
-          data-label={c.labels[10]}
+          id={s[11].id}
+          className={cls(11)}
+          data-shape={s[11].shape}
+          data-label={c.labels[11]}
         >
-          <div className={col(10)}>
+          <div className={col(11)}>
             <div className="eyebrow rv">
               <i />
               {o.faq.eyebrow}
@@ -676,12 +865,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[11].id}
-          className={cls(11)}
-          data-shape={s[11].shape}
-          data-label={c.labels[11]}
+          id={s[12].id}
+          className={cls(12)}
+          data-shape={s[12].shape}
+          data-label={c.labels[12]}
         >
-          <div className={col(11)}>
+          <div className={col(12)}>
             <div className="eyebrow rv">
               <i />
               {c.contact.eyebrow}

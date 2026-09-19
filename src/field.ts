@@ -646,19 +646,19 @@ void main(){
    * behind the copy.
    *
    *   0 index    hero, centred      1 work      left, wide
-   *   2 packages  right, wide        3 services  left
-   *   4 program   right, wide        5 project   left, wide
-   *   6 funnel    left, wide         7 travel    right, wide
-   *   8 how       left               9 why       right
-   *  10 faq       left              11 contact   right
+   *   2 packages  right, wide        3 films     left, wide
+   *   4 services  right              5 program   left, wide
+   *   6 project   right, wide        7 funnel    left, wide
+   *   8 travel    right, wide        9 how       left
+   *  10 why       right             11 faq       left
+   *  12 contact   right
    *
-   * One repeat, at 5 and 6. Eleven sections under the hero cannot alternate
-   * cleanly and still finish on the right, and the repeat sits behind a wide
-   * section, which the eye reads as a break rather than as a side.
+   * Strict alternation the whole way down. Twelve sections under the hero is an
+   * even count, which is what lets `contact` land on the right with no repeat.
    */
   const OFFSETS = [
     [0, 170],
-    [250, 30], [-250, 30], [250, 30], [-250, 30], [250, 30],
+    [250, 30], [-250, 30], [250, 30], [-250, 30], [250, 30], [-250, 30],
     [250, 30], [-250, 30], [250, 30], [-250, 30], [250, 20], [-250, 0],
   ]
   let tgtOX = 0, tgtOY = isCoarse ? 268 : 170
