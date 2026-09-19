@@ -145,15 +145,39 @@ function initialLang(): Lang {
  * than four near-copies: a change to how a price reads has to land on all of
  * them at once or the page stops looking like one offer.
  */
+/**
+ * How much of a block's price list the page actually shows.
+ *
+ * Twenty-two priced cards across five grids read as a lottery ticket, not as an
+ * offer: past about half a dozen options a buyer stops choosing and starts
+ * leaving. Nothing is deleted to fix that — every package, every line and all
+ * three languages stay in `offer.ts`, because they are what gets quoted when
+ * somebody asks. This only decides what meets a first-time visitor.
+ *
+ * `packs: 0` shows the section and what it is for, and no prices at all. That
+ * is deliberate for the agency system and for travel: one is a different trade
+ * from filming a villa, the other is a line on a quote, and neither earns a
+ * grid of its own on the way past.
+ *
+ * Put a number back and the cards return — that is the whole revert.
+ */
+type Shown = { groups?: number; packs?: number }
+
 function Packs({
   block,
   vat,
   cta,
+  shown,
 }: {
   block: Block
   vat: string
   cta: string
+  shown?: Shown
 }) {
+  const groups = block.groups
+    .slice(0, shown?.groups ?? block.groups.length)
+    .map((g) => ({ ...g, packs: g.packs.slice(0, shown?.packs ?? g.packs.length) }))
+    .filter((g) => g.packs.length)
   return (
     <>
       <div className="eyebrow rv">
@@ -166,7 +190,7 @@ function Packs({
         {block.title[1]}
       </h2>
       <p className="lede rv">{block.lede}</p>
-      {block.groups.map((g, gi) => (
+      {groups.map((g, gi) => (
         <div className="group rv" key={g.title}>
           <div className="gtitle">
             <span className="bar" />
@@ -189,7 +213,7 @@ function Packs({
                   {
                     '--shot': `url(${
                       WORK_MEDIA[
-                        (block.groups
+                        (groups
                           .slice(0, gi)
                           .reduce((n, prev) => n + prev.packs.length, 0) +
                           pi) %
@@ -229,7 +253,7 @@ function Packs({
           </div>
         </div>
       ))}
-      <div className="vat rv">{vat}</div>
+      {groups.length ? <div className="vat rv">{vat}</div> : null}
     </>
   )
 }
@@ -463,7 +487,14 @@ function Films({ lang }: { lang: Lang }) {
             onMouseLeave={hover(false)}
             aria-label={`${x.title} — ${t.lines[x.id]}`}
           >
-            <img src={filmPoster(x.id)} alt="" loading="lazy" />
+            <img
+              src={filmPoster(x.id)}
+              alt=""
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.hidden = true
+              }}
+            />
             <video muted loop playsInline preload="none" aria-hidden="true">
               <source src={filmPreview(x.id)} type="video/mp4" />
             </video>
@@ -953,7 +984,7 @@ export default function App() {
           data-label={c.labels[5]}
         >
           <div className={col(5)}>
-            <Packs block={o.program} vat={o.vat} cta={c.cta} />
+            <Packs block={o.program} vat={o.vat} cta={c.cta} shown={{ groups: 1, packs: 3 }} />
           </div>
         </section>
 
@@ -964,7 +995,7 @@ export default function App() {
           data-label={c.labels[6]}
         >
           <div className={col(6)}>
-            <Packs block={o.project} vat={o.vat} cta={c.cta} />
+            <Packs block={o.project} vat={o.vat} cta={c.cta} shown={{ packs: 3 }} />
             <div className="passes rv">
               <div className="gtitle">
                 <span className="bar" />
@@ -992,7 +1023,7 @@ export default function App() {
           data-label={c.labels[7]}
         >
           <div className={col(7)}>
-            <Packs block={o.funnel} vat={o.vat} cta={c.cta} />
+            <Packs block={o.funnel} vat={o.vat} cta={c.cta} shown={{ packs: 0 }} />
           </div>
         </section>
 
@@ -1003,7 +1034,7 @@ export default function App() {
           data-label={c.labels[8]}
         >
           <div className={col(8)}>
-            <Packs block={o.travel} vat={o.vat} cta={c.cta} />
+            <Packs block={o.travel} vat={o.vat} cta={c.cta} shown={{ packs: 0 }} />
           </div>
         </section>
 
