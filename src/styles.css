@@ -1226,52 +1226,45 @@ h2 {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 30px 26px 26px;
+  /* The top padding is the photo band plus its gap — the content begins under
+     the picture, not on top of it. */
+  padding: 188px 26px 26px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   /* Opaque, not a tint. The point cloud was showing through the cards and
      running straight across the price — no amount of contrast fixes text
      sitting on a moving wireframe. */
-  background: #0e1012;
+  --card: #0e1012;
+  background: var(--card);
   overflow: hidden;
 }
 
-/* The property behind the head of the card. It is a pseudo-element on top of
-   the opaque background, never a background on the card itself: the rule above
-   still holds, and the field cannot come back through. The scrim starts at 0.62
-   — dark enough that the number and the tag keep their contrast — and reaches
-   the card's own colour by the bottom of the band, so no line of type ever sits
-   on a boundary. */
+/* The property, at the head of the card.
+ *
+ * It used to sit behind the number and the title under a scrim heavy enough to
+ * keep them readable, which on the ivory cards meant a near-white wash over the
+ * photograph — the picture was there and you could not see it. Nothing is read
+ * over it now, so the scrim is gone: the image runs at full strength and only
+ * the last fifth of it dissolves into the card, so the band reads as part of
+ * the card rather than a photograph pasted onto it.
+ *
+ * It stays a pseudo-element over an opaque card rather than a background on the
+ * card itself, which is what keeps the point field from coming back through.
+ */
 .pack::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 172px;
+  height: 162px;
   z-index: 0;
   background-image:
-    linear-gradient(
-      to bottom,
-      rgba(14, 16, 18, 0.62) 0%,
-      rgba(14, 16, 18, 0.86) 58%,
-      #0e1012 100%
-    ),
+    linear-gradient(to bottom, transparent 0%, transparent 74%, var(--card) 100%),
     var(--shot);
   background-size: cover, cover;
   background-position: center, center 42%;
-}
-
-/* The highlighted card is warm, so its scrim has to be too — the neutral one
-   over the same photo reads as a dead patch next to the gold border. */
-.pack.on::before {
-  background-image:
-    linear-gradient(
-      to bottom,
-      rgba(21, 18, 12, 0.62) 0%,
-      rgba(21, 18, 12, 0.86) 58%,
-      #15120c 100%
-    ),
-    var(--shot);
+  /* the stills are graded for a dark page and go slightly flat on ivory */
+  filter: saturate(1.12) contrast(1.04);
 }
 
 /* The band is positioned, so in-flow content would paint under it. */
@@ -1294,8 +1287,9 @@ h2 {
 }
 
 .pack.on {
+  --card: #15120c;
   border-color: rgba(201, 161, 106, 0.8);
-  background: #15120c;
+  background: var(--card);
   transform: translateY(-14px);
   box-shadow:
     0 0 0 1px rgba(201, 161, 106, 0.28),
@@ -2276,36 +2270,21 @@ h2 {
   text-align: left;
 }
 
+/* Only the card colour changes; the band dissolves into whatever --card is, so
+   the photograph needs no separate treatment here. */
 #packages .pack {
-  background: #fbfaf7;
+  --card: #fbfaf7;
   border-color: rgba(21, 23, 27, 0.14);
 }
 
-#packages .pack::before {
-  background-image:
-    linear-gradient(
-      to bottom,
-      rgba(251, 250, 247, 0.4) 0%,
-      rgba(251, 250, 247, 0.88) 58%,
-      #fbfaf7 100%
-    ),
-    var(--shot);
-}
-
 #packages .pack.on {
-  background: #fffdf7;
+  --card: #fffdf7;
   border-color: rgba(138, 101, 36, 0.7);
-}
-
-#packages .pack.on::before {
-  background-image:
-    linear-gradient(
-      to bottom,
-      rgba(255, 253, 247, 0.4) 0%,
-      rgba(255, 253, 247, 0.88) 58%,
-      #fffdf7 100%
-    ),
-    var(--shot);
+  /* The lift keeps a gold ring, but the deep black drop under it was drawn for
+     a black page, where it is invisible. On ivory it is a grey smudge. */
+  box-shadow:
+    0 0 0 1px rgba(138, 101, 36, 0.3),
+    0 18px 44px rgba(56, 44, 20, 0.14);
 }
 
 /* The tag keeps the bright gold — on a pale card it is the one thing that has
