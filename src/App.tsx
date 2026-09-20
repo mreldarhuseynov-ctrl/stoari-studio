@@ -306,7 +306,7 @@ function Enquiry({ c }: { c: Copy }) {
 
   /* Whatever they typed travels into the WhatsApp draft, so a visitor who
      prefers to carry on there does not have to say it twice. */
-  const draft = [f.name, f.company, f.object, f.when].filter(Boolean).join(' · ')
+  const draft = [f.name, f.company, f.object, f.when].filter(Boolean).join(', ')
   const wa = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
     draft || c.contact.waText,
   )}`
@@ -536,7 +536,7 @@ function Films({ lang }: { lang: Lang }) {
               <span className="fk">{t.kinds[film.kind]}</span>
               <span className="ft">{film.title}</span>
               <span className="fl">
-                {t.lines[film.id]} · {fmtTime(film.duration)}
+                {t.lines[film.id]}, {fmtTime(film.duration)}
               </span>
             </div>
           </div>
@@ -645,7 +645,7 @@ export default function App() {
          screens, so it is given a multiplier and travels faster than the
          scroll that drives it. */
       const speed = Number(pin.dataset.pinSpeed || 1)
-      return { pin, stage, track, speed, distance: 0 }
+      return { pin, stage, track, speed, distance: 0, stuck: 0 }
     })
 
     let frame = 0
@@ -654,8 +654,13 @@ export default function App() {
       frame = 0
       for (const r of rigs) {
         if (!r.distance || !r.track) continue
-        const past = -r.pin.getBoundingClientRect().top
-        const p = Math.min(1, Math.max(0, past / (r.distance / r.speed)))
+        /* The stage is not the height of the screen — it is the height of the
+           row, stuck at the offset that centres it. Progress is measured from
+           the point where it starts sticking, not from the top of the
+           viewport, or the row would begin moving before it is even still. */
+        const span = r.distance / r.speed
+        const past = r.stuck - r.pin.getBoundingClientRect().top
+        const p = Math.min(1, Math.max(0, past / span))
         r.track.style.transform = `translate3d(${-p * r.distance}px,0,0)`
       }
     }
@@ -676,12 +681,19 @@ export default function App() {
         r.pin.classList.toggle('on', on)
         if (!on || !r.stage || !r.track) {
           r.distance = 0
+          r.stuck = 0
           r.pin.style.height = ''
+          if (r.stage) r.stage.style.top = ''
           if (r.track) r.track.style.transform = ''
           continue
         }
         r.distance = Math.max(0, r.track.offsetWidth - r.stage.clientWidth)
-        r.pin.style.height = `${r.stage.clientHeight + r.distance / r.speed}px`
+        /* A row 320px tall centred inside 100svh leaves a third of a screen
+           empty above it and a third below. The stage is the height of its own
+           content instead, and the sticky offset is what centres it. */
+        r.stuck = Math.max(0, Math.round((innerHeight - r.stage.offsetHeight) / 2))
+        r.stage.style.top = `${r.stuck}px`
+        r.pin.style.height = `${r.stage.offsetHeight + r.distance / r.speed}px`
       }
       draw()
     }
@@ -698,7 +710,7 @@ export default function App() {
       if (!r || !r.distance || !r.track || !r.stage) return
       const card = el.closest('.work, .film') as HTMLElement | null
       if (!card) return
-      const top = r.pin.getBoundingClientRect().top + scrollY
+      const top = r.pin.getBoundingClientRect().top + scrollY - r.stuck
       const span = r.distance / r.speed
       const seen = Math.min(r.distance, Math.max(0, (scrollY - top) * r.speed))
       const w = r.stage.clientWidth
@@ -728,6 +740,7 @@ export default function App() {
         r.track?.removeEventListener('focusin', onFocus)
         r.pin.classList.remove('on')
         r.pin.style.height = ''
+        if (r.stage) r.stage.style.top = ''
         if (r.track) r.track.style.transform = ''
       }
     }
@@ -889,7 +902,7 @@ export default function App() {
               {c.works.title[1]}
             </h2>
             <p className="lede rv">{c.works.lede}</p>
-            <div className="hpin">
+            <div className="hpin" data-pin-speed="0.55">
               <div className="hstage">
                 <div className="works rv">
               {c.works.items.map((w, i) => (
@@ -1037,28 +1050,6 @@ export default function App() {
           data-label={c.labels[7]}
         >
           <div className={col(7)}>
-            <Packs block={o.funnel} vat={o.vat} cta={c.cta} shown={{ packs: 0 }} />
-          </div>
-        </section>
-
-        <section
-          id={s[8].id}
-          className={cls(8)}
-          data-shape={s[8].shape}
-          data-label={c.labels[8]}
-        >
-          <div className={col(8)}>
-            <Packs block={o.travel} vat={o.vat} cta={c.cta} shown={{ packs: 0 }} />
-          </div>
-        </section>
-
-        <section
-          id={s[9].id}
-          className={cls(9)}
-          data-shape={s[9].shape}
-          data-label={c.labels[9]}
-        >
-          <div className={col(9)}>
             <div className="eyebrow rv">
               <i />
               {o.how.eyebrow}
@@ -1084,12 +1075,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[10].id}
-          className={cls(10)}
-          data-shape={s[10].shape}
-          data-label={c.labels[10]}
+          id={s[8].id}
+          className={cls(8)}
+          data-shape={s[8].shape}
+          data-label={c.labels[8]}
         >
-          <div className={col(10)}>
+          <div className={col(8)}>
             <div className="eyebrow rv">
               <i />
               {c.why.eyebrow}
@@ -1116,12 +1107,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[11].id}
-          className={cls(11)}
-          data-shape={s[11].shape}
-          data-label={c.labels[11]}
+          id={s[9].id}
+          className={cls(9)}
+          data-shape={s[9].shape}
+          data-label={c.labels[9]}
         >
-          <div className={col(11)}>
+          <div className={col(9)}>
             <div className="eyebrow rv">
               <i />
               {o.faq.eyebrow}
@@ -1146,12 +1137,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[12].id}
-          className={cls(12)}
-          data-shape={s[12].shape}
-          data-label={c.labels[12]}
+          id={s[10].id}
+          className={cls(10)}
+          data-shape={s[10].shape}
+          data-label={c.labels[10]}
         >
-          <div className={col(12)}>
+          <div className={col(10)}>
             <div className="eyebrow rv">
               <i />
               {c.contact.eyebrow}
@@ -1191,7 +1182,7 @@ export default function App() {
                 target="_blank"
                 rel="noreferrer"
               >
-                WHATSAPP · {BRAND.whatsappLabel}
+                WHATSAPP {BRAND.whatsappLabel}
               </a>
               <a
                 className="wa"
@@ -1199,7 +1190,7 @@ export default function App() {
                 target="_blank"
                 rel="noreferrer"
               >
-                INSTAGRAM · {BRAND.instagramLabel}
+                INSTAGRAM {BRAND.instagramLabel}
               </a>
               <a className="wa" href={BRAND.phoneHref}>
                 {BRAND.phone}
@@ -1219,7 +1210,7 @@ export default function App() {
       </a>
 
       <div id="counter">
-        <b id="cNow">01</b> / {String(s.length).padStart(2, '0')}&nbsp;·&nbsp;
+        <b id="cNow">01</b> / {String(s.length).padStart(2, '0')}&nbsp;&nbsp;
         <span id="cLabel">{c.labels[0]}</span>
       </div>
 

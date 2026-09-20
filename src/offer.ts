@@ -188,7 +188,7 @@ export const OFFER: Record<Lang, Offer> = {
           ],
         },
         {
-          title: 'Monthly programme · minimum three months',
+          title: 'Monthly programme, minimum three months',
           packs: [
             {
               n: '01',
@@ -602,7 +602,7 @@ export const OFFER: Record<Lang, Offer> = {
           ],
         },
         {
-          title: 'Programa mensual · mínimo tres meses',
+          title: 'Programa mensual, mínimo tres meses',
           packs: [
             {
               n: '01',
@@ -1016,7 +1016,7 @@ export const OFFER: Record<Lang, Offer> = {
           ],
         },
         {
-          title: 'Абонемент · минимум три месяца',
+          title: 'Абонемент, минимум три месяца',
           packs: [
             {
               n: '01',

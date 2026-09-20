@@ -831,10 +831,12 @@ h2 {
 /* Only once JS has measured it: the stage stands still at the top of the
    screen while the tall .hpin passes through it, and the row inside is moved
    by transform. Until then the row is an ordinary sideways-scrolling strip. */
+/* The height and the sticky offset are set from JS, once the row has been
+   measured: the stage is as tall as its own content and sticks at the offset
+   that centres that content in the screen. A fixed 100svh centred a 320px
+   strip inside it and left a third of a screen empty at each end. */
 .hpin.on .hstage {
   position: sticky;
-  top: 0;
-  height: 100svh;
   overflow: hidden;
 }
 

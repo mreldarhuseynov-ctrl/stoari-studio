@@ -83,8 +83,6 @@ export const SECTIONS: Section[] = [
   { id: 'services', rev: true, shape: 4 },
   { id: 'program', wide: true, shape: 5 },
   { id: 'project', rev: true, wide: true, shape: 1 },
-  { id: 'funnel', wide: true, shape: 3 },
-  { id: 'travel', rev: true, wide: true, shape: 2 },
   { id: 'how', shape: 4 },
   { id: 'why', rev: true, shape: 5 },
   { id: 'faq', shape: 3 },
@@ -291,12 +289,12 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
-    labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'AGENCY SYSTEM', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
+    labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'ARCHITECTURAL VISUALISATION',
       title: ['Buildings before', 'they exist'],
       lede: 'Visualisation, film, photography and the page that sells them, for villas, apartments and developments on the Costa del Sol. Scripts included: we say what to shoot and what to say on camera.',
-      audience: 'For developers and agents on the Costa del Sol · projects from €950',
+      audience: 'For developers and agents on the Costa del Sol. Projects from €950',
       cta: 'SEE THE PACKAGES',
       cue: 'SCROLL',
     },
@@ -341,7 +339,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'Villa Madronal — the plot and the visualised house',
           t: 'Villa Madronal',
-          k: 'Plot 121 · in-house',
+          k: 'Plot 121, in-house',
           s: 'VISUALISATION',
           d: 'A bare plot filmed from the air, then the house standing on it: one locked shot, from excavation to finished volume.',
           caps: [
@@ -388,7 +386,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'The project outline drawn over the empty plot at night',
           t: 'Yin Yang',
-          k: 'Hacienda Las Chapas · in-house',
+          k: 'Hacienda Las Chapas, in-house',
           s: 'VISUALISATION',
           d: 'An empty plot, the footprint drawn straight onto it from the air at night, then the finished house room by room.',
           caps: [
@@ -455,7 +453,7 @@ export const COPY: Record<Lang, Copy> = {
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
       waText: 'Hi Eldar, I found STOARI online. I have a project on the Costa del Sol.',
       offer: {
-        headline: 'SEPTEMBER TERMS · −30% ON VISUALISATION UNTIL 30 SEPTEMBER',
+        headline: 'SEPTEMBER TERMS: −30% ON VISUALISATION UNTIL 30 SEPTEMBER',
         detail:
           'Visualisation from €665 instead of €950. Quote the same day, first view in seven days. The season is starting and I am still adding objects to the portfolio, so the work has to be publishable. Shoot days and packages keep their prices.',
       },
@@ -490,12 +488,12 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
-    labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'PELÍCULAS', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'SISTEMA PARA AGENCIAS', 'DESPLAZAMIENTO', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
+    labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'PELÍCULAS', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'VISUALIZACIÓN ARQUITECTÓNICA',
       title: ['Ver el edificio', 'antes de construirlo'],
       lede: 'Visualización, vídeo, fotografía y la página que lo vende, para villas, apartamentos y promociones en la Costa del Sol. Guiones incluidos: decimos qué rodar y qué decir ante la cámara.',
-      audience: 'Para promotores y agentes de la Costa del Sol · proyectos desde 950 €',
+      audience: 'Para promotores y agentes de la Costa del Sol. Proyectos desde 950 €',
       cta: 'VER LOS PAQUETES',
       cue: 'BAJAR',
     },
@@ -540,7 +538,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'Villa Madronal — la parcela y la casa visualizada',
           t: 'Villa Madronal',
-          k: 'Parcela 121 · trabajo propio',
+          k: 'Parcela 121, trabajo propio',
           s: 'VISUALIZACIÓN',
           d: 'Una parcela vacía desde el aire y después la casa levantada sobre ella: un solo plano fijo, del vaciado al volumen terminado.',
           caps: [
@@ -587,7 +585,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'El contorno del proyecto dibujado sobre la parcela de noche',
           t: 'Yin Yang',
-          k: 'Hacienda Las Chapas · trabajo propio',
+          k: 'Hacienda Las Chapas, trabajo propio',
           s: 'VISUALIZACIÓN',
           d: 'Una parcela vacía, la huella del edificio dibujada sobre ella desde el aire de noche, y después la casa terminada estancia por estancia.',
           caps: [
@@ -654,7 +652,7 @@ export const COPY: Record<Lang, Copy> = {
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
       waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
       offer: {
-        headline: 'CONDICIONES DE SEPTIEMBRE · −30% EN VISUALIZACIÓN HASTA EL 30 DE SEPTIEMBRE',
+        headline: 'CONDICIONES DE SEPTIEMBRE: −30% EN VISUALIZACIÓN HASTA EL 30 DE SEPTIEMBRE',
         detail:
           'Visualización desde 665 € en lugar de 950 €. Presupuesto el mismo día, primera vista en siete días. Empieza la temporada y sigo sumando obras al porfolio, por eso el trabajo tiene que ser publicable. Las jornadas de rodaje y los paquetes mantienen su precio.',
       },
@@ -689,12 +687,12 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
-    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'СИСТЕМА ДЛЯ АГЕНТСТВА', 'ВЫЕЗД', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
+    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'АРХИТЕКТУРНАЯ ВИЗУАЛИЗАЦИЯ',
       title: ['Покажем объект', 'до начала стройки'],
       lede: 'Визуализация, съёмка, фотографии и сайт — под один проект и в одном стиле. Виллы, апартаменты и посёлки на Коста-дель-Соль. Сценарии входят: говорим, что снимать и что сказать в кадре.',
-      audience: 'Застройщикам и агентствам Коста-дель-Соль · проекты от 950 €',
+      audience: 'Застройщикам и агентствам Коста-дель-Соль. Проекты от 950 €',
       cta: 'СМОТРЕТЬ ПАКЕТЫ',
       cue: 'ВНИЗ',
     },
@@ -739,7 +737,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'Вилла Мадрональ — участок и визуализация дома',
           t: 'Villa Madronal',
-          k: 'Участок 121 · своя работа',
+          k: 'Участок 121, своя работа',
           s: 'ВИЗУАЛИЗАЦИЯ',
           d: 'Пустой участок с воздуха, а затем дом, стоящий на нём — один неподвижный кадр от котлована до готового объёма.',
           caps: [
@@ -786,7 +784,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           alt: 'Контур проекта, прочерченный по пустому участку ночью',
           t: 'Yin Yang',
-          k: 'Hacienda Las Chapas · своя работа',
+          k: 'Hacienda Las Chapas, своя работа',
           s: 'ВИЗУАЛИЗАЦИЯ',
           d: 'Пустой участок, контур будущего дома, прочерченный прямо по земле с воздуха ночью, и готовый дом комната за комнатой.',
           caps: [
@@ -853,7 +851,7 @@ export const COPY: Record<Lang, Copy> = {
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
       waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',
       offer: {
-        headline: 'СЕНТЯБРЬСКИЕ УСЛОВИЯ · −30% НА ВИЗУАЛИЗАЦИЮ ДО 30 СЕНТЯБРЯ',
+        headline: 'СЕНТЯБРЬСКИЕ УСЛОВИЯ: −30% НА ВИЗУАЛИЗАЦИЮ ДО 30 СЕНТЯБРЯ',
         detail:
           'Визуализация от 665 € вместо 950 €. Смета в тот же день, первый вид за семь дней. Начинается сезон, и я добираю объекты в портфолио — поэтому работу должно быть можно публиковать. Съёмочные смены и пакеты остаются в цене.',
       },
