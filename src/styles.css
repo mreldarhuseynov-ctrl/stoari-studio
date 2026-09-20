@@ -31,6 +31,15 @@
      the body is monospace on purpose and stays that way. Cormorant carries
      Cyrillic, which the Russian version needs and Archivo does not have. */
   --head-face: 'Cormorant Garamond', 'Times New Roman', Times, serif;
+  /* Running paragraphs in a monospace made them a puzzle: every letter the
+     same width, so nothing has a shape to recognise and the eye reads letter
+     by letter. Sentences go in Inter. Inter carries Cyrillic, which the
+     Russian version needs. */
+  --body-face: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* The monospace does not leave. It keeps the things it was right for: the
+     small tracked-out labels, the numbers and the figures — the technical
+     register the studio speaks in. It just stops being asked to carry prose. */
+  --mono-face: ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
 }
 
 * {
@@ -46,7 +55,7 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  font-family: var(--body-face);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -330,7 +339,10 @@ h2 {
   display: flex;
   gap: 18px;
   align-items: baseline;
-  padding: 17px 2px;
+  /* The rows were 17px of padding around 13px type: five services in the space
+     of a paragraph. They are the offer in one screen, so they get the room. */
+  padding: 30px 2px;
+  min-height: 132px;
   position: relative;
   overflow: hidden;
 }
@@ -355,8 +367,8 @@ h2 {
     linear-gradient(
       to right,
       rgba(0, 0, 0, 0.52) 0%,
-      rgba(0, 0, 0, 0.86) calc(100% - 300px),
-      #000 calc(100% - 232px)
+      rgba(0, 0, 0, 0.86) calc(100% - 410px),
+      #000 calc(100% - 342px)
     ),
     var(--shot);
   background-size: cover, cover;
@@ -381,17 +393,19 @@ h2 {
 }
 
 .list .row .t {
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  font-size: clamp(17px, 1.7vw, 22px);
+  letter-spacing: -0.01em;
+  align-self: center;
 }
 
 .list .row .d {
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 14px;
+  color: var(--muted-strong);
   margin-left: auto;
   text-align: right;
-  max-width: 210px;
-  line-height: 1.6;
+  max-width: 320px;
+  line-height: 1.65;
+  align-self: center;
 }
 
 .stats {
@@ -2278,6 +2292,44 @@ h2 {
   .fplay {
     transition: none;
   }
+}
+
+/* Everything that is a label, a number or a control keeps the monospace: these
+   are the classes tracked out past 0.14em, plus the figures. Prose is what
+   moved to Inter, not the interface. */
+.eyebrow,
+.cue,
+.gtitle,
+.tag,
+.vat,
+.navtel,
+.herocta,
+.sheetcta,
+.brandword b,
+.stat .k,
+.stat .v,
+.step .sn,
+.strip figcaption,
+.list .row .n,
+.work .k,
+.work .more,
+.work .wmeta .n,
+.pn,
+.pc,
+.pp,
+.ppre,
+.pamt,
+.pper,
+.pcta,
+.wa,
+.fbadges,
+.ftabs button,
+.enq button,
+.fretry,
+.enq input,
+nav,
+.sticky {
+  font-family: var(--mono-face);
 }
 
 /* ---- CONTACT ON IVORY ---- */
