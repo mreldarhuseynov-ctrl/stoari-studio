@@ -275,10 +275,10 @@ export const COPY: Record<Lang, Copy> = {
     stickyCta: 'SEND A PROPERTY',
     form: {
       title: ['Send the property.', 'A quote comes back today.'],
-      lede: 'Four lines. An address or a link is enough to start — drawings can follow.',
+      lede: 'Four lines. An address or a link is enough to start. Drawings can follow.',
       name: 'Your name',
       company: 'Company',
-      object: 'The property — address, link, or a line about it',
+      object: 'The property: address, link, or a line about it',
       when: 'When do you need it',
       submit: 'SEND',
       sending: 'SENDING…',
@@ -287,15 +287,15 @@ export const COPY: Record<Lang, Copy> = {
       done: 'Got it.',
       doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
       failed: 'That did not send.',
-      failedNote: 'Nothing reached us — the enquiry is still in the form below. Try again, or write on WhatsApp, which does not depend on this.',
+      failedNote: 'Nothing reached us. What you wrote is still in the form below, so try again, or write on WhatsApp, which does not depend on this.',
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
     labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'AGENCY SYSTEM', 'TRAVEL', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
     hero: {
-      eyebrow: 'ARCHITECTURAL VISUALIZATION',
+      eyebrow: 'ARCHITECTURAL VISUALISATION',
       title: ['Buildings before', 'they exist'],
-      lede: 'Visualization, film, photography and the page that sells them — for villas, apartments and developments on the Costa del Sol. Scripts included: we say what to shoot and what to say on camera.',
+      lede: 'Visualisation, film, photography and the page that sells them, for villas, apartments and developments on the Costa del Sol. Scripts included: we say what to shoot and what to say on camera.',
       audience: 'For developers and agents on the Costa del Sol · projects from €950',
       cta: 'SEE THE PACKAGES',
       cue: 'SCROLL',
@@ -313,7 +313,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           n: '02',
           t: 'Property & agent film',
-          d: 'Villas, apartments and construction progress, stills from the same day — and the agents who sell them.',
+          d: 'Villas, apartments and construction progress, stills from the same day, and the agents who sell them.',
         },
         {
           n: '03',
@@ -328,14 +328,14 @@ export const COPY: Record<Lang, Copy> = {
         {
           n: '05',
           t: 'Agency system',
-          d: 'Every WhatsApp answered in under thirty seconds, leads and properties in one CRM — the half that comes after the film.',
+          d: 'Every WhatsApp answered in under thirty seconds, leads and properties in one CRM. The half that comes after the film.',
         },
       ],
     },
     works: {
       eyebrow: '01 — WORK',
       title: ['Some of', 'our work'],
-      lede: 'Some of these are built and filmed, some exist only as visualisation. Each answered a different question — open one to see the frames and what was actually needed.',
+      lede: 'Some of these are built and filmed, some exist only as visualisation. Each answered a different question. Open one to see the frames and what was actually needed.',
       more: 'VIEW PROJECT',
       items: [
         {
@@ -343,7 +343,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Villa Madronal',
           k: 'Plot 121 · in-house',
           s: 'VISUALISATION',
-          d: 'A bare plot filmed from the air, then the house standing on it — one locked shot, from excavation to finished volume.',
+          d: 'A bare plot filmed from the air, then the house standing on it: one locked shot, from excavation to finished volume.',
           caps: [
             'Setting out, on the pad',
             'Excavation complete',
@@ -356,7 +356,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Villa Alfa',
           k: 'Marbella',
           s: 'FILM',
-          d: 'A completed residence at dusk and after dark — the garage opening on the car, the stair, the terraces and the approach, all on available light.',
+          d: 'A completed residence at dusk and after dark: the garage opening on the car, the stair, the terraces and the approach, all on available light.',
           caps: [
             'The garage opens, car lit inside',
             'Stair, raking light',
@@ -377,7 +377,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Puerto Marina',
           k: 'Benalmádena',
           s: 'DRONE / FPV',
-          d: 'A marina shown in one unbroken move — down between the moorings, over the roofs and out to the horizon at sunset.',
+          d: 'A marina shown in one unbroken move, down between the moorings, over the roofs and out to the horizon at sunset.',
           caps: [
             'Entry, low over the water',
             'Through the moorings',
@@ -403,7 +403,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Ricardo Ignacio',
           k: 'Marbella',
           s: 'AGENT FILM',
-          d: 'A personal film for an estate agent — the agent, the house and the pitch cut into twenty seconds.',
+          d: 'A personal film for an estate agent: the agent, the house and the pitch cut into twenty seconds.',
           caps: [
             'Approach, hard midday sun',
             'Through the house',
@@ -416,7 +416,7 @@ export const COPY: Record<Lang, Copy> = {
     why: {
       eyebrow: '10 — WHY',
       title: ['Days, not months,', 'and in both formats'],
-      lede: 'Most studios quote weeks before you see anything. Here the first look comes back in days — vertical for social and landscape for the site, the portal and the deck. Nothing has to be recut.',
+      lede: 'Most studios quote weeks before you see anything. Here the first look comes back in days, vertical for social and landscape for the site, the portal and the deck. Nothing has to be recut.',
       stats: [
         { v: '7', k: 'DAYS TO FIRST LOOK', from: 30 },
         { v: '9:16 + 16:9', k: 'BOTH, FROM THE START' },
@@ -453,7 +453,7 @@ export const COPY: Record<Lang, Copy> = {
       eyebrow: '12 — CONTACT',
       title: ['Send the drawings.', 'See it standing.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
-      waText: 'Hi Eldar — I found STOARI online. I have a project on the Costa del Sol.',
+      waText: 'Hi Eldar, I found STOARI online. I have a project on the Costa del Sol.',
       offer: {
         headline: 'SEPTEMBER TERMS · −30% ON VISUALISATION UNTIL 30 SEPTEMBER',
         detail:
@@ -477,7 +477,7 @@ export const COPY: Record<Lang, Copy> = {
       lede: 'Cuatro líneas. Con una dirección o un enlace basta para empezar; los planos pueden venir después.',
       name: 'Tu nombre',
       company: 'Empresa',
-      object: 'El inmueble — dirección, enlace o una línea sobre él',
+      object: 'El inmueble: dirección, enlace o una línea sobre él',
       when: 'Para cuándo lo necesitas',
       submit: 'ENVIAR',
       sending: 'ENVIANDO…',
@@ -486,7 +486,7 @@ export const COPY: Record<Lang, Copy> = {
       done: 'Recibido.',
       doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp es más rápido, escribe ahí.',
       failed: 'No se ha enviado.',
-      failedNote: 'No nos ha llegado nada — lo que escribiste sigue en el formulario. Inténtalo otra vez o escríbenos por WhatsApp, que no depende de esto.',
+      failedNote: 'No nos ha llegado nada. Lo que escribiste sigue en el formulario, Inténtalo otra vez o escríbenos por WhatsApp, que no depende de esto.',
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
@@ -494,7 +494,7 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'VISUALIZACIÓN ARQUITECTÓNICA',
       title: ['Ver el edificio', 'antes de construirlo'],
-      lede: 'Visualización, vídeo, fotografía y la página que lo vende — para villas, apartamentos y promociones en la Costa del Sol. Guiones incluidos: decimos qué rodar y qué decir ante la cámara.',
+      lede: 'Visualización, vídeo, fotografía y la página que lo vende, para villas, apartamentos y promociones en la Costa del Sol. Guiones incluidos: decimos qué rodar y qué decir ante la cámara.',
       audience: 'Para promotores y agentes de la Costa del Sol · proyectos desde 950 €',
       cta: 'VER LOS PAQUETES',
       cue: 'BAJAR',
@@ -522,19 +522,19 @@ export const COPY: Record<Lang, Copy> = {
         {
           n: '04',
           t: 'Página del proyecto',
-          d: 'La landing o la web del proyecto a la que usted manda al comprador.',
+          d: 'La landing o la web del proyecto a la que mandas al comprador.',
         },
         {
           n: '05',
           t: 'Sistema para agencias',
-          d: 'Cada WhatsApp contestado en menos de treinta segundos, leads y propiedades en un solo CRM — la mitad que viene después del vídeo.',
+          d: 'Cada WhatsApp contestado en menos de treinta segundos, contactos y propiedades en un solo CRM. La mitad que viene después del vídeo.',
         },
       ],
     },
     works: {
       eyebrow: '01 — TRABAJOS',
       title: ['Algunos de', 'nuestros trabajos'],
-      lede: 'Algunos ya están construidos y filmados, otros existen sólo en visualización. Cada uno respondía a una pregunta distinta — ábralos para ver los fotogramas y qué hacía falta.',
+      lede: 'Algunos ya están construidos y filmados, otros existen sólo en visualización. Cada uno respondía a una pregunta distinta. Ábrelos para ver los fotogramas y qué hacía falta.',
       more: 'VER PROYECTO',
       items: [
         {
@@ -542,7 +542,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Villa Madronal',
           k: 'Parcela 121 · trabajo propio',
           s: 'VISUALIZACIÓN',
-          d: 'Una parcela vacía desde el aire y después la casa levantada sobre ella — un solo plano fijo, del vaciado al volumen terminado.',
+          d: 'Una parcela vacía desde el aire y después la casa levantada sobre ella: un solo plano fijo, del vaciado al volumen terminado.',
           caps: [
             'Replanteo sobre la plataforma',
             'Vaciado terminado',
@@ -555,7 +555,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Villa Alfa',
           k: 'Marbella',
           s: 'VÍDEO',
-          d: 'Una residencia terminada al anochecer y de noche — el garaje abriéndose sobre el coche, la escalera, las terrazas y el acceso, todo con luz disponible.',
+          d: 'Una residencia terminada al anochecer y de noche: el garaje abriéndose sobre el coche, la escalera, las terrazas y el acceso, todo con luz disponible.',
           caps: [
             'El garaje abre, coche iluminado',
             'Escalera, luz rasante',
@@ -576,7 +576,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Puerto Marina',
           k: 'Benalmádena',
           s: 'DRON / FPV',
-          d: 'Un puerto entero en un solo movimiento — entre los amarres, sobre los tejados y hacia el horizonte al atardecer.',
+          d: 'Un puerto entero en un solo movimiento, entre los amarres, sobre los tejados y hacia el horizonte al atardecer.',
           caps: [
             'Entrada, bajo sobre el agua',
             'Entre los amarres',
@@ -602,7 +602,7 @@ export const COPY: Record<Lang, Copy> = {
           t: 'Ricardo Ignacio',
           k: 'Marbella',
           s: 'VÍDEO DE AGENTE',
-          d: 'Un vídeo personal para un agente inmobiliario — el agente, la casa y su discurso en veinte segundos.',
+          d: 'Un vídeo personal para un agente inmobiliario: el agente, la casa y su discurso en veinte segundos.',
           caps: [
             'Llegada, sol duro de mediodía',
             'Recorrido por la casa',
@@ -615,7 +615,7 @@ export const COPY: Record<Lang, Copy> = {
     why: {
       eyebrow: '10 — POR QUÉ',
       title: ['Días, no meses,', 'y en los dos formatos'],
-      lede: 'La mayoría de los estudios habla de semanas antes de que usted vea nada. Aquí la primera versión llega en días — en vertical para redes y en horizontal para la web, el portal y la presentación. No hay que remontar nada.',
+      lede: 'La mayoría de los estudios habla de semanas antes de que veas nada. Aquí la primera versión llega en días, en vertical para redes y en horizontal para la web, el portal y la presentación. No hay que remontar nada.',
       stats: [
         { v: '7', k: 'DÍAS HASTA LA PRIMERA VERSIÓN', from: 30 },
         { v: '9:16 + 16:9', k: 'LOS DOS, DESDE EL PRINCIPIO' },
@@ -634,7 +634,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '02',
           st: 'Volumen',
-          sd: 'Levantamos el volumen según sus planos y se lo enviamos para aprobación. Hasta que usted lo confirme, no seguimos.',
+          sd: 'Levantamos el volumen según tus planos y te lo enviamos para aprobación. Hasta que lo confirmes, no seguimos.',
         },
         {
           sn: '03',

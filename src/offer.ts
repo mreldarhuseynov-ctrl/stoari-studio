@@ -77,7 +77,7 @@ export const OFFER: Record<Lang, Offer> = {
     packages: {
       eyebrow: '02 — PACKAGES',
       title: ['Everything a listing', 'needs, from one visit'],
-      lede: 'Photography, film, drone and the page — shot in one visit and cut to one look. The figure is the entry point for a standard villa; anything larger is quoted the same day.',
+      lede: 'Photography, film, drone and the page, shot in one visit and cut to one look. The figure is the entry point for a standard villa; anything larger is quoted the same day.',
       groups: [
         {
           title: 'Per property',
@@ -144,7 +144,7 @@ export const OFFER: Record<Lang, Offer> = {
     program: {
       eyebrow: '05 — AGENTS & PROGRAMME',
       title: ['The agent is the', 'other half of the sale'],
-      lede: 'A property is filmed once. An agent is filmed every month, and that is what keeps the listings coming. Scripts are included — we tell you what to shoot and what to say on camera.',
+      lede: 'A property is filmed once. An agent is filmed every month, and that is what keeps the listings coming. Scripts are included: we tell you what to shoot and what to say on camera.',
       groups: [
         {
           title: 'One shoot day',
@@ -201,7 +201,7 @@ export const OFFER: Record<Lang, Offer> = {
                 'Stories that keep the profile alive all month',
                 'A monthly editorial plan: what goes out, and when',
               ],
-              foot: 'Bought separately: €2,500. Minimum three months — before that the effect does not show.',
+              foot: 'Bought separately: €2,500. Minimum three months. Before that the effect does not show.',
             },
             {
               n: '02',
@@ -246,7 +246,7 @@ export const OFFER: Record<Lang, Offer> = {
     project: {
       eyebrow: '06 — DEVELOPERS',
       title: ['Sell it before', 'it is standing'],
-      lede: 'Priced by the property, not by the number of views — how many angles it takes for a building to be understood is the studio’s call. Two rounds of revisions are included in all of it.',
+      lede: 'Priced by the property, not by the number of views. How many angles it takes for a building to be understood is the studio’s call. Two rounds of revisions are included in all of it.',
       groups: [
         {
           title: 'Visualisation',
@@ -306,7 +306,7 @@ export const OFFER: Record<Lang, Offer> = {
     funnel: {
       eyebrow: '07 — AGENCY SYSTEM',
       title: ['Every enquiry answered', 'in thirty seconds.'],
-      lede: 'A buyer writes on Saturday evening and the agency answers on Monday — by then they have spoken to two others. We build the system that answers at once, asks what the agent would ask, and has everything waiting in the CRM by morning. Live in 21 days.',
+      lede: 'A buyer writes on Saturday evening and the agency answers on Monday. By then they have spoken to two others. We build the system that answers at once, asks what the agent would ask, and has everything waiting in the CRM by morning. Live in 21 days.',
       groups: [
         {
           title: 'Built for the agency, run from the phone',
@@ -456,7 +456,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'How many rounds of revisions are included?',
-          a: 'Two. The first after the massing is agreed, the second after light and materials. Anything after that is quoted separately — and once the massing is signed off, moving walls is a new quote, not a revision.',
+          a: 'Two. The first after the massing is agreed, the second after light and materials. Anything after that is quoted separately. Once the massing is signed off, moving walls is a new quote, not a revision.',
         },
         {
           q: 'The building does not exist yet.',
@@ -464,7 +464,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'Who owns the material?',
-          a: 'You do. The studio asks separately, in writing, for the right to show the work in its own portfolio — and a discount is only ever given in exchange for something like that.',
+          a: 'You do. The studio asks separately, in writing, for the right to show the work in its own portfolio, and a discount is only ever given in exchange for something like that.',
         },
         {
           q: 'What do you need from us on the day?',
@@ -491,7 +491,7 @@ export const OFFER: Record<Lang, Offer> = {
     packages: {
       eyebrow: '02 — PAQUETES',
       title: ['Todo lo que un inmueble', 'necesita, en una visita'],
-      lede: 'Fotografía, vídeo, dron y la página — rodado en una sola visita y montado con una misma mirada. La cifra es el punto de partida para una villa estándar; lo más grande se presupuesta el mismo día.',
+      lede: 'Fotografía, vídeo, dron y la página, rodado en una sola visita y montado con una misma mirada. La cifra es el punto de partida para una villa estándar; lo más grande se presupuesta el mismo día.',
       groups: [
         {
           title: 'Por inmueble',
@@ -660,7 +660,7 @@ export const OFFER: Record<Lang, Offer> = {
     project: {
       eyebrow: '06 — PROMOTORES',
       title: ['Véndalo antes', 'de que esté en pie'],
-      lede: 'El precio va por inmueble, no por número de vistas — cuántos ángulos hacen falta para que un edificio se entienda lo decide el estudio. Dos rondas de correcciones incluidas en todo.',
+      lede: 'El precio va por inmueble, no por número de vistas. Cuántos ángulos hacen falta para que un edificio se entienda lo decide el estudio. Dos rondas de correcciones incluidas en todo.',
       groups: [
         {
           title: 'Visualización',
@@ -734,10 +734,10 @@ export const OFFER: Record<Lang, Offer> = {
               rows: [
                 'Asistente de WhatsApp en español, contesta en menos de 30 segundos a cualquier hora',
                 'Pregunta cinco cosas: zona, presupuesto, plazo, financiación y tipo de inmueble',
-                'CRM de leads con estado e historial: a quién llamar hoy, de un vistazo',
+                'CRM de contactos con estado e historial: a quién llamar hoy, de un vistazo',
                 'CRM inmobiliario: el texto del anuncio y las redes, escritos desde las fotos',
                 'Las consultas de Idealista y Fotocasa entran al CRM y se contestan igual',
-                'Quince automatizaciones de seguimiento; un lead caliente avisa al agente al momento',
+                'Quince automatizaciones de seguimiento; un contacto caliente avisa al agente al momento',
                 'Asistente de voz que coge las llamadas perdidas y deja la visita en la agenda',
                 'Funcionando en 21 días, con dos reuniones de acompañamiento',
                 'Sobre GoHighLevel; cualquier otro CRM se revisa antes de comprometer nada',
@@ -870,7 +870,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: '¿Cuántas rondas de correcciones entran?',
-          a: 'Dos. La primera tras aprobar el volumen, la segunda tras luz y materiales. Lo que venga después se presupuesta aparte — y una vez aprobado el volumen, mover muros es presupuesto nuevo, no corrección.',
+          a: 'Dos. La primera tras aprobar el volumen, la segunda tras luz y materiales. Lo que venga después se presupuesta aparte. Una vez aprobado el volumen, mover muros es presupuesto nuevo, no corrección.',
         },
         {
           q: 'El edificio todavía no existe.',
@@ -878,7 +878,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: '¿De quién es el material?',
-          a: 'Suyo. El estudio pide aparte, por escrito, el derecho a mostrar el trabajo en su portfolio — y cualquier rebaja solo se da a cambio de algo así.',
+          a: 'Suyo. El estudio pide aparte, por escrito, el derecho a mostrar el trabajo en su portfolio, y cualquier rebaja solo se da a cambio de algo así.',
         },
         {
           q: '¿Qué necesitan de nosotros ese día?',
