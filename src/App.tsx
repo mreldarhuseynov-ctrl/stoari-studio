@@ -10,7 +10,7 @@ import {
   type Copy,
   type Lang,
 } from './content'
-import { OFFER, type Block } from './offer'
+import { OFFER, type Prices, type Service } from './offer'
 import {
   FILMS,
   FILMS_COPY,
@@ -51,25 +51,6 @@ const SERVICE_SHOT: Record<string, string> = {
   '03': WORK_MEDIA[3].img, // the marina, flown
   '04': WORK_MEDIA[1].img, // the finished residence a project page is built on
   '05': WORK_MEDIA[4].img,
-}
-
-/**
- * A price is one string in the copy — `from €1,400`, `desde 1.400 € / mes`,
- * `от 1 900 € / мес` — because that is how it is written and read in each
- * language, and splitting it in the content would mean three ways to get the
- * same number wrong. It is split here instead, for typesetting only.
- *
- * The amount is the first run of digits touching the currency mark, on either
- * side of it, with the thin and non-breaking spaces the Russian copy uses. The
- * words before it and whatever follows — `/ month`, `+ 350 €/mes` — are set
- * small, so the figure is the only thing at size and the eye lands on it.
- */
-const PRICE = /^(.*?)((?:€\s?[\d.,\u00a0\u202f ]*\d)|(?:\d[\d.,\u00a0\u202f ]*\s?€))(.*)$/
-
-function splitPrice(price: string) {
-  const m = PRICE.exec(price)
-  if (!m) return { pre: '', amount: price, post: '' }
-  return { pre: m[1].trim(), amount: m[2].trim(), post: m[3].trim() }
 }
 
 function Mark() {
@@ -154,120 +135,126 @@ function initialLang(): Lang {
  * writing the same DOM.
  */
 /**
- * One price grid. Every commercial block on the page is the same shape — a
- * heading, one or two groups, and cards — so they are one component rather
- * than four near-copies: a change to how a price reads has to land on all of
- * them at once or the page stops looking like one offer.
+ * The services and their prices, exactly as the brief sets them: the monthly
+ * package as the one card that stands out, the two single services under it at
+ * equal weight, and the agencies' CRM in a block of its own with no figure —
+ * its price is settled at a meeting, so the block is built to book one.
+ *
+ * Every card ends in the same two ways in: WhatsApp with the service already
+ * named in the draft, so the first message is not a blank "hi", or the form.
+ *
+ * The cards keep the classes the old price grids used — `pack`, `pp`, `pamt`,
+ * `pl` — so they read in the same type and on the same dark panel as before.
+ * Only the layout around them is new.
  */
-/**
- * How much of a block's price list the page actually shows.
- *
- * Twenty-two priced cards across five grids read as a lottery ticket, not as an
- * offer: past about half a dozen options a buyer stops choosing and starts
- * leaving. Nothing is deleted to fix that — every package, every line and all
- * three languages stay in `offer.ts`, because they are what gets quoted when
- * somebody asks. This only decides what meets a first-time visitor.
- *
- * `packs: 0` shows the section and what it is for, and no prices at all. That
- * is deliberate for the agency system and for travel: one is a different trade
- * from filming a villa, the other is a line on a quote, and neither earns a
- * grid of its own on the way past.
- *
- * Put a number back and the cards return — that is the whole revert.
- */
-type Shown = { groups?: number; packs?: number }
+const waLink = (text: string) =>
+  `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(text)}`
 
-function Packs({
-  block,
-  vat,
-  cta,
-  shown,
+function ServiceCard({
+  sv,
+  p,
+  shot,
+  main = false,
 }: {
-  block: Block
-  vat: string
-  cta: string
-  shown?: Shown
+  sv: Service
+  p: Prices
+  shot: number
+  main?: boolean
 }) {
-  const groups = block.groups
-    .slice(0, shown?.groups ?? block.groups.length)
-    .map((g) => ({ ...g, packs: g.packs.slice(0, shown?.packs ?? g.packs.length) }))
-    .filter((g) => g.packs.length)
+  return (
+    <div
+      className={main ? 'pack on main' : 'pack'}
+      /* A property behind the head of the card, dimmed to the card's own
+         colour before the first line of type. The stills are already on the
+         page, so nothing extra is fetched. */
+      style={{ '--shot': `url(${WORK_MEDIA[shot].img})` } as CSSProperties}
+    >
+      <span className="tag">{sv.tag}</span>
+      <div className="pt">{sv.t}</div>
+      {sv.d ? <p className="pd">{sv.d}</p> : null}
+      <div className="pp">
+        {sv.price.pre ? <span className="ppre">{sv.price.pre}</span> : null}
+        <span className="pamt">{sv.price.amount}</span>
+        {sv.price.per ? <span className="pper">{sv.price.per}</span> : null}
+      </div>
+      {sv.rows ? (
+        <>
+          <div className="pinc">{p.included}</div>
+          <ul className="pl">
+            {sv.rows.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      <div className="pacts">
+        <a
+          className="pcta"
+          href={waLink(sv.wa)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${p.actions.wa}: ${sv.t}`}
+        >
+          {p.actions.wa}
+        </a>
+        <a className="pcta" href="#contact" aria-label={`${p.actions.form}: ${sv.t}`}>
+          {p.actions.form}
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
   return (
     <>
       <div className="eyebrow rv">
         <i />
-        {block.eyebrow}
+        {p.eyebrow}
       </div>
       <h2 className="rv">
-        {block.title[0]}
+        {p.title[0]}
         <br />
-        {block.title[1]}
+        {p.title[1]}
       </h2>
-      <p className="lede rv">{block.lede}</p>
-      {groups.map((g, gi) => (
-        <div className="group rv" key={g.title}>
-          <div className="gtitle">
-            <span className="bar" />
-            {g.title}
-          </div>
-          <div className="packs">
-            {g.packs.map((pk, pi) => (
-              <div
-                className={pk.note ? 'pack on' : 'pack'}
-                key={pk.n}
-                /* A price list on a flat panel reads as a spreadsheet. Each card
-                   carries a property behind its head instead, dimmed to the
-                   card's own colour before the first line of type — the work
-                   stills are already on the page, so nothing extra is fetched.
-                   The index counts straight through the groups rather than
-                   restarting in each one: the cycle then uses every shot and
-                   still cannot repeat on two cards in a row, including across
-                   the seam between one group and the next. */
-                style={
-                  {
-                    '--shot': `url(${
-                      WORK_MEDIA[
-                        (groups
-                          .slice(0, gi)
-                          .reduce((n, prev) => n + prev.packs.length, 0) +
-                          pi) %
-                          WORK_MEDIA.length
-                      ].img
-                    })`,
-                  } as CSSProperties
-                }
-              >
-                {pk.note ? <span className="tag">{pk.note}</span> : null}
-                <div className="pn">{pk.n}</div>
-                <div className="pt">{pk.t}</div>
-                <div className="pc">{pk.count}</div>
-                <div className="pp">
-                  {(() => {
-                    const { pre, amount, post } = splitPrice(pk.price)
-                    return (
-                      <>
-                        {pre ? <span className="ppre">{pre}</span> : null}
-                        <span className="pamt">{amount}</span>
-                        {post ? <span className="pper">{post}</span> : null}
-                      </>
-                    )
-                  })()}
-                </div>
-                <ul className="pl">
-                  {pk.rows.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-                {pk.foot ? <div className="pf">{pk.foot}</div> : null}
-                <a className="pcta" href="#contact">
-                  {cta}
-                </a>
-              </div>
-            ))}
-          </div>
+      <p className="lede rv">{p.lede}</p>
+
+      {/* The villa at night behind the package, the interiors behind the
+          photography, the marina flown behind the FPV card: each still is the
+          nearest thing on the page to what that card sells. */}
+      <div className="packs lead rv">
+        <ServiceCard sv={p.main} p={p} shot={1} main />
+      </div>
+      <div className="packs pair rv">
+        {p.singles.map((sv, i) => (
+          <ServiceCard key={sv.t} sv={sv} p={p} shot={[2, 3][i] ?? 0} />
+        ))}
+      </div>
+      <div className="vat rv">{vat}</div>
+
+      {/* Its own anchor, so a letter to an agency can link straight here. */}
+      <div className="crm rv" id="crm">
+        <div className="gtitle">
+          <span className="bar" />
+          {p.crm.eyebrow}
         </div>
-      ))}
-      {groups.length ? <div className="vat rv">{vat}</div> : null}
+        <h3>{p.crm.t}</h3>
+        <p className="lede">{p.crm.lede}</p>
+        <ul className="pl">
+          {p.crm.rows.map((r) => (
+            <li key={r}>{r}</li>
+          ))}
+        </ul>
+        <div className="crmprice">{p.crm.price}</div>
+        <div className="pacts">
+          <a className="crmbook" href={waLink(p.crm.wa)} target="_blank" rel="noreferrer">
+            {p.crm.book}
+          </a>
+          <a className="pcta" href="#contact">
+            {p.actions.form}
+          </a>
+        </div>
+      </div>
     </>
   )
 }
@@ -964,7 +951,7 @@ export default function App() {
           data-label={c.labels[2]}
         >
           <div className={col(2)}>
-            <Packs block={o.packages} vat={o.vat} cta={c.cta} />
+            <PriceBlock p={o.prices} vat={o.vat} />
           </div>
         </section>
 
@@ -1012,28 +999,9 @@ export default function App() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section
-          id={s[5].id}
-          className={cls(5)}
-          data-shape={s[5].shape}
-          data-label={c.labels[5]}
-        >
-          <div className={col(5)}>
-            <Packs block={o.program} vat={o.vat} cta={c.cta} shown={{ groups: 1, packs: 3 }} />
-          </div>
-        </section>
-
-        <section
-          id={s[6].id}
-          className={cls(6)}
-          data-shape={s[6].shape}
-          data-label={c.labels[6]}
-        >
-          <div className={col(6)}>
-            <Packs block={o.project} vat={o.vat} cta={c.cta} shown={{ packs: 3 }} />
+            {/* The visualisation passes lived under the developers' price grid.
+                The grid went with the old prices; the method did not change,
+                so it moved here, next to the Visualisation row it belongs to. */}
             <div className="passes rv">
               <div className="gtitle">
                 <span className="bar" />
@@ -1055,12 +1023,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[7].id}
-          className={cls(7)}
-          data-shape={s[7].shape}
-          data-label={c.labels[7]}
+          id={s[5].id}
+          className={cls(5)}
+          data-shape={s[5].shape}
+          data-label={c.labels[5]}
         >
-          <div className={col(7)}>
+          <div className={col(5)}>
             <div className="eyebrow rv">
               <i />
               {o.how.eyebrow}
@@ -1086,12 +1054,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[8].id}
-          className={cls(8)}
-          data-shape={s[8].shape}
-          data-label={c.labels[8]}
+          id={s[6].id}
+          className={cls(6)}
+          data-shape={s[6].shape}
+          data-label={c.labels[6]}
         >
-          <div className={col(8)}>
+          <div className={col(6)}>
             <div className="eyebrow rv">
               <i />
               {c.why.eyebrow}
@@ -1118,12 +1086,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[9].id}
-          className={cls(9)}
-          data-shape={s[9].shape}
-          data-label={c.labels[9]}
+          id={s[7].id}
+          className={cls(7)}
+          data-shape={s[7].shape}
+          data-label={c.labels[7]}
         >
-          <div className={col(9)}>
+          <div className={col(7)}>
             <div className="eyebrow rv">
               <i />
               {o.faq.eyebrow}
@@ -1148,12 +1116,12 @@ export default function App() {
         </section>
 
         <section
-          id={s[10].id}
-          className={cls(10)}
-          data-shape={s[10].shape}
-          data-label={c.labels[10]}
+          id={s[8].id}
+          className={cls(8)}
+          data-shape={s[8].shape}
+          data-label={c.labels[8]}
         >
-          <div className={col(10)}>
+          <div className={col(8)}>
             <div className="eyebrow rv">
               <i />
               {c.contact.eyebrow}
@@ -1163,12 +1131,6 @@ export default function App() {
               <br />
               {c.contact.title[1]}
             </h2>
-            {/* Dated offer — see the note in content.ts. Remove all three
-                language blocks once the date has passed. */}
-            <div className="offer rv">
-              <div className="oh">{c.contact.offer.headline}</div>
-              <p className="od">{c.contact.offer.detail}</p>
-            </div>
             <div className="formhead rv">
               <h3>
                 {c.form.title[0]}

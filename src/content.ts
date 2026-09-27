@@ -81,8 +81,6 @@ export const SECTIONS: Section[] = [
   // it costs wants to see what that money buys, whole and with sound.
   { id: 'films', wide: true, shape: 5 },
   { id: 'services', rev: true, shape: 4 },
-  { id: 'program', wide: true, shape: 5 },
-  { id: 'project', rev: true, wide: true, shape: 1 },
   { id: 'how', shape: 4 },
   { id: 'why', rev: true, shape: 5 },
   { id: 'faq', shape: 3 },
@@ -91,8 +89,12 @@ export const SECTIONS: Section[] = [
 
 /**
  * Sides alternate strictly from `work` to `contact` — left, right, left, right.
- * Twelve sections under the hero is an even number, so the alternation lands
+ * Eight sections under the hero is an even number, so the alternation lands
  * `contact` on the right without a single repeat.
+ *
+ * `program` and `project` were removed as a pair, a left and a right, when the
+ * old price grids came off the page. Taking them out together is what kept
+ * every other section on the side it already had.
  */
 
 /**
@@ -251,12 +253,6 @@ export type Copy = {
     meta: string[]
     /** Pre-filled into the WhatsApp draft so the first message is not blank. */
     waText: string
-    /**
-     * A dated offer. It has to come down when the date passes — a deadline
-     * that is quietly extended tells every returning visitor that the price
-     * was never real. Delete the `offer` block from all three languages.
-     */
-    offer: { headline: string; detail: string }
   }
   close: string
 }
@@ -265,8 +261,8 @@ export const COPY: Record<Lang, Copy> = {
   en: {
     nav: [
       { label: 'WORK', href: '#work' },
-      { label: 'PACKAGES', href: '#packages' },
-      { label: 'DEVELOPERS', href: '#project' },
+      { label: 'PRICES', href: '#packages' },
+      { label: 'CRM', href: '#crm' },
       { label: 'QUESTIONS', href: '#faq' },
     ],
     cta: 'START A PROJECT',
@@ -289,13 +285,13 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
-    labels: ['INDEX', 'WORK', 'PACKAGES', 'FILMS', 'SERVICES', 'AGENTS', 'DEVELOPERS', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
+    labels: ['INDEX', 'WORK', 'PRICES', 'FILMS', 'SERVICES', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'ARCHITECTURAL VISUALISATION',
       title: ['Buildings before', 'they exist'],
       lede: 'Visualisation, film, photography and the page that sells them, for villas, apartments and developments on the Costa del Sol. Scripts included: we say what to shoot and what to say on camera.',
-      audience: 'For developers and agents on the Costa del Sol. Projects from €950',
-      cta: 'SEE THE PACKAGES',
+      audience: 'For developers and agents on the Costa del Sol',
+      cta: 'SEE THE PRICES',
       cue: 'SCROLL',
     },
     services: {
@@ -412,7 +408,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '10 — WHY',
+      eyebrow: '06 — WHY',
       title: ['Days, not months,', 'and in both formats'],
       lede: 'Most studios quote weeks before you see anything. Here the first look comes back in days, vertical for social and landscape for the site, the portal and the deck. Nothing has to be recut.',
       stats: [
@@ -448,15 +444,10 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '12 — CONTACT',
+      eyebrow: '08 — CONTACT',
       title: ['Send the drawings.', 'See it standing.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
       waText: 'Hi Eldar, I found STOARI online. I have a project on the Costa del Sol.',
-      offer: {
-        headline: 'SEPTEMBER TERMS: −30% ON VISUALISATION UNTIL 30 SEPTEMBER',
-        detail:
-          'Visualisation from €665 instead of €950. Quote the same day, first view in seven days. The season is starting and I am still adding objects to the portfolio, so the work has to be publishable. Shoot days and packages keep their prices.',
-      },
     },
     close: 'CLOSE',
   },
@@ -464,8 +455,8 @@ export const COPY: Record<Lang, Copy> = {
   es: {
     nav: [
       { label: 'TRABAJOS', href: '#work' },
-      { label: 'PAQUETES', href: '#packages' },
-      { label: 'PROMOTORES', href: '#project' },
+      { label: 'PRECIOS', href: '#packages' },
+      { label: 'CRM', href: '#crm' },
       { label: 'PREGUNTAS', href: '#faq' },
     ],
     cta: 'EMPEZAR UN PROYECTO',
@@ -488,13 +479,13 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
-    labels: ['INICIO', 'TRABAJOS', 'PAQUETES', 'PELÍCULAS', 'SERVICIOS', 'AGENTES', 'PROMOTORES', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
+    labels: ['INICIO', 'TRABAJOS', 'PRECIOS', 'PELÍCULAS', 'SERVICIOS', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'VISUALIZACIÓN ARQUITECTÓNICA',
       title: ['Ver el edificio', 'antes de construirlo'],
       lede: 'Visualización, vídeo, fotografía y la página que lo vende, para villas, apartamentos y promociones en la Costa del Sol. Guiones incluidos: decimos qué rodar y qué decir ante la cámara.',
-      audience: 'Para promotores y agentes de la Costa del Sol. Proyectos desde 950 €',
-      cta: 'VER LOS PAQUETES',
+      audience: 'Para promotores y agentes de la Costa del Sol',
+      cta: 'VER LOS PRECIOS',
       cue: 'BAJAR',
     },
     services: {
@@ -611,7 +602,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '10 — POR QUÉ',
+      eyebrow: '06 — POR QUÉ',
       title: ['Días, no meses,', 'y en los dos formatos'],
       lede: 'La mayoría de los estudios habla de semanas antes de que veas nada. Aquí la primera versión llega en días, en vertical para redes y en horizontal para la web, el portal y la presentación. No hay que remontar nada.',
       stats: [
@@ -647,15 +638,10 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '12 — CONTACTO',
+      eyebrow: '08 — CONTACTO',
       title: ['Envíe los planos.', 'Lo verá antes de obra.'],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
       waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
-      offer: {
-        headline: 'CONDICIONES DE SEPTIEMBRE: −30% EN VISUALIZACIÓN HASTA EL 30 DE SEPTIEMBRE',
-        detail:
-          'Visualización desde 665 € en lugar de 950 €. Presupuesto el mismo día, primera vista en siete días. Empieza la temporada y sigo sumando obras al porfolio, por eso el trabajo tiene que ser publicable. Las jornadas de rodaje y los paquetes mantienen su precio.',
-      },
     },
     close: 'CERRAR',
   },
@@ -663,8 +649,8 @@ export const COPY: Record<Lang, Copy> = {
   ru: {
     nav: [
       { label: 'РАБОТЫ', href: '#work' },
-      { label: 'ПАКЕТЫ', href: '#packages' },
-      { label: 'ЗАСТРОЙЩИКУ', href: '#project' },
+      { label: 'ЦЕНЫ', href: '#packages' },
+      { label: 'CRM', href: '#crm' },
       { label: 'ВОПРОСЫ', href: '#faq' },
     ],
     cta: 'НАЧАТЬ ПРОЕКТ',
@@ -687,13 +673,13 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
-    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ПАКЕТЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'АГЕНТУ', 'ЗАСТРОЙЩИКУ', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
+    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ЦЕНЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'АРХИТЕКТУРНАЯ ВИЗУАЛИЗАЦИЯ',
       title: ['Покажем объект', 'до начала стройки'],
       lede: 'Визуализация, съёмка, фотографии и сайт — под один проект и в одном стиле. Виллы, апартаменты и посёлки на Коста-дель-Соль. Сценарии входят: говорим, что снимать и что сказать в кадре.',
-      audience: 'Застройщикам и агентствам Коста-дель-Соль. Проекты от 950 €',
-      cta: 'СМОТРЕТЬ ПАКЕТЫ',
+      audience: 'Застройщикам и агентствам Коста-дель-Соль',
+      cta: 'СМОТРЕТЬ ЦЕНЫ',
       cue: 'ВНИЗ',
     },
     services: {
@@ -810,7 +796,7 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     why: {
-      eyebrow: '10 — ПОЧЕМУ МЫ',
+      eyebrow: '06 — ПОЧЕМУ МЫ',
       title: ['Дни, а не месяцы,', 'и сразу в двух форматах'],
       lede: 'Большинство студий называют недели, прежде чем вы увидите хоть что-то. Здесь первый вариант приходит за несколько дней — и сразу вертикально для соцсетей и горизонтально для сайта, портала и презентации. Пересводить ничего не нужно.',
       stats: [
@@ -846,15 +832,10 @@ export const COPY: Record<Lang, Copy> = {
       ],
     },
     contact: {
-      eyebrow: '12 — КОНТАКТ',
+      eyebrow: '08 — КОНТАКТ',
       title: ['Пришлите чертежи.', 'Покажем объект до стройки.'],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
       waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',
-      offer: {
-        headline: 'СЕНТЯБРЬСКИЕ УСЛОВИЯ: −30% НА ВИЗУАЛИЗАЦИЮ ДО 30 СЕНТЯБРЯ',
-        detail:
-          'Визуализация от 665 € вместо 950 €. Смета в тот же день, первый вид за семь дней. Начинается сезон, и я добираю объекты в портфолио — поэтому работу должно быть можно публиковать. Съёмочные смены и пакеты остаются в цене.',
-      },
     },
     close: 'ЗАКРЫТЬ',
   },

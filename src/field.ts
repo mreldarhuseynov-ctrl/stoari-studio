@@ -657,18 +657,18 @@ void main(){
    *
    *   0 index    hero, centred      1 work      left, wide
    *   2 packages  right, wide        3 films     left, wide
-   *   4 services  right              5 program   left, wide
-   *   6 project   right, wide        7 funnel    left, wide
-   *   8 travel    right, wide        9 how       left
-   *  10 why       right             11 faq       left
-   *  12 contact   right
+   *   4 services  right              5 how       left
+   *   6 why       right              7 faq       left
+   *   8 contact   right
    *
-   * Strict alternation the whole way down. Twelve sections under the hero is an
+   * Strict alternation the whole way down. Eight sections under the hero is an
    * even count, which is what lets `contact` land on the right with no repeat.
+   * `program` and `project` went out together, a left and a right, so nothing
+   * after them had to change side.
    */
   const OFFSETS = [
     [0, 170],
-    [250, 30], [-250, 30], [250, 30], [-250, 30], [250, 30], [-250, 30],
+    [250, 30], [-250, 30], [250, 30], [-250, 30],
     [250, 30], [-250, 30], [250, 20], [-250, 0],
   ]
   let tgtOX = 0, tgtOY = isCoarse ? 268 : 170

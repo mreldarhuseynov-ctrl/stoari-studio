@@ -673,37 +673,6 @@ h2 {
   }
 }
 
-/* The offer sits above the address because it is the reason to write today
-   rather than at some point. Bordered, not filled — a filled banner on a
-   black page reads as an advert. */
-.offer {
-  margin-top: 30px;
-  padding: 18px 22px;
-  border: 1px solid var(--line);
-  border-left: 2px solid #fff;
-  max-width: 460px;
-}
-
-.col.right .offer {
-  margin-left: auto;
-  border-left: 1px solid var(--line);
-  border-right: 2px solid #fff;
-  text-align: right;
-}
-
-.offer .oh {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: #fff;
-}
-
-.offer .od {
-  margin-top: 10px;
-  font-size: 11.5px;
-  line-height: 1.75;
-  color: var(--muted);
-}
-
 .reach {
   display: flex;
   gap: 12px;
@@ -808,6 +777,27 @@ h2 {
   nav,
   #counter {
     mix-blend-mode: normal;
+  }
+
+  /* Without `difference` the bar has no way to read against what scrolls
+     under it: white type lands on the copy, and on the ivory contact section
+     it disappears. So on a phone it carries its own ground — dark at the top,
+     fading out below the buttons, whatever section is underneath. */
+  nav::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -26px 0;
+    z-index: -1;
+    pointer-events: none;
+    /* Solid down to the bottom edge of the bar — anything thinner lets the
+       copy scrolling underneath stay legible through it — then a short fade
+       so the bar does not end on a hard line. */
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.96) 0%,
+      rgba(0, 0, 0, 0.9) 76%,
+      rgba(0, 0, 0, 0) 100%
+    );
   }
 
 }
@@ -2413,20 +2403,189 @@ nav,
   color: #97401c;
 }
 
-/* The offer banner is drawn in white against black: a white rule and white
-   type. Both vanish on ivory. */
-#contact .offer {
-  border-left-color: var(--ink);
+/* ---- PRICES -------------------------------------------------------------
+   The brief's shape, not a grid of equals: the monthly package on a row of
+   its own, the two single services under it side by side, then the agencies'
+   CRM in a block that is visibly a different thing — no figure, a meeting. */
+
+.packs.lead {
+  grid-template-columns: 1fr;
 }
 
-#contact.rev .offer,
-#contact .col.right .offer {
-  border-left-color: var(--line);
-  border-right-color: var(--ink);
+/* Seven lines in one column across the full width is a long thin list with
+   a lot of nothing to its right. Two columns fill the card — and they are
+   CSS columns, not a two-column grid: a grid fills across the rows, so the
+   list would be read first, second, fourth, third. Columns keep the order
+   the brief gives, down one and then down the next. */
+.pack.main .pl,
+.crm .pl {
+  display: block;
+  columns: 2;
+  column-gap: 44px;
 }
 
-#contact .offer .oh {
-  color: var(--ink);
+.pack.main .pl li,
+.crm .pl li {
+  break-inside: avoid;
+  margin-bottom: 12px;
+}
+
+.pack.main .pt {
+  font-size: 28px;
+  min-height: 0;
+}
+
+.pack.main .pamt {
+  font-size: 44px;
+}
+
+.packs.pair {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 8px;
+}
+
+.packs.pair .pt {
+  min-height: 0;
+}
+
+/* The tag is the kind of card, not a badge on one of many. On the single
+   services it stays quiet; only the main package keeps the gold. */
+.packs.pair .tag {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--muted-strong);
+}
+
+/* What the single service is, in a sentence, under its name. */
+.pd {
+  margin-top: 12px;
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: #c8cdd5;
+}
+
+.pinc {
+  margin-top: 22px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pinc + .pl {
+  margin-top: 12px;
+}
+
+/* Two ways in on every card. They share the bottom of the card and stay on
+   one line until the card is too narrow for both. */
+.pacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  margin-top: auto;
+  padding-top: 26px;
+}
+
+.pacts .pcta {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* The CRM block. Opaque for the same reason the cards are — the point field
+   must not run behind the list — and edged in the gold the main package
+   uses, so it reads as an offer of the same studio, not a footnote. */
+.crm {
+  margin-top: 64px;
+  padding: 36px 32px 32px;
+  border: 1px solid rgba(201, 161, 106, 0.5);
+  background: #0e1012;
+  text-align: left;
+  /* The nav is fixed; without this the heading lands under it when the
+     link in a letter opens straight onto #crm. */
+  scroll-margin-top: 112px;
+}
+
+.col.right .crm .gtitle {
+  justify-content: flex-start;
+}
+
+.crm h3 {
+  font-family: var(--head-face);
+  font-weight: 300;
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  max-width: 760px;
+}
+
+/* The section's column is right-hand, and a right-hand lede is pushed to
+   the right edge by `.col.right .lede` — three classes, so the override
+   needs three as well, and wins by coming later. Inside the block
+   everything reads from the left. */
+.col .crm .lede {
+  margin-top: 14px;
+  margin-left: 0;
+  max-width: 640px;
+  text-align: left;
+}
+
+.crm .pl {
+  margin-top: 22px;
+}
+
+.crmprice {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--warm);
+}
+
+.crm .pacts {
+  align-items: center;
+  padding-top: 22px;
+}
+
+/* The meeting is the whole point of this block, so its button is the only
+   filled one on the page outside the form. */
+.crmbook {
+  display: inline-block;
+  padding: 15px 24px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  color: #0b0c0d;
+  background: var(--warm);
+  transition: opacity 0.25s;
+}
+
+.crmbook:hover {
+  opacity: 0.88;
+}
+
+@media (max-width: 820px) {
+  .pack.main .pl,
+  .crm .pl {
+    columns: 1;
+  }
+
+  .pack.main .pt {
+    font-size: 24px;
+  }
+
+  .pack.main .pamt {
+    font-size: 38px;
+  }
+
+  .crm {
+    margin-top: 48px;
+    padding: 28px 22px 24px;
+  }
+
+  .crmbook {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* ---- PACKAGES, FULL WIDTH ---- */
