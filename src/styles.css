@@ -799,6 +799,17 @@ h2 {
   .navcta {
     padding: 15px 22px;
   }
+
+  /* `difference` makes these read against whatever the field is doing beneath
+     them, which asks the compositor to blend a full-width strip against a
+     canvas that redraws every frame. On a phone that shows up as dropped
+     frames while scrolling. The page is dark from edge to edge anyway, so
+     ordinary white looks the same and costs nothing. */
+  nav,
+  #counter {
+    mix-blend-mode: normal;
+  }
+
 }
 
 /* ---- WORK ----------------------------------------------------------------
@@ -2440,4 +2451,18 @@ nav,
 #packages > .col > .vat {
   max-width: 940px;
   margin-left: auto;
+}
+
+/* The same bargain the nav makes above, but it has to sit at the end of the
+   file: a media query adds no specificity, so an override of `.sheet` written
+   earlier would simply lose to the rule that declares it.
+
+   Blurring the whole page behind the sheet is the most expensive thing a phone
+   GPU is asked for here, and the sheet's own background already covers almost
+   everything underneath it. */
+@media (pointer: coarse) {
+  .sheet {
+    backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.96);
+  }
 }

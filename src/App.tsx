@@ -22,6 +22,20 @@ import {
 } from './films'
 
 /**
+ * A phone that is already running the point field cannot also decode a
+ * 1920×1080 film without the page moving in steps, so it gets an 854×480 cut of
+ * the same seconds — 0.3 MB against 3.7 MB. Behind the field, at the size the
+ * hero actually shows it, the two are indistinguishable.
+ *
+ * The test matches the field's own, so the light film and the light field
+ * always arrive together.
+ */
+const heroClip = () =>
+  `${import.meta.env.BASE_URL}hero/hero-15s${
+    matchMedia('(pointer: coarse)').matches || innerWidth < 820 ? '-m' : ''
+  }.mp4`
+
+/**
  * A still behind each service row, keyed by the row's number rather than its
  * position, so the three languages cannot drift apart and reordering the rows
  * cannot silently reassign the pictures.
@@ -806,10 +820,7 @@ export default function App() {
           preload="metadata"
           poster={`${import.meta.env.BASE_URL}hero/hero-poster.jpg`}
         >
-          <source
-            src={`${import.meta.env.BASE_URL}hero/hero-15s.mp4`}
-            type="video/mp4"
-          />
+          <source src={heroClip()} type="video/mp4" />
         </video>
       </div>
 

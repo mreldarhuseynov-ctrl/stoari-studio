@@ -20,8 +20,18 @@
 export function createField(): () => void {
   const isCoarse =
     matchMedia('(pointer: coarse)').matches || innerWidth < 820
-  const COUNT = isCoarse ? 15000 : 46000
-  const RINGN = isCoarse ? 4200 : 9000
+  /* A phone pays for this field three times over: the physics loop runs on one
+     core, the scene is drawn at the screen's own pixel density, and the bloom
+     chain reads it back twice per pass. The desktop numbers made the page
+     scroll in steps on a phone, so the coarse branch below is cut to about a
+     third of the work — count, substeps, density and blur passes together. */
+  const COUNT = isCoarse ? 6500 : 46000
+  const RINGN = isCoarse ? 2600 : 9000
+  const STEPS = isCoarse ? 1 : 2
+  /* The clouds the shapes are sampled from. Denser than the field itself so
+     the sampling has room to choose, but a phone does not need the full jar. */
+  const SHAPE_PTS = isCoarse ? 9000 : Math.max(COUNT, 20000)
+  const BLUR_PASSES = isCoarse ? 1 : 2
 
   const canvas = document.getElementById('gl') as HTMLCanvasElement | null
   if (!canvas) return () => {}
@@ -510,11 +520,11 @@ void main(){
 
   const SHAPES = [
     { name: 'INDEX', pts: wordmarkPoints('STOARI', 'REAL ESTATE MEDIA') },
-    { name: 'CAPABILITY', pts: housePoints(Math.max(COUNT, 20000)) },
-    { name: 'SCALE', pts: cityPoints(Math.max(COUNT, 20000)) },
-    { name: 'METHOD', pts: ringPoints(Math.max(COUNT, 20000)) },
-    { name: 'CONCHA', pts: conchaPoints(Math.max(COUNT, 20000)) },
-    { name: 'MARK', pts: markPoints(Math.max(COUNT, 20000)) },
+    { name: 'CAPABILITY', pts: housePoints(SHAPE_PTS) },
+    { name: 'SCALE', pts: cityPoints(SHAPE_PTS) },
+    { name: 'METHOD', pts: ringPoints(SHAPE_PTS) },
+    { name: 'CONCHA', pts: conchaPoints(SHAPE_PTS) },
+    { name: 'MARK', pts: markPoints(SHAPE_PTS) },
   ]
 
   const pos = new Float32Array(COUNT * 3), vel = new Float32Array(COUNT * 3)
@@ -719,7 +729,10 @@ void main(){
   let rotY = 0, rotX = 0, prevT = 0, acc = 0, modelScale = 1
 
   const resize = () => {
-    const dpr = Math.min(devicePixelRatio || 1, isCoarse ? 2 : 1.75)
+    /* Pixels cost the square of this number. A phone reporting 3 was being
+       asked for nine times the fill of a plain 1, for a field of soft dots
+       where the extra density is not visible anyway. */
+    const dpr = Math.min(devicePixelRatio || 1, isCoarse ? 1.25 : 1.75)
     const w = Math.floor(innerWidth * dpr), h = Math.floor(innerHeight * dpr)
     if (w < 1 || h < 1) return
     canvas.width = w
@@ -734,7 +747,8 @@ void main(){
     dropFBO(bloomA)
     dropFBO(bloomB)
     sceneFBO = makeFBO(w, h)
-    const bw = Math.max(2, w >> 2), bh = Math.max(2, h >> 2)
+    const shift = isCoarse ? 3 : 2
+    const bw = Math.max(2, w >> shift), bh = Math.max(2, h >> shift)
     bloomA = makeFBO(bw, bh)
     bloomB = makeFBO(bw, bh)
   }
@@ -802,7 +816,7 @@ void main(){
     const uT = gl.getUniformLocation(blurProg, 'uTex')
     const uD = gl.getUniformLocation(blurProg, 'uDir')
     gl.uniform1i(uT, 0)
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < BLUR_PASSES; i++) {
       const spread = 1.0 + i * 1.7
       gl.bindFramebuffer(gl.FRAMEBUFFER, bloomB.fb)
       gl.viewport(0, 0, bloomB.w, bloomB.h)
@@ -880,7 +894,7 @@ void main(){
 
     acc += dt
     let steps = 0
-    while (acc >= 16.7 && steps < 2) { acc -= 16.7; steps++ }
+    while (acc >= 16.7 && steps < STEPS) { acc -= 16.7; steps++ }
     if (steps === 0 && dt > 8) steps = 1
     if (acc > 40) acc = 0
 
@@ -920,6 +934,22 @@ void main(){
     post()
   }
 
+  /* A tab switched away still gets the odd frame, and the accumulator wakes up
+     holding whole seconds of debt it then tries to simulate at once. Stopping
+     the loop outright and clearing the debt is what keeps the page from
+     stuttering for a moment every time someone comes back to it. */
+  const onVisibility = () => {
+    if (document.hidden) {
+      if (raf) cancelAnimationFrame(raf)
+      raf = 0
+    } else if (alive && !raf) {
+      prevT = 0
+      acc = 0
+      raf = requestAnimationFrame(frame)
+    }
+  }
+  document.addEventListener('visibilitychange', onVisibility)
+
   /* Loader — timers keep running where rAF does not, so the curtain always lifts. */
   let p = 0
   const barIn = document.getElementById('barIn')
@@ -944,6 +974,7 @@ void main(){
     clearInterval(tick)
     ios.forEach((o) => o.disconnect())
     ro?.disconnect()
+    document.removeEventListener('visibilitychange', onVisibility)
     removeEventListener('pointermove', onPointer)
     removeEventListener('touchmove', onTouch)
     removeEventListener('scroll', onScroll)
