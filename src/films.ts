@@ -70,8 +70,8 @@ type FilmsCopy = {
 export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   en: {
     eyebrow: '03 — FILMS',
-    title: ['Watch them', 'from start to finish.'],
-    lede: 'The work above is three seconds on a loop. Here every film plays whole, with sound — villas shot on the day, FPV flights, agents, construction shown before it begins, and films made entirely with AI.',
+    title: ['The full films,', 'with sound'],
+    lede: 'Villas shot in a day, FPV flights through a house, agents on camera, a house shown before it is built, and short films made entirely with AI.',
     all: 'All',
     kinds: {
       villas: 'Villas',
@@ -103,8 +103,8 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   },
   es: {
     eyebrow: '03 — PELÍCULAS',
-    title: ['Míralas', 'de principio a fin.'],
-    lede: 'Los trabajos de arriba son tres segundos en bucle. Aquí cada película se ve entera y con sonido: villas grabadas en el día, vuelos FPV, agentes, obras enseñadas antes de empezar y películas hechas por completo con IA.',
+    title: ['Las películas enteras,', 'con sonido'],
+    lede: 'Villas rodadas en un día, vuelos FPV por dentro de una casa, agentes delante de la cámara, una casa enseñada antes de construirse y cortos hechos por completo con IA.',
     all: 'Todo',
     kinds: {
       villas: 'Villas',
@@ -136,8 +136,8 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   },
   ru: {
     eyebrow: '03 — ФИЛЬМЫ',
-    title: ['Смотрите', 'целиком.'],
-    lede: 'Работы выше — три секунды на повторе. Здесь каждый фильм идёт полностью и со звуком: виллы, снятые в день съёмки, полёты FPV, агенты, стройка, показанная до её начала, и фильмы, сделанные целиком на ИИ.',
+    title: ['Фильмы целиком,', 'со звуком'],
+    lede: 'Виллы, снятые за один день, FPV-пролёты сквозь дом, агенты в кадре, дом, показанный до стройки, и короткие фильмы, целиком сделанные с ИИ.',
     all: 'Все',
     kinds: {
       villas: 'Виллы',

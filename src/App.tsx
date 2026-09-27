@@ -46,11 +46,11 @@ const heroClip = () =>
  * If a row's copy changes subject, the still has to be re-checked with it.
  */
 const SERVICE_SHOT: Record<string, string> = {
-  '01': WORK_MEDIA[0].img, // the bare plot, then the volume standing on it
-  '02': WORK_MEDIA[5].img, // the agent film
+  '01': WORK_MEDIA[5].img, // the agent film: the content the monthly package makes
+  '02': WORK_MEDIA[2].img, // the interiors, as a photographer sees them
   '03': WORK_MEDIA[3].img, // the marina, flown
-  '04': WORK_MEDIA[1].img, // the finished residence a project page is built on
-  '05': WORK_MEDIA[4].img,
+  '04': WORK_MEDIA[0].img, // the bare plot, then the volume standing on it
+  '05': WORK_MEDIA[4].img, // the footprint drawn on the land: the system behind the sale
 }
 
 function Mark() {

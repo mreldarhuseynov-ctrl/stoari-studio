@@ -85,8 +85,8 @@ export const OFFER: Record<Lang, Offer> = {
   en: {
     prices: {
       eyebrow: '02 — PRICES',
-      title: ['One monthly package,', 'and services on their own'],
-      lede: 'The monthly package covers content and marketing. Photography and the FPV drone can be booked on their own. For estate agencies, a CRM set up around the way they work.',
+      title: ['Content every month,', 'or just the shoot you need'],
+      lede: 'The monthly package keeps your listings and your profile moving: Reels, a campaign, Stories and drone footage, written and posted for you. Photography and FPV can be booked on their own.',
       included: 'Included',
       main: {
         tag: 'MAIN PACKAGE',
@@ -123,7 +123,7 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'FOR ESTATE AGENCIES',
         t: 'A personalised CRM for estate agencies',
-        lede: 'Set up around the way your agency works. What it includes:',
+        lede: 'Every enquiry answered, qualified and kept in one place, set up around the way your agency works:',
         rows: [
           'Propiedades: managing your properties',
           'Captación: bringing in new properties',
@@ -141,12 +141,12 @@ export const OFFER: Record<Lang, Offer> = {
     how: {
       eyebrow: '05 — HOW IT WORKS',
       title: ['Four steps, and', 'nothing to prepare'],
-      lede: 'The part most studios leave vague. Here it is in order, with the dates that go in writing before anything is booked.',
+      lede: 'From the first message to the finished files. Dates are agreed in writing before anything is booked.',
       steps: [
         {
           sn: '01',
           st: 'Send the property',
-          sd: 'An address, the drawings, or a link to the listing. A quote comes back the same day.',
+          sd: 'An address, a link to the listing or the drawings. You get a quote the same day.',
         },
         {
           sn: '02',
@@ -156,19 +156,19 @@ export const OFFER: Record<Lang, Offer> = {
         {
           sn: '03',
           st: 'Shoot day',
-          sd: 'We arrive with the plan and the script. Nothing to prepare on your side except access.',
+          sd: 'We come with a plan and a script. All you need to give us is access.',
         },
         {
           sn: '04',
           st: 'Delivery',
-          sd: 'Five working days. Vertical and landscape from the start, so nothing has to be recut.',
+          sd: 'Five working days, in vertical and landscape, ready to post.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — QUESTIONS',
       title: ['The questions that', 'come up every time'],
-      lede: 'Everything below is what actually happens, not what sounds good in a proposal.',
+      lede: 'What clients usually ask before the first shoot.',
       items: [
         {
           q: 'How soon do we get the material?',
@@ -180,11 +180,11 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'The building does not exist yet.',
-          a: 'Then it is visualisation, and it is the reason the studio exists. The volume stands on your plot, built from your drawings, with the sun in the position your coordinates actually give it.',
+          a: 'Then it is visualisation. We build the house on your plot from your drawings, with the sun where your coordinates actually put it.',
         },
         {
           q: 'Who owns the material?',
-          a: 'You do. The studio asks separately, in writing, for the right to show the work in its own portfolio, and a discount is only ever given in exchange for something like that.',
+          a: 'You do. If we would like to show the work in our portfolio, we ask separately, in writing.',
         },
         {
           q: 'What do you need from us on the day?',
@@ -200,7 +200,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'What if the weather goes?',
-          a: 'The day moves. A shoot day is booked against a property, not against a forecast, and moving it costs nothing as long as it is moved the day before.',
+          a: 'The day moves, at no cost, as long as you tell us the day before.',
         },
       ],
     },
@@ -210,8 +210,8 @@ export const OFFER: Record<Lang, Offer> = {
   es: {
     prices: {
       eyebrow: '02 — PRECIOS',
-      title: ['Un paquete mensual', 'y servicios por separado'],
-      lede: 'El paquete mensual cubre contenido y marketing. La fotografía y el dron FPV se pueden contratar por separado. Para inmobiliarias, un CRM configurado según su forma de trabajar.',
+      title: ['Contenido cada mes', 'o solo el rodaje que necesita'],
+      lede: 'El paquete mensual mantiene en movimiento sus inmuebles y su perfil: Reels, una campaña, Stories y tomas con dron, escritos y publicados por nosotros. La fotografía y el FPV se pueden contratar por separado.',
       included: 'Incluye',
       main: {
         tag: 'PAQUETE PRINCIPAL',
@@ -248,7 +248,7 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'PARA INMOBILIARIAS',
         t: 'CRM personalizado para inmobiliarias',
-        lede: 'Configurado según la forma de trabajar de su inmobiliaria. Qué incluye:',
+        lede: 'Cada consulta atendida, cualificada y en un solo sitio, configurado según la forma de trabajar de su inmobiliaria:',
         rows: [
           'Propiedades: gestión de inmuebles',
           'Captación: captación de nuevos inmuebles',
@@ -266,12 +266,12 @@ export const OFFER: Record<Lang, Offer> = {
     how: {
       eyebrow: '05 — CÓMO FUNCIONA',
       title: ['Cuatro pasos, y', 'nada que preparar'],
-      lede: 'La parte que la mayoría de los estudios deja vaga. Aquí está en orden, con las fechas por escrito antes de reservar nada.',
+      lede: 'Del primer mensaje a los archivos terminados. Las fechas quedan por escrito antes de reservar nada.',
       steps: [
         {
           sn: '01',
           st: 'Envíe el inmueble',
-          sd: 'Una dirección, los planos o un enlace al anuncio. El presupuesto vuelve el mismo día.',
+          sd: 'Una dirección, el enlace al anuncio o los planos. El presupuesto llega el mismo día.',
         },
         {
           sn: '02',
@@ -281,19 +281,19 @@ export const OFFER: Record<Lang, Offer> = {
         {
           sn: '03',
           st: 'Día de rodaje',
-          sd: 'Llegamos con el plan y el guion. Por su parte, nada que preparar salvo el acceso.',
+          sd: 'Venimos con un plan y un guion. Usted solo tiene que darnos acceso.',
         },
         {
           sn: '04',
           st: 'Entrega',
-          sd: 'Cinco días laborables. Vertical y horizontal desde el principio, sin volver a montar nada.',
+          sd: 'Cinco días laborables, en vertical y horizontal, listo para publicar.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — PREGUNTAS',
       title: ['Las preguntas que', 'salen siempre'],
-      lede: 'Lo de abajo es lo que ocurre de verdad, no lo que queda bien en una propuesta.',
+      lede: 'Lo que suelen preguntar los clientes antes del primer rodaje.',
       items: [
         {
           q: '¿Cuándo tenemos el material?',
@@ -305,11 +305,11 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'El edificio todavía no existe.',
-          a: 'Entonces es visualización, y es la razón por la que existe el estudio. El volumen se levanta sobre su parcela a partir de sus planos, con el sol en la posición que dan sus coordenadas reales.',
+          a: 'Entonces es visualización. Levantamos la casa sobre su parcela a partir de sus planos, con el sol donde lo ponen sus coordenadas reales.',
         },
         {
           q: '¿De quién es el material?',
-          a: 'Suyo. El estudio pide aparte, por escrito, el derecho a mostrar el trabajo en su portfolio, y cualquier rebaja solo se da a cambio de algo así.',
+          a: 'Suyo. Si queremos mostrar el trabajo en nuestro portfolio, lo pedimos aparte y por escrito.',
         },
         {
           q: '¿Qué necesitan de nosotros ese día?',
@@ -325,7 +325,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: '¿Y si el tiempo se estropea?',
-          a: 'Se mueve el día. Una jornada se reserva contra un inmueble, no contra un parte meteorológico, y moverla no cuesta nada si se avisa el día antes.',
+          a: 'Se cambia el día, sin coste, si nos avisa el día antes.',
         },
       ],
     },
@@ -335,8 +335,8 @@ export const OFFER: Record<Lang, Offer> = {
   ru: {
     prices: {
       eyebrow: '02 — ЦЕНЫ',
-      title: ['Один пакет в месяц', 'и отдельные услуги'],
-      lede: 'Пакет на месяц закрывает контент и маркетинг. Фотосъёмку и FPV-дрон можно заказать отдельно. Для агентств недвижимости — CRM, настроенная под то, как они работают.',
+      title: ['Контент каждый месяц', 'или только нужная съёмка'],
+      lede: 'Пакет на месяц держит ваши объекты и профиль в движении: Reels, кампания, Stories и съёмка с дрона, пишем и публикуем за вас. Фотосъёмку и FPV можно заказать отдельно.',
       included: 'Что входит',
       main: {
         tag: 'ОСНОВНОЙ ПАКЕТ',
@@ -373,7 +373,7 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'ДЛЯ АГЕНТСТВ НЕДВИЖИМОСТИ',
         t: 'Персонализированная CRM для агентств недвижимости',
-        lede: 'Настраивается под то, как работает ваше агентство. Что входит:',
+        lede: 'Каждая заявка получает ответ, проходит квалификацию и хранится в одном месте. Настраивается под то, как работает ваше агентство:',
         rows: [
           'Propiedades: управление объектами',
           'Captación: привлечение объектов',
@@ -391,12 +391,12 @@ export const OFFER: Record<Lang, Offer> = {
     how: {
       eyebrow: '05 — КАК ЭТО УСТРОЕНО',
       title: ['Четыре шага,', 'готовить ничего не надо'],
-      lede: 'То, что большинство студий оставляет туманным. Здесь по порядку и со сроками, которые фиксируются письменно до брони.',
+      lede: 'От первого сообщения до готовых файлов. Сроки фиксируем письменно до брони.',
       steps: [
         {
           sn: '01',
           st: 'Пришлите объект',
-          sd: 'Адрес, чертежи или ссылку на объявление. Смета возвращается в тот же день.',
+          sd: 'Адрес, ссылку на объявление или чертежи. Смета придёт в тот же день.',
         },
         {
           sn: '02',
@@ -406,19 +406,19 @@ export const OFFER: Record<Lang, Offer> = {
         {
           sn: '03',
           st: 'Съёмочная смена',
-          sd: 'Приезжаем с планом и сценарием. С вашей стороны готовить нечего, кроме доступа.',
+          sd: 'Приезжаем с планом и сценарием. От вас нужен только доступ.',
         },
         {
           sn: '04',
           st: 'Сдача',
-          sd: 'Пять рабочих дней. Вертикаль и горизонталь с самого начала — перемонтировать ничего не нужно.',
+          sd: 'Пять рабочих дней, вертикаль и горизонталь, сразу к публикации.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — ВОПРОСЫ',
       title: ['Вопросы, которые', 'задают каждый раз'],
-      lede: 'Ниже то, что происходит на самом деле, а не то, что хорошо смотрится в коммерческом предложении.',
+      lede: 'О чём обычно спрашивают перед первой съёмкой.',
       items: [
         {
           q: 'Когда мы получим материал?',
@@ -430,11 +430,11 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'Объект ещё не построен.',
-          a: 'Тогда это визуализация, ради неё студия и существует. Объём встаёт на вашем участке по вашим чертежам, а солнце — в том положении, которое дают реальные координаты.',
+          a: 'Тогда это визуализация. Ставим дом на ваш участок по вашим чертежам, а солнце туда, куда его ставят реальные координаты.',
         },
         {
           q: 'Кому принадлежит материал?',
-          a: 'Вам. Право показывать работу в портфолио студия просит отдельно и письменно — и любая уступка в цене даётся только в обмен на что-то подобное.',
+          a: 'Вам. Если мы захотим показать работу в портфолио, спросим отдельно и письменно.',
         },
         {
           q: 'Что нужно от нас в день съёмки?',
@@ -450,7 +450,7 @@ export const OFFER: Record<Lang, Offer> = {
         },
         {
           q: 'А если испортится погода?',
-          a: 'День переносится. Смена бронируется под объект, а не под прогноз, и перенос ничего не стоит, если предупредить накануне.',
+          a: 'День переносится, бесплатно, если предупредить накануне.',
         },
       ],
     },
