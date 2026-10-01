@@ -25,13 +25,16 @@ export function createField(): () => void {
      chain reads it back twice per pass. The desktop numbers made the page
      scroll in steps on a phone, so the coarse branch below is cut to about a
      third of the work — count, substeps, density and blur passes together. */
-  const COUNT = isCoarse ? 6500 : 46000
+  const COUNT = isCoarse ? 9000 : 46000
   const RINGN = isCoarse ? 2600 : 9000
   const STEPS = isCoarse ? 1 : 2
   /* The clouds the shapes are sampled from. Denser than the field itself so
      the sampling has room to choose, but a phone does not need the full jar. */
   const SHAPE_PTS = isCoarse ? 9000 : Math.max(COUNT, 20000)
-  const BLUR_PASSES = isCoarse ? 1 : 2
+  /* Both passes stay on a phone. One pass at a small buffer turned the glow
+     round the wordmark into square white blocks, and the bloom buffer is the
+     cheapest thing in the frame anyway. */
+  const BLUR_PASSES = 2
 
   const canvas = document.getElementById('gl') as HTMLCanvasElement | null
   if (!canvas) return () => {}
@@ -727,12 +730,18 @@ void main(){
   const R = 195, PUSH = 4.2, SPRING = 0.045, DAMP = 0.862
   const BASE_SIZE = isCoarse ? 2.3 : 2.1
   let rotY = 0, rotX = 0, prevT = 0, acc = 0, modelScale = 1
+  /* gl_PointSize is in device pixels. Lowering the phone's pixel density
+     without this made every point 1.6 times larger on screen, and where the
+     wordmark packs them tight the additive blend burned the letters into a
+     white smear. This keeps a point the size it was at the old density. */
+  let pointScale = 1
 
   const resize = () => {
     /* Pixels cost the square of this number. A phone reporting 3 was being
        asked for nine times the fill of a plain 1, for a field of soft dots
        where the extra density is not visible anyway. */
     const dpr = Math.min(devicePixelRatio || 1, isCoarse ? 1.25 : 1.75)
+    pointScale = isCoarse ? dpr / Math.min(devicePixelRatio || 1, 2) : 1
     const w = Math.floor(innerWidth * dpr), h = Math.floor(innerHeight * dpr)
     if (w < 1 || h < 1) return
     canvas.width = w
@@ -747,8 +756,7 @@ void main(){
     dropFBO(bloomA)
     dropFBO(bloomB)
     sceneFBO = makeFBO(w, h)
-    const shift = isCoarse ? 3 : 2
-    const bw = Math.max(2, w >> shift), bh = Math.max(2, h >> shift)
+    const bw = Math.max(2, w >> 2), bh = Math.max(2, h >> 2)
     bloomA = makeFBO(bw, bh)
     bloomB = makeFBO(bw, bh)
   }
@@ -775,7 +783,7 @@ void main(){
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE)
     gl.useProgram(pProg)
     gl.uniformMatrix4fv(PL.uP, false, MP)
-    gl.uniform1f(PL.uSize, BASE_SIZE * Math.max(0.86, modelScale))
+    gl.uniform1f(PL.uSize, BASE_SIZE * Math.max(0.86, modelScale) * pointScale)
 
     setMV(MV, rotY * 0.35, rotX * 0.35, 1, 0, 0)
     gl.uniformMatrix4fv(PL.uMV, false, MV)
