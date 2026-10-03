@@ -140,7 +140,7 @@ void main(){
     QUAD_VS,
     `
 precision mediump float;
-uniform sampler2D uScene, uBloom; uniform float uAmt; uniform vec3 uInk;
+uniform sampler2D uScene, uBloom; uniform float uAmt, uGain; uniform vec3 uInk;
 varying vec2 vUv;
 void main(){
   vec3 c = texture2D(uScene, vUv).rgb;
@@ -154,7 +154,7 @@ void main(){
      final = c + page * (1 - a): the field adds light where it burns and
      leaves the frame behind it untouched where it is dark. Without this the
      canvas is a black sheet over everything. */
-  float a = clamp(max(max(c.r, c.g), c.b), 0.0, 1.0);
+  float a = clamp(max(max(c.r, c.g), c.b) * uGain, 0.0, 1.0);
   gl_FragColor = vec4(uInk, a);
 }`
   )
@@ -734,8 +734,12 @@ void main(){
      runs with the scroll: white while the film fills the screen, ink once it
      has gone. The glow around a point is light on a dark ground and a smudge on
      a light one, so it is turned down by the same amount. */
-  const INK = [0.082, 0.09, 0.106]
+  const INK = [0.035, 0.04, 0.05]
   let inkR = 1, inkG = 1, inkB = 1, bloomAmt = 1.65
+  /* On paper the points are dark on a pale ground, which needs more weight than
+     light on black: denser alpha, larger points, a heavier coverage. All three
+     fade back to 1 over the opening film. */
+  let alphaBoost = 1, sizeBoost = 1, gain = 1
   let heroH = innerHeight
   let tonNav = '', tonCounter = ''
   const setTone = () => {
@@ -747,7 +751,12 @@ void main(){
     inkR = INK[0] + (1 - INK[0]) * k
     inkG = INK[1] + (1 - INK[1]) * k
     inkB = INK[2] + (1 - INK[2]) * k
-    bloomAmt = 0.5 + (1.65 - 0.5) * k
+    bloomAmt = 0.08 + (1.65 - 0.08) * k
+    /* A phone draws a third of the points, so each one has to carry more. */
+    const m = isCoarse ? 1.75 : 1
+    alphaBoost = 1 + (1 - k) * 1.1 * m
+    sizeBoost = 1 + (1 - k) * 0.32 * (isCoarse ? 1.9 : 1)
+    gain = 1 + (1 - k) * 0.9 * m
     /* The nav is at the top of the screen, the counter at the bottom, so they
        leave the film at different scroll positions. */
     const nav = y < heroH - 80 ? 'dark' : 'light'
@@ -813,17 +822,17 @@ void main(){
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE)
     gl.useProgram(pProg)
     gl.uniformMatrix4fv(PL.uP, false, MP)
-    gl.uniform1f(PL.uSize, BASE_SIZE * Math.max(0.86, modelScale) * pointScale)
+    gl.uniform1f(PL.uSize, BASE_SIZE * Math.max(0.86, modelScale) * pointScale * sizeBoost)
 
     setMV(MV, rotY * 0.35, rotX * 0.35, 1, 0, 0)
     gl.uniformMatrix4fv(PL.uMV, false, MV)
-    gl.uniform1f(PL.uAlpha, 0.55)
+    gl.uniform1f(PL.uAlpha, 0.55 * alphaBoost)
     bindP(bStarPos, bStarGlow, bStarRand)
     gl.drawArrays(gl.POINTS, 0, STARS)
 
     setMVFloor(MVF, -0.46, modelScale, (offY - 330) * 0.9, offX * 0.85)
     gl.uniformMatrix4fv(PL.uMV, false, MVF)
-    gl.uniform1f(PL.uAlpha, 0.95)
+    gl.uniform1f(PL.uAlpha, 0.95 * alphaBoost)
     gl.bindBuffer(gl.ARRAY_BUFFER, bRingGlow)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, ringGlow)
     bindP(bRingPos, bRingGlow, bRingRand)
@@ -831,7 +840,7 @@ void main(){
 
     setMV(MV, rotY, rotX, modelScale, offX, offY)
     gl.uniformMatrix4fv(PL.uMV, false, MV)
-    gl.uniform1f(PL.uAlpha, 1.0)
+    gl.uniform1f(PL.uAlpha, 1.0 * alphaBoost)
     gl.bindBuffer(gl.ARRAY_BUFFER, bPos)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos)
     gl.bindBuffer(gl.ARRAY_BUFFER, bGlow)
@@ -886,6 +895,7 @@ void main(){
     gl.uniform1i(gl.getUniformLocation(compProg, 'uBloom'), 1)
     gl.uniform1f(gl.getUniformLocation(compProg, 'uAmt'), bloomAmt)
     gl.uniform3f(gl.getUniformLocation(compProg, 'uInk'), inkR, inkG, inkB)
+    gl.uniform1f(gl.getUniformLocation(compProg, 'uGain'), gain)
     drawQuad(compProg)
   }
 
