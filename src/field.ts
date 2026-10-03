@@ -764,7 +764,17 @@ void main(){
     const nav = y < heroH - 80 ? 'dark' : 'light'
     const cnt = y < 40 ? 'dark' : 'light'
     const root = document.documentElement
-    if (nav !== tonNav) { tonNav = nav; root.dataset.nav = nav }
+    if (nav !== tonNav) {
+      tonNav = nav
+      root.dataset.nav = nav
+      /* The browser's own bar on a phone takes this colour. It was a fixed
+         black, which on a page that is paper from the second screen down made
+         a black strip over the top of every section. It follows the same
+         switch as the nav: black while the bar sits over the film, paper after. */
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', nav === 'dark' ? '#000000' : '#f3f0ea')
+    }
     if (cnt !== tonCounter) { tonCounter = cnt; root.dataset.counter = cnt }
   }
   setTone()
