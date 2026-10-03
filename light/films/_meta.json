@@ -1,0 +1,107 @@
+[
+ {
+  "id": "villa-alfa-tour",
+  "kind": "villas",
+  "vertical": false,
+  "duration": 180.1,
+  "mb": 62.9
+ },
+ {
+  "id": "villa-hd",
+  "kind": "villas",
+  "vertical": false,
+  "duration": 54.4,
+  "mb": 19.3
+ },
+ {
+  "id": "cin-lento",
+  "kind": "villas",
+  "vertical": true,
+  "duration": 58.4,
+  "mb": 9.0
+ },
+ {
+  "id": "villa-alfa-agent",
+  "kind": "villas",
+  "vertical": true,
+  "duration": 49.3,
+  "mb": 10.7
+ },
+ {
+  "id": "villa-alfa-detail",
+  "kind": "villas",
+  "vertical": true,
+  "duration": 37.6,
+  "mb": 7.2
+ },
+ {
+  "id": "villa-alfa-short",
+  "kind": "villas",
+  "vertical": true,
+  "duration": 29.1,
+  "mb": 6.4
+ },
+ {
+  "id": "fpv-villa",
+  "kind": "fpv",
+  "vertical": false,
+  "duration": 76.9,
+  "mb": 28.4
+ },
+ {
+  "id": "ultimo-llamada",
+  "kind": "fpv",
+  "vertical": true,
+  "duration": 55.9,
+  "mb": 12.0
+ },
+ {
+  "id": "ignazio",
+  "kind": "agents",
+  "vertical": true,
+  "duration": 20.5,
+  "mb": 4.4
+ },
+ {
+  "id": "madronal",
+  "kind": "build",
+  "vertical": true,
+  "duration": 44.5,
+  "mb": 9.5
+ },
+ {
+  "id": "project-3",
+  "kind": "build",
+  "vertical": false,
+  "duration": 47.5,
+  "mb": 13.8
+ },
+ {
+  "id": "mr-eh",
+  "kind": "build",
+  "vertical": false,
+  "duration": 90.0,
+  "mb": 24.9
+ },
+ {
+  "id": "toro-negro",
+  "kind": "ai",
+  "vertical": true,
+  "duration": 30.8,
+  "mb": 4.6
+ },
+ {
+  "id": "puerto-banus",
+  "kind": "ai",
+  "vertical": true,
+  "duration": 34.3,
+  "mb": 6.3
+ },
+ {
+  "id": "zaceni-balam",
+  "kind": "ai",
+  "vertical": true,
+  "duration": 34.9,
+  "mb": 5.6
+ }
+]
