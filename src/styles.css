@@ -16,8 +16,8 @@
      material is night photography and video, which dies on a light ground. */
   --bg: #f3f0ea;
   --ink: #15171b;
-  --muted: #5c626b;
-  --muted-strong: #3b4048;
+  --muted: #3f444c;
+  --muted-strong: #25292f;
   --line: rgba(21, 23, 27, 0.14);
   /* what a former `#fff` became: the foreground colour, and its rgb for alphas */
   --fg: #15171b;
@@ -312,16 +312,18 @@ section.hero::before {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.28em;
+  /* The section label is the first thing read after the title, and at 10px in
+     mid grey it vanished on paper. Larger and in the strong tone. */
+  color: var(--muted-strong);
   margin-bottom: 26px;
 }
 
 .eyebrow i {
   width: 22px;
   height: 1px;
-  background: var(--muted);
+  background: var(--warm);
   display: block;
 }
 

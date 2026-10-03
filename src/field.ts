@@ -734,7 +734,9 @@ void main(){
      runs with the scroll: white while the film fills the screen, ink once it
      has gone. The glow around a point is light on a dark ground and a smudge on
      a light one, so it is turned down by the same amount. */
-  const INK = [0.035, 0.04, 0.05]
+  /* Gold #a37316: dark enough to hold on paper, saturated enough to read as gold
+     and not as brown. */
+  const INK = [0.639, 0.451, 0.086]
   let inkR = 1, inkG = 1, inkB = 1, bloomAmt = 1.65
   /* On paper the points are dark on a pale ground, which needs more weight than
      light on black: denser alpha, larger points, a heavier coverage. All three
