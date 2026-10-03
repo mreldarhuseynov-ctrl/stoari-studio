@@ -140,7 +140,7 @@ void main(){
     QUAD_VS,
     `
 precision mediump float;
-uniform sampler2D uScene, uBloom; uniform float uAmt;
+uniform sampler2D uScene, uBloom; uniform float uAmt; uniform vec3 uInk;
 varying vec2 vUv;
 void main(){
   vec3 c = texture2D(uScene, vUv).rgb;
@@ -155,7 +155,7 @@ void main(){
      leaves the frame behind it untouched where it is dark. Without this the
      canvas is a black sheet over everything. */
   float a = clamp(max(max(c.r, c.g), c.b), 0.0, 1.0);
-  gl_FragColor = vec4(c / max(a, 0.0015), a);
+  gl_FragColor = vec4(uInk, a);
 }`
   )
 
@@ -729,6 +729,36 @@ void main(){
 
   const R = 195, PUSH = 4.2, SPRING = 0.045, DAMP = 0.862
   const BASE_SIZE = isCoarse ? 2.3 : 2.1
+  /* The page is light below the opening film, so the points are ink there and
+     white over the film. One canvas serves both, so the colour is a blend that
+     runs with the scroll: white while the film fills the screen, ink once it
+     has gone. The glow around a point is light on a dark ground and a smudge on
+     a light one, so it is turned down by the same amount. */
+  const INK = [0.082, 0.09, 0.106]
+  let inkR = 1, inkG = 1, inkB = 1, bloomAmt = 1.65
+  let heroH = innerHeight
+  let tonNav = '', tonCounter = ''
+  const setTone = () => {
+    const el = document.querySelector('section.hero') as HTMLElement | null
+    if (el) heroH = el.offsetHeight || innerHeight
+    const y = scrollY
+    /* 1 = over the film, 0 = over paper */
+    const k = Math.min(1, Math.max(0, 1 - (y - heroH * 0.3) / (heroH * 0.5)))
+    inkR = INK[0] + (1 - INK[0]) * k
+    inkG = INK[1] + (1 - INK[1]) * k
+    inkB = INK[2] + (1 - INK[2]) * k
+    bloomAmt = 0.5 + (1.65 - 0.5) * k
+    /* The nav is at the top of the screen, the counter at the bottom, so they
+       leave the film at different scroll positions. */
+    const nav = y < heroH - 80 ? 'dark' : 'light'
+    const cnt = y < 40 ? 'dark' : 'light'
+    const root = document.documentElement
+    if (nav !== tonNav) { tonNav = nav; root.dataset.nav = nav }
+    if (cnt !== tonCounter) { tonCounter = cnt; root.dataset.counter = cnt }
+  }
+  setTone()
+  addEventListener('scroll', setTone, { passive: true })
+  addEventListener('resize', setTone)
   let rotY = 0, rotX = 0, prevT = 0, acc = 0, modelScale = 1
   /* gl_PointSize is in device pixels. Lowering the phone's pixel density
      without this made every point 1.6 times larger on screen, and where the
@@ -854,7 +884,8 @@ void main(){
     gl.activeTexture(gl.TEXTURE1)
     gl.bindTexture(gl.TEXTURE_2D, bloomA.tex)
     gl.uniform1i(gl.getUniformLocation(compProg, 'uBloom'), 1)
-    gl.uniform1f(gl.getUniformLocation(compProg, 'uAmt'), 1.65)
+    gl.uniform1f(gl.getUniformLocation(compProg, 'uAmt'), bloomAmt)
+    gl.uniform3f(gl.getUniformLocation(compProg, 'uInk'), inkR, inkG, inkB)
     drawQuad(compProg)
   }
 
@@ -986,6 +1017,7 @@ void main(){
     removeEventListener('pointermove', onPointer)
     removeEventListener('touchmove', onTouch)
     removeEventListener('scroll', onScroll)
+    removeEventListener('scroll', setTone)
     removeEventListener('resize', onResize)
   }
 }
