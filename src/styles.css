@@ -2684,3 +2684,73 @@ html:has(.player) #counter,
 html:has(.player) .stickycta {
   visibility: hidden;
 }
+
+
+/* ---- PHONE HERO -----------------------------------------------------------
+   On Robert's phone the opening film was a thin white strip under the nav with
+   solid black below it. Two things were wrong.
+
+   The strip was white because the film's top is a blown-out sky and the
+   darkening lay over it as a layer; that phone painted the video above the
+   layer, so the sky showed as it is. The darkness is in the file now
+   (hero-15s-p.mp4), and the layer only adds a light touch on top.
+
+   The strip was thin because the film sat under a scrim that went to 90% black
+   by the top third of the screen, wherever the text was. The scrim now belongs
+   to the text block and starts just above it, so the film is visible all the
+   way down to the heading, whatever the language makes the text block. The film
+   box is shorter than the screen and zoomed less, which also shows more of the
+   scene and does not blow a 480p slice up 3.5 times.
+
+   No mask on the clip: the page is paper now, so a fade to transparent would
+   fade to paper. Below the film the hero is black, and the scrim hides the
+   film's lower edge. */
+@media (max-width: 820px) {
+  .heroclip {
+    background-image: none !important;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .heroclip video,
+  .heroclip::after {
+    bottom: auto;
+    height: 58svh;
+  }
+
+  .heroclip::after {
+    background: linear-gradient(
+      180deg,
+      rgba(var(--sc), 0.2) 0%,
+      rgba(var(--sc), 0.1) 45%,
+      rgba(var(--sc), 0.6) 82%,
+      rgb(var(--sc)) 100%
+    );
+  }
+
+  section.hero::before {
+    background: none;
+  }
+
+  section.hero .col {
+    position: relative;
+  }
+
+  section.hero .col::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    top: -70px;
+    bottom: -92px;
+    left: calc(var(--gut) * -1);
+    width: 100vw;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(var(--sc), 0.45) 90px,
+      rgba(var(--sc), 0.9) 190px,
+      rgba(var(--sc), 0.96) 100%
+    );
+  }
+}

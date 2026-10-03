@@ -22,18 +22,33 @@ import {
 } from './films'
 
 /**
- * A phone that is already running the point field cannot also decode a
- * 1920×1080 film without the page moving in steps, so it gets an 854×480 cut of
- * the same seconds — 0.3 MB against 3.7 MB. Behind the field, at the size the
- * hero actually shows it, the two are indistinguishable.
+ * Three films for the hero, picked by the same breakpoint the stylesheet uses
+ * for the phone layout (max-width 820px), so the file and the layout cannot
+ * disagree:
  *
- * The test matches the field's own, so the light film and the light field
- * always arrive together.
+ *   phone    hero-15s-p.mp4   1280×720, darkened in the file itself
+ *   touch    hero-15s-m.mp4   854×480, dimmed by the stylesheet as on desktop
+ *   desktop  hero-15s.mp4     1920×1080
+ *
+ * A phone that is already running the point field cannot also decode a
+ * 1080p film without the page moving in steps, hence the smaller files.
+ *
+ * The phone film is darkened at the source and not by an overlay. An overlay
+ * only works if the device paints it above the video, and one phone did not:
+ * Robert's showed the film as a white strip under the nav, because the film's
+ * top is a blown-out sky (Y≈175 of 255 against the 50 the white type needs).
+ * Baked into the file, the darkness does not depend on how a browser stacks
+ * a playing video.
  */
-const heroClip = () =>
-  `${import.meta.env.BASE_URL}hero/hero-15s${
-    matchMedia('(pointer: coarse)').matches || innerWidth < 820 ? '-m' : ''
-  }.mp4`
+const heroKind = () =>
+  matchMedia('(max-width: 820px)').matches
+    ? '-p'
+    : matchMedia('(pointer: coarse)').matches
+      ? '-m'
+      : ''
+const heroClip = () => `${import.meta.env.BASE_URL}hero/hero-15s${heroKind()}.mp4`
+const heroPoster = () =>
+  `${import.meta.env.BASE_URL}hero/hero-poster${heroKind() === '-p' ? '-p' : ''}.jpg`
 
 /**
  * A still behind each service row, keyed by the row's number rather than its
@@ -796,7 +811,7 @@ export default function App() {
         className="heroclip"
         aria-hidden="true"
         style={{
-          backgroundImage: `url(${import.meta.env.BASE_URL}hero/hero-poster.jpg)`,
+          backgroundImage: `url(${heroPoster()})`,
         }}
       >
         <video
@@ -805,7 +820,7 @@ export default function App() {
           loop
           playsInline
           preload="metadata"
-          poster={`${import.meta.env.BASE_URL}hero/hero-poster.jpg`}
+          poster={heroPoster()}
         >
           <source src={heroClip()} type="video/mp4" />
         </video>
