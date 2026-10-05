@@ -47,6 +47,8 @@ try {
   assert.equal(response.status, 200)
   assert.deepEqual(await response.json(), { ok: true }, 'Accepted mail gets an explicit acknowledgement')
   const message = await readFile(join(scratch, 'last-message'), 'utf8')
+  assert.match(message, /^To: info@stoari\.com/m, 'Enquiries reach the professional mailbox')
+  assert.match(message, /^From: STOARI <info@stoari\.com>/m, 'The sender uses the existing domain mailbox')
   assert.match(message, /Reply-To: visitor@example\.com/, 'Replies reach the validated visitor address')
   assert.match(message, /Email: visitor@example\.com/, 'The enquiry includes a usable reply address')
   await writeFile(join(scratch, 'fail-mail'), '')

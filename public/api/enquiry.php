@@ -81,10 +81,10 @@ $message = "New enquiry from stoari.com\n\n"
     . "Property / project: {$fields['object']}\n"
     . "When: {$fields['when']}\n";
 
-// The destination stays on the verified operational mailbox until info@stoari.com
-// has been created and tested. Reply-To is validated and cannot contain newlines.
-$accepted = mail('mreldarhuseynov@gmail.com', 'STOARI website enquiry', $message, [
-    'From' => 'STOARI <noreply@stoari.com>',
+// The owner confirmed creation of the professional mailbox on Hostinger.
+// Reply-To is validated and cannot contain newlines.
+$accepted = mail('info@stoari.com', 'STOARI website enquiry', $message, [
+    'From' => 'STOARI <info@stoari.com>',
     'Reply-To' => $fields['email'],
     'MIME-Version' => '1.0',
     'Content-Type' => 'text/plain; charset=UTF-8',

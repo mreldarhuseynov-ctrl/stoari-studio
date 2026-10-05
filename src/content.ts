@@ -26,7 +26,7 @@ export const BRAND = {
    * particle field cannot drift apart.
    */
   descriptor: 'REAL ESTATE MEDIA',
-  email: 'mreldarhuseynov@gmail.com',
+  email: 'info@stoari.com',
   /** Digits only, country code first — that is the format wa.me expects. */
   whatsapp: '34610826619',
   whatsappLabel: '+34 610 826 619',

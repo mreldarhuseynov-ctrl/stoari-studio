@@ -116,7 +116,7 @@ and posters. Do not upload the large camera originals.
 `build:hostinger` selects `/api/enquiry.php` for the enquiry
 form. PHP validates the request, ignores the honeypot and limits repeated sends;
 Hostinger's mail transport forwards to the studio's existing public address,
-`mreldarhuseynov@gmail.com`. The visitor sees success only when the transport
+`info@stoari.com`. The visitor sees success only when the transport
 accepts the message. Acceptance does not verify delivery to the recipient's
 inbox; verify that separately with an authorised real enquiry. No enquiry text
 is saved by this handler. Private temporary counters contain only send counts.
@@ -153,8 +153,10 @@ legal, privacy and cookie pages use the owner and address supplied by Robert.
 There are no analytics, advertising cookies or third-party video/font embeds.
 Language storage is written only after an explicit language selection.
 
-`info@stoari.com` is still pending creation in Hostinger. Until it exists and
-delivery is checked, the public contact, legal pages and handler retain the
-existing working studio Gmail. Update all three together, and revise provider
-details in the privacy page if email processing changes. Website policy text
-does not replace the owner's provider agreements and actual operating duties.
+The owner confirmed creation of `info@stoari.com` on Hostinger. The public
+contact, structured data, legal pages, form destination and sender now use that
+address. MX records point to Hostinger and SPF includes its mail service.
+Actual end-to-end inbox delivery is still pending an authorised real enquiry;
+local tests capture mail using a fake transport and never send it externally.
+Website policy text does not replace the owner's provider agreements and
+actual operating duties.
