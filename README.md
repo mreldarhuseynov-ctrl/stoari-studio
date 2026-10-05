@@ -132,9 +132,11 @@ currently requires an explicit upload; a push to GitHub alone does not update it
 ## October 2026 refinement
 
 The opening particle wordmark and illustrated service rows are retained. Prices
-are three peers on desktop and stack on mobile. Cards share a 12px radius;
-action buttons use the existing pill shape. The mobile hero uses a portrait
-crop of the same film. Galleries use native vertical page scrolling, hidden
+are three peers on desktop and stack on mobile. Cards and action buttons share
+square corners, per the owner’s latest preference. Service rows retain their
+images with compact spacing and separators. The hero selects its film by both
+width and orientation: narrow landscape panels do not load the magnified phone
+crop. Media selection updates on resize/rotation. Galleries use native vertical page scrolling, hidden
 scrollbars and previous/next controls. Reduced-motion visitors get static
 posters and native horizontal browsing; short viewports keep controls accessible.
 
@@ -143,8 +145,9 @@ film assets retain their existing WebP/MP4 optimization. Visible clips pause
 offscreen, in hidden tabs and when reduced motion is requested. The hero has a
 pause control; keyboard users can skip the page and access modal focus traps.
 
-The contact form requires a valid reply email. Run `npm run test:gallery` for
-scroll geometry and `npm run test:enquiry` for PHP validation, rate limiting
+The contact form requires a valid reply email. Run `npm run test:hero` for
+responsive film selection, `npm run test:gallery` for scroll geometry and
+`npm run test:enquiry` for PHP validation, rate limiting
 and mail success/failure using a fake local mail transport.
 
 SEO includes the primary-domain canonical, metadata in the selected language,

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export function useMediaPlayback(language: string, heroPaused: boolean) {
+export function useMediaPlayback(language: string, heroPaused: boolean, heroVariant: string) {
   useEffect(() => {
     const still = matchMedia('(prefers-reduced-motion: reduce)')
     const clips = [...document.querySelectorAll<HTMLVideoElement>('.heroclip video, .work video')]
@@ -29,5 +29,5 @@ export function useMediaPlayback(language: string, heroPaused: boolean) {
       document.removeEventListener('visibilitychange', sync)
       clips.forEach((clip) => clip.pause())
     }
-  }, [language, heroPaused])
+  }, [language, heroPaused, heroVariant])
 }

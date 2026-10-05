@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
 
 import { createField } from './field'
+import { chooseHeroVariant, type HeroVariant } from './heroMedia'
 import { useHorizontalGalleries } from './useHorizontalGalleries'
 import { LegalFooter } from './legal'
 import { LEGAL_COPY } from './legalCopy'
@@ -27,34 +28,17 @@ import {
   type Kind,
 } from './films'
 
-/**
- * Three films for the hero, picked by the same breakpoint the stylesheet uses
- * for the phone layout (max-width 820px), so the file and the layout cannot
- * disagree:
- *
- *   phone    hero-15s-p.mp4   1280×720, darkened in the file itself
- *   touch    hero-15s-m.mp4   854×480, dimmed by the stylesheet as on desktop
- *   desktop  hero-15s.mp4     1920×1080
- *
- * A phone that is already running the point field cannot also decode a
- * 1080p film without the page moving in steps, hence the smaller files.
- *
- * The phone film is darkened at the source and not by an overlay. An overlay
- * only works if the device paints it above the video, and one phone did not:
- * Robert's showed the film as a white strip under the nav, because the film's
- * top is a blown-out sky (Y≈175 of 255 against the 50 the white type needs).
- * Baked into the file, the darkness does not depend on how a browser stacks
- * a playing video.
- */
-const heroKind = () =>
-  matchMedia('(max-width: 820px)').matches
-    ? '-portrait'
-    : matchMedia('(pointer: coarse)').matches
-      ? '-m'
-      : ''
-const heroClip = () => `${import.meta.env.BASE_URL}hero/hero-15s${heroKind()}.mp4`
-const heroPoster = () =>
-  `${import.meta.env.BASE_URL}hero/hero-poster${heroKind() === '-portrait' ? '-portrait' : ''}.jpg`
+// Portrait phones use the portrait crop. Narrow landscape panels and touch
+// tablets use a 720p landscape encode; wide desktops keep the original film.
+// Width alone used to load a tightly cropped portrait film in desktop panels.
+const heroKind = () => chooseHeroVariant(
+  matchMedia('(max-width: 820px)').matches,
+  matchMedia('(orientation: portrait)').matches,
+  matchMedia('(pointer: coarse)').matches,
+)
+const heroClip = (variant: HeroVariant) => `${import.meta.env.BASE_URL}hero/hero-15s${variant}.mp4`
+const heroPoster = (variant: HeroVariant) =>
+  `${import.meta.env.BASE_URL}hero/hero-poster${variant === '-portrait' ? '-portrait' : ''}.jpg`
 
 /**
  * A still behind each service row, keyed by the row's number rather than its
@@ -533,6 +517,7 @@ export default function App() {
 
   const [lang, setLang] = useState<Lang>(initialLang)
   const [heroPaused, setHeroPaused] = useState(false)
+  const [heroVariant, setHeroVariant] = useState(heroKind)
   const c = COPY[lang]
   const o = OFFER[lang]
 
@@ -541,7 +526,13 @@ export default function App() {
     updateMetadata(lang)
   }, [lang])
 
-  useMediaPlayback(lang, heroPaused)
+  useEffect(() => {
+    const queries = ['(max-width: 820px)', '(orientation: portrait)', '(pointer: coarse)'].map((query) => matchMedia(query))
+    const update = () => setHeroVariant(heroKind())
+    queries.forEach((query) => query.addEventListener('change', update))
+    return () => queries.forEach((query) => query.removeEventListener('change', update))
+  }, [])
+  useMediaPlayback(lang, heroPaused, heroVariant)
 
   /**
    * A project opens over the page rather than on its own route: the field
@@ -599,16 +590,17 @@ export default function App() {
       <div
         className="heroclip"
         aria-hidden="true"
-        style={{ '--hero-poster': `url(${heroPoster()})` } as CSSProperties}
+        style={{ '--hero-poster': `url(${heroPoster(heroVariant)})` } as CSSProperties}
       >
         <video
+          key={heroVariant}
           muted
           loop
           playsInline
           preload="none"
-          poster={heroPoster()}
+          poster={heroPoster(heroVariant)}
         >
-          <source src={heroClip()} type="video/mp4" />
+          <source src={heroClip(heroVariant)} type="video/mp4" />
         </video>
       </div>
 

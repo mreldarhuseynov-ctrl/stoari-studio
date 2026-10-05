@@ -9,6 +9,7 @@
     "build:hostinger": "VITE_ENQUIRY_ENDPOINT=/api/enquiry.php npm run build",
     "test:enquiry": "node scripts/enquiry-selftest.mjs",
     "test:gallery": "node --experimental-strip-types scripts/gallery-selftest.mjs",
+    "test:hero": "node --experimental-strip-types scripts/hero-selftest.mjs",
     "bundle:hostinger": "npm run build:hostinger && node scripts/package-hostinger.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
