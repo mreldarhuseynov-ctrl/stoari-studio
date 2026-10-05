@@ -277,11 +277,10 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
 /**
  * The enquiry form.
  *
- * Netlify catches the POST itself — there is no backend and nothing to keep
- * running. The price of that is a static copy of the form in `index.html`,
- * which is what Netlify actually reads at deploy time; this one is the React
- * version the visitor sees. If a field is added here it has to be added there
- * too, or the value silently never arrives.
+ * Hostinger builds use VITE_ENQUIRY_ENDPOINT=/api/enquiry.php. Other builds
+ * retain Netlify's POST and static form in index.html. Hostinger must return
+ * an explicit JSON acknowledgement, so an HTML fallback cannot lose a lead
+ * while showing a thank-you.
  *
  * On localhost there is nothing to POST to, so in dev the send is treated as
  * successful and the thank-you still shows — the flow can be checked without
@@ -295,18 +294,24 @@ function Enquiry({ c }: { c: Copy }) {
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((p) => ({ ...p, [k]: e.target.value }))
 
-  const submit = async (e: FormEvent) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (sent === 'sending') return
+    const botField = new FormData(e.currentTarget).get('bot-field')
+    const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT || '/'
     setSent('sending')
     try {
-      const res = await fetch('/', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ 'form-name': 'enquiry', ...f }).toString(),
+        body: new URLSearchParams({
+          'form-name': 'enquiry', ...f, 'bot-field': String(botField || ''),
+        }).toString(),
       })
       /* There is no form handler in front of `vite dev`, so the 404 it returns
          is the expected answer and not a failure worth showing. */
-      if (!res.ok && !import.meta.env.DEV) {
+      const delivered = res.ok && (!import.meta.env.VITE_ENQUIRY_ENDPOINT || (await res.json()).ok === true)
+      if (!delivered && !import.meta.env.DEV) {
         setSent('failed')
         return
       }

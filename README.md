@@ -82,8 +82,48 @@ from all three languages once the date has gone.
 
 ---
 
-## Deployment
+## Deployment — stoari.com
 
-The site deploys from `main`: Netlify runs `npm run build` and serves `dist`.
-Nothing is dragged into a browser by hand any more — that is exactly how two
-people overwrite each other's work.
+The primary domain is `https://stoari.com`, on Robert's existing Hostinger
+Business plan. `www.stoari.com` and HTTP redirect to the HTTPS primary domain.
+The old GitHub Pages and Netlify deployments are separate from this hosting.
+
+```bash
+npm ci
+npm run test:enquiry   # PHP required; test mail never leaves the computer
+npm run lint
+npm run bundle:hostinger
+```
+
+Upload the contents of `dist-hostinger/stoari-hostinger.zip` into this site's
+`public_html`. The archive root contains `index.html`, `.htaccess`, `assets/`,
+`films/` and `api/`. Keep a copy of the previous archive before replacing it,
+so rollback is restoring the previous contents. Build from the agreed Git
+commit and record that commit with each deployment.
+
+Full films are ignored on `main`. In a fresh checkout, recover the web versions
+from the publishing branch before building (or use a saved copy):
+
+```bash
+git fetch origin gh-pages
+git archive origin/gh-pages films | tar -x -C public
+```
+
+The packaging command refuses an archive without all 15 films, their previews
+and posters. Do not upload the large camera originals.
+
+`build:hostinger` selects `/api/enquiry.php` for the existing four-field enquiry
+form. PHP validates the request, ignores the honeypot and limits repeated sends;
+Hostinger's mail transport forwards to the studio's existing public address,
+`mreldarhuseynov@gmail.com`. The visitor sees success only when the transport
+accepts the message. Acceptance does not verify delivery to the recipient's
+inbox; verify that separately with an authorised real enquiry. No enquiry text
+is saved by this handler. Private temporary counters contain only send counts.
+
+An ordinary `npm run build` retains the Netlify form endpoint for existing
+Netlify deployments. Local Vite previews simulate form success and do not send
+mail. Hostinger honours `.htaccess`; Netlify's `_headers` remains for Netlify.
+
+After uploading, check HTTPS, the `www` redirect, the hero, all film assets,
+the three languages and the contact form's error path. Publishing on Hostinger
+currently requires an explicit upload; a push to GitHub alone does not update it.
