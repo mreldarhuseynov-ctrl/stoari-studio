@@ -47,7 +47,7 @@ export const BRAND = {
    * basis. Until that page exists this stays empty, and the form prints its
    * one-line notice without a link rather than pointing at a 404.
    */
-  privacyUrl: '',
+  privacyUrl: '/privacy/',
 } as const
 
 export const LANGS = ['en', 'es', 'ru'] as const
@@ -196,6 +196,7 @@ export type Copy = {
     title: [string, string]
     lede: string
     name: string
+    email: string
     company: string
     object: string
     when: string
@@ -268,18 +269,19 @@ export const COPY: Record<Lang, Copy> = {
     cta: 'START A PROJECT',
     stickyCta: 'SEND A PROPERTY',
     form: {
-      title: ['Four lines are enough.', 'We reply the same day.'],
+      title: ['Request a quote', ''],
       lede: 'An address or a link to the listing is enough to start. Photos and drawings can follow.',
       name: 'Your name',
+      email: 'Email',
       company: 'Company',
       object: 'The property: address, link, or a line about it',
       when: 'When do you need it',
       submit: 'SEND',
       sending: 'SENDING…',
-      note: 'We use what you write here to answer you, and for nothing else.',
+      note: 'Robert Di Gaetano uses these details to answer your enquiry. Required fields are marked *. Read the privacy notice for recipients, retention and your rights.',
       privacy: 'How we handle your data',
       done: 'Got it.',
-      doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
+      doneNote: 'Your enquiry has been submitted. You can also contact us on WhatsApp.',
       failed: 'That did not send.',
       failedNote: 'Nothing reached us. What you wrote is still in the form below, so try again, or write on WhatsApp, which does not depend on this.',
       retry: 'TRY AGAIN',
@@ -289,14 +291,14 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'REAL ESTATE MEDIA, COSTA DEL SOL',
       title: ['Make them want it', 'before they see it'],
-      lede: 'Film, photography, drone and social media for villas, apartments and new developments. Many buyers here decide from another country, on a phone. Our job is to make what they see there worth a flight.',
+      lede: 'Film, photography and drone for estate agents and developers on the Costa del Sol.',
       audience: 'For estate agents and developers. Based in Marbella.',
       cta: 'SEE THE PRICES',
       cue: 'SCROLL',
     },
     services: {
       eyebrow: '04 — SERVICES',
-      title: ['One team, from the first', 'frame to the first enquiry'],
+      title: ['What we do', ''],
       lede: 'Film, photos, social media and the system that answers buyers usually come from four different suppliers. With us it is one team, one style and one WhatsApp group for all of it.',
       rows: [
         {
@@ -328,7 +330,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     works: {
       eyebrow: '01 — WORK',
-      title: ['Six projects,', 'two of them not built yet'],
+      title: ['Selected projects', ''],
       lede: 'Open one to see the frames and what the client needed from it.',
       more: 'VIEW PROJECT',
       items: [
@@ -409,7 +411,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     why: {
       eyebrow: '06 — WHY',
-      title: ['A first look in a week,', 'in every format you post'],
+      title: ['Ready for your listings', ''],
       lede: 'Vertical for Reels and Stories, landscape for the website, the portals and the sales deck, all from the same shoot. Nothing has to be cut twice.',
       stats: [
         { v: '7', k: 'DAYS TO FIRST LOOK', from: 30 },
@@ -445,7 +447,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACT',
-      title: ['Got a property', 'to sell?'],
+      title: ['Tell us about your property', ''],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
       waText: 'Hi Eldar, I found STOARI online. I have a property on the Costa del Sol.',
     },
@@ -462,18 +464,19 @@ export const COPY: Record<Lang, Copy> = {
     cta: 'EMPEZAR UN PROYECTO',
     stickyCta: 'ENVIAR INMUEBLE',
     form: {
-      title: ['Con cuatro líneas basta.', 'Respondemos el mismo día.'],
+      title: ['Pide un presupuesto', ''],
       lede: 'Con una dirección o el enlace al anuncio es suficiente para empezar. Las fotos y los planos pueden venir después.',
       name: 'Su nombre',
+      email: 'Email',
       company: 'Empresa',
       object: 'El inmueble: dirección, enlace o una línea sobre él',
       when: 'Para cuándo lo necesita',
       submit: 'ENVIAR',
       sending: 'ENVIANDO…',
-      note: 'Usamos lo que escriba aquí para responderle y para nada más.',
+      note: 'Robert Di Gaetano utiliza estos datos para responder a tu consulta. Los campos con * son obligatorios. Consulta la política de privacidad para conocer los destinatarios, la conservación y tus derechos.',
       privacy: 'Cómo tratamos sus datos',
       done: 'Recibido.',
-      doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp le resulta más rápido, escríbanos ahí.',
+      doneNote: 'Tu consulta se ha enviado. También puedes contactarnos por WhatsApp.',
       failed: 'No se ha enviado.',
       failedNote: 'No nos ha llegado nada. Lo que escribió sigue en el formulario: inténtelo otra vez o escríbanos por WhatsApp, que no depende de esto.',
       retry: 'REINTENTAR',
@@ -483,14 +486,14 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'MARKETING INMOBILIARIO, COSTA DEL SOL',
       title: ['Que lo quieran', 'antes de visitarlo'],
-      lede: 'Vídeo, fotografía, dron y redes sociales para villas, apartamentos y obra nueva. Aquí muchos compradores deciden desde otro país, en el móvil. Nuestro trabajo es que lo que vean ahí merezca el viaje.',
+      lede: 'Vídeo, fotografía y dron para inmobiliarias y promotores de la Costa del Sol.',
       audience: 'Para agentes inmobiliarios y promotores. Con base en Marbella.',
       cta: 'VER LOS PRECIOS',
       cue: 'BAJAR',
     },
     services: {
       eyebrow: '04 — SERVICIOS',
-      title: ['Un solo equipo, del primer', 'plano a la primera consulta'],
+      title: ['Nuestros servicios', ''],
       lede: 'El vídeo, las fotos, las redes y el sistema que atiende a los compradores suelen venir de cuatro proveedores distintos. Con nosotros es un solo equipo, un mismo estilo y un solo grupo de WhatsApp para todo.',
       rows: [
         {
@@ -522,7 +525,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     works: {
       eyebrow: '01 — TRABAJOS',
-      title: ['Seis proyectos,', 'dos aún sin construir'],
+      title: ['Proyectos seleccionados', ''],
       lede: 'Abra uno para ver los fotogramas y lo que el cliente necesitaba.',
       more: 'VER PROYECTO',
       items: [
@@ -603,7 +606,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     why: {
       eyebrow: '06 — POR QUÉ',
-      title: ['Primera vista en una semana,', 'en todos los formatos'],
+      title: ['Listo para tus anuncios', ''],
       lede: 'Vertical para Reels y Stories, horizontal para la web, los portales y la presentación de ventas, todo del mismo rodaje. No hay que volver a montar nada.',
       stats: [
         { v: '7', k: 'DÍAS HASTA LA PRIMERA VERSIÓN', from: 30 },
@@ -639,7 +642,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACTO',
-      title: ['¿Tiene un inmueble', 'que vender?'],
+      title: ['Hablemos de tu inmueble', ''],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
       waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
     },
@@ -656,18 +659,19 @@ export const COPY: Record<Lang, Copy> = {
     cta: 'НАЧАТЬ ПРОЕКТ',
     stickyCta: 'ПРИСЛАТЬ ОБЪЕКТ',
     form: {
-      title: ['Хватит четырёх строк.', 'Отвечаем в тот же день.'],
+      title: ['Запросить стоимость', ''],
       lede: 'Для начала достаточно адреса или ссылки на объявление. Фото и чертежи можно прислать потом.',
       name: 'Как вас зовут',
+      email: 'Email',
       company: 'Компания',
       object: 'Объект — адрес, ссылка или строка о нём',
       when: 'К какому сроку нужно',
       submit: 'ОТПРАВИТЬ',
       sending: 'ОТПРАВЛЯЕМ…',
-      note: 'То, что вы напишете здесь, используем только чтобы ответить.',
+      note: 'Robert Di Gaetano использует эти данные для ответа на ваш запрос. Поля со знаком * обязательны. Получатели, сроки хранения и ваши права описаны в политике конфиденциальности.',
       privacy: 'Как мы обращаемся с данными',
       done: 'Получили.',
-      doneNote: 'Смета вернётся в тот же день. Если в WhatsApp быстрее — напишите туда.',
+      doneNote: 'Ваш запрос отправлен. Вы также можете написать нам в WhatsApp.',
       failed: 'Не отправилось.',
       failedNote: 'До нас ничего не дошло — то, что вы написали, осталось в форме. Попробуйте ещё раз или напишите в WhatsApp: он от этого не зависит.',
       retry: 'ПОПРОБОВАТЬ СНОВА',
@@ -677,14 +681,14 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'МАРКЕТИНГ НЕДВИЖИМОСТИ',
       title: ['Захотят', 'ещё до показа'],
-      lede: 'Видео, фото, дрон и соцсети для вилл, апартаментов и новостроек. Многие покупатели здесь выбирают из другой страны, с телефона. Наша задача, чтобы после увиденного им захотелось купить билет.',
+      lede: 'Видео, фото и съёмка с дрона для агентств недвижимости и застройщиков на Коста-дель-Соль.',
       audience: 'Для агентов и застройщиков. Работаем из Марбельи.',
       cta: 'СМОТРЕТЬ ЦЕНЫ',
       cue: 'ВНИЗ',
     },
     services: {
       eyebrow: '04 — УСЛУГИ',
-      title: ['Одна команда: от первого', 'кадра до первой заявки'],
+      title: ['Наши услуги', ''],
       lede: 'Видео, фото, соцсети и систему, которая отвечает покупателям, обычно заказывают у четырёх разных подрядчиков. У нас это одна команда, один стиль и одна группа в WhatsApp на всё.',
       rows: [
         {
@@ -716,7 +720,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     works: {
       eyebrow: '01 — РАБОТЫ',
-      title: ['Шесть проектов,', 'два из них ещё не построены'],
+      title: ['Избранные проекты', ''],
       lede: 'Откройте любой: внутри кадры и задача, с которой пришёл клиент.',
       more: 'СМОТРЕТЬ ПРОЕКТ',
       items: [
@@ -797,7 +801,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     why: {
       eyebrow: '06 — ПОЧЕМУ МЫ',
-      title: ['Первый результат за неделю,', 'сразу во всех форматах'],
+      title: ['Готово для ваших объявлений', ''],
       lede: 'Вертикаль для Reels и Stories, горизонталь для сайта, порталов и презентации, всё с одной съёмки. Перемонтировать ничего не нужно.',
       stats: [
         { v: '7', k: 'ДНЕЙ ДО ПЕРВОГО ПОКАЗА', from: 30 },
@@ -833,7 +837,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — КОНТАКТ',
-      title: ['Есть объект,', 'который нужно продать?'],
+      title: ['Расскажите о вашем объекте', ''],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
       waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',
     },

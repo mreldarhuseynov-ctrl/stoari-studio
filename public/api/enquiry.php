@@ -33,14 +33,16 @@ if (!empty($_POST['bot-field'])) {
     respond(200, true);
 }
 $fields = [];
-foreach (['name' => 500, 'company' => 500, 'object' => 4000, 'when' => 500] as $key => $limit) {
+foreach (['name' => 500, 'email' => 254, 'company' => 500, 'object' => 4000, 'when' => 500] as $key => $limit) {
     $value = $_POST[$key] ?? '';
     if (!is_string($value) || strlen($value) > $limit || !preg_match('//u', $value)) {
         respond(422, false);
     }
     $fields[$key] = trim($value);
 }
-if ($fields['name'] === '' || $fields['object'] === '') {
+if ($fields['name'] === '' || $fields['object'] === ''
+    || !filter_var($fields['email'], FILTER_VALIDATE_EMAIL)
+    || strpbrk($fields['email'], "\r\n") !== false) {
     respond(422, false);
 }
 
@@ -74,13 +76,16 @@ fclose($counter);
 
 $message = "New enquiry from stoari.com\n\n"
     . "Name: {$fields['name']}\n"
+    . "Email: {$fields['email']}\n"
     . "Company: {$fields['company']}\n"
     . "Property / project: {$fields['object']}\n"
     . "When: {$fields['when']}\n";
 
-// Both addresses and the subject are fixed; visitor input stays in the body.
+// The destination stays on the verified operational mailbox until info@stoari.com
+// has been created and tested. Reply-To is validated and cannot contain newlines.
 $accepted = mail('mreldarhuseynov@gmail.com', 'STOARI website enquiry', $message, [
     'From' => 'STOARI <noreply@stoari.com>',
+    'Reply-To' => $fields['email'],
     'MIME-Version' => '1.0',
     'Content-Type' => 'text/plain; charset=UTF-8',
 ]);

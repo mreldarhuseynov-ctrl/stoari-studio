@@ -85,7 +85,7 @@ export const OFFER: Record<Lang, Offer> = {
   en: {
     prices: {
       eyebrow: '02 — PRICES',
-      title: ['Content every month,', 'or just the shoot you need'],
+      title: ['Services & prices', ''],
       lede: 'The monthly package keeps your listings and your profile moving: Reels, a campaign, Stories and drone footage, written and posted for you. Photography and FPV can be booked on their own.',
       included: 'Included',
       main: {
@@ -140,7 +140,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — HOW IT WORKS',
-      title: ['Four steps, and', 'nothing to prepare'],
+      title: ['From brief to delivery', ''],
       lede: 'From the first message to the finished files. Dates are agreed in writing before anything is booked.',
       steps: [
         {
@@ -167,7 +167,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     faq: {
       eyebrow: '07 — QUESTIONS',
-      title: ['The questions that', 'come up every time'],
+      title: ['Common questions', ''],
       lede: 'What clients usually ask before the first shoot.',
       items: [
         {
@@ -210,7 +210,7 @@ export const OFFER: Record<Lang, Offer> = {
   es: {
     prices: {
       eyebrow: '02 — PRECIOS',
-      title: ['Contenido cada mes', 'o solo el rodaje que necesita'],
+      title: ['Servicios y precios', ''],
       lede: 'El paquete mensual mantiene en movimiento sus inmuebles y su perfil: Reels, una campaña, Stories y tomas con dron, escritos y publicados por nosotros. La fotografía y el FPV se pueden contratar por separado.',
       included: 'Incluye',
       main: {
@@ -265,7 +265,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — CÓMO FUNCIONA',
-      title: ['Cuatro pasos, y', 'nada que preparar'],
+      title: ['Del encargo a la entrega', ''],
       lede: 'Del primer mensaje a los archivos terminados. Las fechas quedan por escrito antes de reservar nada.',
       steps: [
         {
@@ -292,7 +292,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     faq: {
       eyebrow: '07 — PREGUNTAS',
-      title: ['Las preguntas que', 'salen siempre'],
+      title: ['Preguntas frecuentes', ''],
       lede: 'Lo que suelen preguntar los clientes antes del primer rodaje.',
       items: [
         {
@@ -335,7 +335,7 @@ export const OFFER: Record<Lang, Offer> = {
   ru: {
     prices: {
       eyebrow: '02 — ЦЕНЫ',
-      title: ['Контент каждый месяц', 'или только нужная съёмка'],
+      title: ['Услуги и цены', ''],
       lede: 'Пакет на месяц держит ваши объекты и профиль в движении: Reels, кампания, Stories и съёмка с дрона, пишем и публикуем за вас. Фотосъёмку и FPV можно заказать отдельно.',
       included: 'Что входит',
       main: {
@@ -390,7 +390,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — КАК ЭТО УСТРОЕНО',
-      title: ['Четыре шага,', 'готовить ничего не надо'],
+      title: ['От заявки до готовых файлов', ''],
       lede: 'От первого сообщения до готовых файлов. Сроки фиксируем письменно до брони.',
       steps: [
         {
@@ -417,7 +417,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     faq: {
       eyebrow: '07 — ВОПРОСЫ',
-      title: ['Вопросы, которые', 'задают каждый раз'],
+      title: ['Частые вопросы', ''],
       lede: 'О чём обычно спрашивают перед первой съёмкой.',
       items: [
         {

@@ -21,7 +21,8 @@ npm run lint
 | `src/offer.ts` | Commercial copy — packages, agents, developers, leads & automation, travel, the four steps, the questions. Prices live here and nowhere else in the code. |
 | `src/field.ts` | The point field: geometry, shaders, physics, and `OFFSETS`, which pushes the cloud away from the text column section by section. |
 | `src/App.tsx` | Markup. Sections are rendered by index against `SECTIONS`. |
-| `src/styles.css` | The whole design system. Plain CSS, deliberately. |
+| `src/styles.css`, `src/refinements.css` | Original design and scoped responsive refinements, shared card/control radii. |
+| `src/useHorizontalGalleries.ts` | Vertical-to-horizontal gallery travel, keyboard visibility and reduced-motion fallback. |
 | `scripts/make-logo.mjs` | Renders every logo PNG in `public/logo` from one SVG source. |
 | `public/hero/` | The hero film and its poster. |
 
@@ -112,7 +113,7 @@ git archive origin/gh-pages films | tar -x -C public
 The packaging command refuses an archive without all 15 films, their previews
 and posters. Do not upload the large camera originals.
 
-`build:hostinger` selects `/api/enquiry.php` for the existing four-field enquiry
+`build:hostinger` selects `/api/enquiry.php` for the enquiry
 form. PHP validates the request, ignores the honeypot and limits repeated sends;
 Hostinger's mail transport forwards to the studio's existing public address,
 `mreldarhuseynov@gmail.com`. The visitor sees success only when the transport
@@ -127,3 +128,33 @@ mail. Hostinger honours `.htaccess`; Netlify's `_headers` remains for Netlify.
 After uploading, check HTTPS, the `www` redirect, the hero, all film assets,
 the three languages and the contact form's error path. Publishing on Hostinger
 currently requires an explicit upload; a push to GitHub alone does not update it.
+
+## October 2026 refinement
+
+The opening particle wordmark and illustrated service rows are retained. Prices
+are three peers on desktop and stack on mobile. Cards share a 12px radius;
+action buttons use the existing pill shape. The mobile hero uses a portrait
+crop of the same film. Galleries use native vertical page scrolling, hidden
+scrollbars and previous/next controls. Reduced-motion visitors get static
+posters and native horizontal browsing; short viewports keep controls accessible.
+
+Fonts are self-hosted, licensed WOFF2 with Latin/Cyrillic coverage. Work and
+film assets retain their existing WebP/MP4 optimization. Visible clips pause
+offscreen, in hidden tabs and when reduced motion is requested. The hero has a
+pause control; keyboard users can skip the page and access modal focus traps.
+
+The contact form requires a valid reply email. Run `npm run test:gallery` for
+scroll geometry and `npm run test:enquiry` for PHP validation, rate limiting
+and mail success/failure using a fake local mail transport.
+
+SEO includes the primary-domain canonical, metadata in the selected language,
+favicon/app icons, sitemap, robots file and business structured data. Spanish
+legal, privacy and cookie pages use the owner and address supplied by Robert.
+There are no analytics, advertising cookies or third-party video/font embeds.
+Language storage is written only after an explicit language selection.
+
+`info@stoari.com` is still pending creation in Hostinger. Until it exists and
+delivery is checked, the public contact, legal pages and handler retain the
+existing working studio Gmail. Update all three together, and revise provider
+details in the privacy page if email processing changes. Website policy text
+does not replace the owner's provider agreements and actual operating duties.

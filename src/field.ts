@@ -18,6 +18,15 @@
  */
 
 export function createField(): () => void {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.getElementById('loader')?.classList.add('hide')
+    document.querySelectorAll('main section').forEach((section) => section.classList.add('in'))
+    const root = document.documentElement
+    const tone = () => { root.dataset.nav = scrollY < innerHeight - 80 ? 'dark' : 'light' }
+    tone()
+    addEventListener('scroll', tone, { passive: true })
+    return () => removeEventListener('scroll', tone)
+  }
   const isCoarse =
     matchMedia('(pointer: coarse)').matches || innerWidth < 820
   /* A phone pays for this field three times over: the physics loop runs on one
@@ -49,9 +58,13 @@ export function createField(): () => void {
     premultipliedAlpha: false,
   })
   if (!gl) {
-    const l = document.getElementById('loader')
-    if (l) l.innerHTML = 'WEBGL NOT AVAILABLE'
-    return () => {}
+    document.getElementById('loader')?.classList.add('hide')
+    document.querySelectorAll('main section').forEach((section) => section.classList.add('in'))
+    const root = document.documentElement
+    const tone = () => { root.dataset.nav = scrollY < innerHeight - 80 ? 'dark' : 'light' }
+    tone()
+    addEventListener('scroll', tone, { passive: true })
+    return () => removeEventListener('scroll', tone)
   }
 
   const compile = (t: number, src: string) => {
@@ -913,11 +926,17 @@ void main(){
 
   let raf = 0
   let alive = true
+  let lastDraw = 0
 
   const frame = (now: number) => {
     if (!alive) return
     raf = requestAnimationFrame(frame)
     if (canvas.width < 1) return
+    // Keep the opening STOARI wordmark animated, with a 30 fps frame budget.
+    if (now - lastDraw < 33) {
+      return
+    }
+    lastDraw = now
 
     const dt = prevT ? Math.min(now - prevT, 50) : 16.7
     prevT = now
@@ -1011,28 +1030,12 @@ void main(){
   }
   document.addEventListener('visibilitychange', onVisibility)
 
-  /* Loader — timers keep running where rAF does not, so the curtain always lifts. */
-  let p = 0
-  const barIn = document.getElementById('barIn')
-  const pct = document.getElementById('pct')
-  const tick = setInterval(() => {
-    p = Math.min(100, p + 8 + Math.random() * 14)
-    if (barIn) barIn.style.width = p + '%'
-    if (pct) pct.textContent = Math.round(p) + '%'
-    if (p >= 100) {
-      clearInterval(tick)
-      document.getElementById('loader')?.classList.add('hide')
-      sections[0]?.classList.add('in')
-    }
-  }, 70)
-
   onScroll()
   raf = requestAnimationFrame(frame)
 
   return () => {
     alive = false
     cancelAnimationFrame(raf)
-    clearInterval(tick)
     ios.forEach((o) => o.disconnect())
     ro?.disconnect()
     document.removeEventListener('visibilitychange', onVisibility)
@@ -1040,6 +1043,7 @@ void main(){
     removeEventListener('touchmove', onTouch)
     removeEventListener('scroll', onScroll)
     removeEventListener('scroll', setTone)
+    removeEventListener('resize', setTone)
     removeEventListener('resize', onResize)
   }
 }

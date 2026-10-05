@@ -70,15 +70,15 @@ type FilmsCopy = {
 export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   en: {
     eyebrow: '03 — FILMS',
-    title: ['The full films,', 'with sound'],
-    lede: 'Villas shot in a day, FPV flights through a house, agents on camera, a house shown before it is built, and short films made entirely with AI.',
+    title: ['The films', ''],
+    lede: 'Property tours, FPV flights and films with agents. Open a film to watch it in full, with sound. Concept films are generated digitally with AI.',
     all: 'All',
     kinds: {
       villas: 'Villas',
       fpv: 'FPV',
       agents: 'Agents',
       build: 'Before it is built',
-      ai: 'AI films',
+      ai: 'Concept films',
     },
     lines: {
       'villa-alfa-tour': 'The full tour, three minutes',
@@ -103,15 +103,15 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   },
   es: {
     eyebrow: '03 — PELÍCULAS',
-    title: ['Las películas enteras,', 'con sonido'],
-    lede: 'Villas rodadas en un día, vuelos FPV por dentro de una casa, agentes delante de la cámara, una casa enseñada antes de construirse y cortos hechos por completo con IA.',
+    title: ['Los vídeos', ''],
+    lede: 'Recorridos de inmuebles, vuelos FPV y vídeos con agentes. Abre un vídeo para verlo completo y con sonido. Los conceptos visuales se generan digitalmente con IA.',
     all: 'Todo',
     kinds: {
       villas: 'Villas',
       fpv: 'FPV',
       agents: 'Agentes',
       build: 'Antes de construir',
-      ai: 'Cine IA',
+      ai: 'Conceptos visuales',
     },
     lines: {
       'villa-alfa-tour': 'El recorrido completo, tres minutos',
@@ -136,7 +136,7 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   },
   ru: {
     eyebrow: '03 — ФИЛЬМЫ',
-    title: ['Фильмы целиком,', 'со звуком'],
+    title: ['Фильмы', ''],
     lede: 'Виллы, снятые за один день, FPV-пролёты сквозь дом, агенты в кадре, дом, показанный до стройки, и короткие фильмы, целиком сделанные с ИИ.',
     all: 'Все',
     kinds: {
@@ -144,7 +144,7 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
       fpv: 'FPV',
       agents: 'Агенты',
       build: 'До стройки',
-      ai: 'ИИ-кино',
+      ai: 'Концептуальные фильмы',
     },
     lines: {
       'villa-alfa-tour': 'Полный тур, три минуты',

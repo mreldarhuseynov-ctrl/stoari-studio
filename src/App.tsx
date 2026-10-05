@@ -1,6 +1,12 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
 
 import { createField } from './field'
+import { useHorizontalGalleries } from './useHorizontalGalleries'
+import { LegalFooter } from './legal'
+import { LEGAL_COPY } from './legalCopy'
+import { updateMetadata } from './seo'
+import { useDialogFocus } from './useDialogFocus'
+import { useMediaPlayback } from './useMediaPlayback'
 import {
   BRAND,
   COPY,
@@ -42,13 +48,13 @@ import {
  */
 const heroKind = () =>
   matchMedia('(max-width: 820px)').matches
-    ? '-p'
+    ? '-portrait'
     : matchMedia('(pointer: coarse)').matches
       ? '-m'
       : ''
 const heroClip = () => `${import.meta.env.BASE_URL}hero/hero-15s${heroKind()}.mp4`
 const heroPoster = () =>
-  `${import.meta.env.BASE_URL}hero/hero-poster${heroKind() === '-p' ? '-p' : ''}.jpg`
+  `${import.meta.env.BASE_URL}hero/hero-poster${heroKind() === '-portrait' ? '-portrait' : ''}.jpg`
 
 /**
  * A still behind each service row, keyed by the row's number rather than its
@@ -68,64 +74,28 @@ const SERVICE_SHOT: Record<string, string> = {
   '05': WORK_MEDIA[4].img, // the footprint drawn on the land: the system behind the sale
 }
 
+function GalleryControls({ lang, next }: { lang: Lang; next: string }) {
+  const labels = LEGAL_COPY[lang]
+  return (
+    <div className="gallery-controls">
+      <div className="gallery-buttons">
+        <button type="button" data-gallery-prev aria-label={labels.previous}>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h14" /></svg>
+        </button>
+        <button type="button" data-gallery-next aria-label={labels.next}>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m10 5 7 7-7 7M17 12H3" /></svg>
+        </button>
+      </div>
+      <a href={next}>{labels.continue}</a>
+    </div>
+  )
+}
+
 function Mark() {
   return (
     <svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
       <path fillRule="evenodd" d="M22 6 H78 V94 H22 Z M45.5 24 H54.5 V70 H45.5 Z" />
     </svg>
-  )
-}
-
-/**
- * A number that runs down to its final value the first time it is seen —
- * the drop from a month to a week is the whole argument of the section, so
- * it is worth showing rather than stating. Runs once; reduced motion gets
- * the final number immediately.
- */
-function Counter({ from, to }: { from: number; to: string }) {
-  const [n, setN] = useState<string>(String(from))
-  const [el, setEl] = useState<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (!el) return
-    const target = Number(to)
-    if (!Number.isFinite(target)) return
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setN(to)
-      return
-    }
-    let raf = 0
-    let done = false
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting || done) return
-        done = true
-        io.disconnect()
-        const start = performance.now()
-        const DUR = 1100
-        const tick = (now: number) => {
-          const t = Math.min(1, (now - start) / DUR)
-          // Fast at first, settling on the last few — a countdown that eases
-          // out reads as a result, not as a slot machine.
-          const e = 1 - Math.pow(1 - t, 3)
-          setN(String(Math.round(from + (target - from) * e)))
-          if (t < 1) raf = requestAnimationFrame(tick)
-        }
-        raf = requestAnimationFrame(tick)
-      },
-      { threshold: 0.6 },
-    )
-    io.observe(el)
-    return () => {
-      io.disconnect()
-      cancelAnimationFrame(raf)
-    }
-  }, [el, from, to])
-
-  return (
-    <div className="v count" ref={setEl}>
-      {n}
-    </div>
   )
 }
 
@@ -179,19 +149,17 @@ function ServiceCard({
   return (
     <div
       className={main ? 'pack on main' : 'pack'}
-      /* A property behind the head of the card, dimmed to the card's own
-         colour before the first line of type. The stills are already on the
-         page, so nothing extra is fetched. */
-      style={{ '--shot': `url(${WORK_MEDIA[shot].img})` } as CSSProperties}
     >
+      <img className="price-image" src={WORK_MEDIA[shot].img} alt="" loading="lazy" />
+      <div className="price-body">
       <span className="tag">{sv.tag}</span>
-      <div className="pt">{sv.t}</div>
-      {sv.d ? <p className="pd">{sv.d}</p> : null}
+      <h3 className="pt">{sv.t}</h3>
       <div className="pp">
         {sv.price.pre ? <span className="ppre">{sv.price.pre}</span> : null}
         <span className="pamt">{sv.price.amount}</span>
         {sv.price.per ? <span className="pper">{sv.price.per}</span> : null}
       </div>
+      {sv.d ? <p className="pd">{sv.d}</p> : null}
       {sv.rows ? (
         <>
           <div className="pinc">{p.included}</div>
@@ -216,6 +184,7 @@ function ServiceCard({
           {p.actions.form}
         </a>
       </div>
+      </div>
     </div>
   )
 }
@@ -223,24 +192,13 @@ function ServiceCard({
 function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
   return (
     <>
-      <div className="eyebrow rv">
-        <i />
-        {p.eyebrow}
-      </div>
       <h2 className="rv">
-        {p.title[0]}
-        <br />
-        {p.title[1]}
+        {p.title.join(' ')}
       </h2>
       <p className="lede rv">{p.lede}</p>
 
-      {/* The villa at night behind the package, the interiors behind the
-          photography, the marina flown behind the FPV card: each still is the
-          nearest thing on the page to what that card sells. */}
-      <div className="packs lead rv">
+      <div className="packs pricing-grid rv">
         <ServiceCard sv={p.main} p={p} shot={1} main />
-      </div>
-      <div className="packs pair rv">
         {p.singles.map((sv, i) => (
           <ServiceCard key={sv.t} sv={sv} p={p} shot={[2, 3][i] ?? 0} />
         ))}
@@ -249,10 +207,6 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
 
       {/* Its own anchor, so a letter to an agency can link straight here. */}
       <div className="crm rv" id="crm">
-        <div className="gtitle">
-          <span className="bar" />
-          {p.crm.eyebrow}
-        </div>
         <h3>{p.crm.t}</h3>
         <p className="lede">{p.crm.lede}</p>
         <ul className="pl">
@@ -290,7 +244,7 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
  */
 function Enquiry({ c }: { c: Copy }) {
   const [sent, setSent] = useState<'idle' | 'sending' | 'done' | 'failed'>('idle')
-  const [f, setF] = useState({ name: '', company: '', object: '', when: '' })
+  const [f, setF] = useState({ name: '', email: '', company: '', object: '', when: '' })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((p) => ({ ...p, [k]: e.target.value }))
 
@@ -352,7 +306,7 @@ function Enquiry({ c }: { c: Copy }) {
 
   if (sent === 'done')
     return (
-      <div className="formdone rv">
+      <div className="formdone rv" role="status">
         <div className="fdone">{c.form.done}</div>
         <p className="fnote">{c.form.doneNote}</p>
         <a className="wa" href={wa} target="_blank" rel="noreferrer">
@@ -370,33 +324,22 @@ function Enquiry({ c }: { c: Copy }) {
         </label>
       </p>
       <div className="erow">
-        <input
-          name="name"
-          required
-          placeholder={c.form.name}
-          value={f.name}
-          onChange={set('name')}
-        />
-        <input
-          name="company"
-          placeholder={c.form.company}
-          value={f.company}
-          onChange={set('company')}
-        />
+        <label className="form-field" htmlFor="enquiry-name">{c.form.name} <span>*</span>
+          <input id="enquiry-name" name="name" required maxLength={120} autoComplete="name" value={f.name} onChange={set('name')} />
+        </label>
+        <label className="form-field" htmlFor="enquiry-email">{c.form.email} <span>*</span>
+          <input id="enquiry-email" name="email" type="email" required maxLength={254} autoComplete="email" value={f.email} onChange={set('email')} />
+        </label>
       </div>
-      <input
-        name="object"
-        required
-        placeholder={c.form.object}
-        value={f.object}
-        onChange={set('object')}
-      />
-      <input
-        name="when"
-        placeholder={c.form.when}
-        value={f.when}
-        onChange={set('when')}
-      />
+      <label className="form-field" htmlFor="enquiry-company">{c.form.company}
+        <input id="enquiry-company" name="company" maxLength={120} autoComplete="organization" value={f.company} onChange={set('company')} />
+      </label>
+      <label className="form-field" htmlFor="enquiry-object">{c.form.object} <span>*</span>
+        <textarea id="enquiry-object" name="object" required maxLength={2000} rows={3} value={f.object} onChange={set('object')} />
+      </label>
+      <label className="form-field" htmlFor="enquiry-when">{c.form.when}
+        <input id="enquiry-when" name="when" maxLength={120} value={f.when} onChange={set('when')} />
+      </label>
       <button type="submit" disabled={sent === 'sending'}>
         {sent === 'sending' ? c.form.sending : c.form.submit}
       </button>
@@ -434,6 +377,7 @@ function Films({ lang }: { lang: Lang }) {
   )
 
   const film = open === null ? null : list[open]
+  useDialogFocus(open !== null, '.player')
 
   useEffect(() => {
     if (open === null) return
@@ -455,7 +399,7 @@ function Films({ lang }: { lang: Lang }) {
   const hover = (on: boolean) => (e: { currentTarget: HTMLElement }) => {
     const v = e.currentTarget.querySelector('video')
     if (!v) return
-    if (on) void v.play().catch(() => {})
+    if (on && !matchMedia('(prefers-reduced-motion: reduce)').matches) void v.play().catch(() => {})
     else {
       v.pause()
       v.currentTime = 0
@@ -464,24 +408,17 @@ function Films({ lang }: { lang: Lang }) {
 
   return (
     <>
-      <div className="eyebrow rv">
-        <i />
-        {t.eyebrow}
-      </div>
       <h2 className="rv">
-        {t.title[0]}
-        <br />
-        {t.title[1]}
+        {t.title.join(' ')}
       </h2>
       <p className="lede rv">{t.lede}</p>
 
-      <div className="ftabs rv" role="tablist">
+      <div className="ftabs rv" role="group" aria-label={t.title.join(" ")}>
         {(['all', ...kinds] as (Kind | 'all')[]).map((k) => (
           <button
             key={k}
             type="button"
-            role="tab"
-            aria-selected={kind === k}
+            aria-pressed={kind === k}
             className={kind === k ? 'on' : ''}
             onClick={() => setKind(k)}
           >
@@ -496,9 +433,9 @@ function Films({ lang }: { lang: Lang }) {
       {/* The wrapper is the size container the mosaic measures itself against:
           rows are derived from the column width, so a vertical tile stays near
           9:16 and a horizontal one near 16:9 at every screen width. */}
-      <div className="filmswrap rv hpin" data-pin-speed="2.6">
+      <div className="filmswrap rv hpin" data-pin-speed="2.2">
       <div className="hstage">
-      <div className="films">
+      <div className="films gallery-track">
         {list.map((x, i) => (
           <button
             key={x.id}
@@ -533,6 +470,7 @@ function Films({ lang }: { lang: Lang }) {
           </button>
         ))}
       </div>
+      <GalleryControls lang={lang} next="#services" />
       </div>
       </div>
 
@@ -585,187 +523,32 @@ function Films({ lang }: { lang: Lang }) {
 }
 
 export default function App() {
-  useEffect(() => createField(), [])
+  useEffect(() => {
+    const preference = matchMedia('(prefers-reduced-motion: reduce)')
+    let dispose = createField()
+    const refresh = () => { dispose(); dispose = createField() }
+    preference.addEventListener('change', refresh)
+    return () => { preference.removeEventListener('change', refresh); dispose() }
+  }, [])
 
   const [lang, setLang] = useState<Lang>(initialLang)
+  const [heroPaused, setHeroPaused] = useState(false)
   const c = COPY[lang]
   const o = OFFER[lang]
 
   useEffect(() => {
     document.documentElement.lang = lang
-    try {
-      localStorage.setItem('stoari.lang', lang)
-    } catch {
-      /* private mode */
-    }
+    updateMetadata(lang)
   }, [lang])
 
-  /**
-   * Six cards means six clips. Letting all of them autoplay costs a phone six
-   * simultaneous decodes and six downloads of video nobody is looking at, so
-   * a clip only runs while its card is actually on screen.
-   */
-  useEffect(() => {
-    const clips = Array.from(
-      document.querySelectorAll<HTMLVideoElement>('.work video'),
-    )
-    if (!clips.length) return
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          const v = e.target as HTMLVideoElement
-          if (e.isIntersecting) void v.play().catch(() => {})
-          else v.pause()
-        }),
-      { threshold: 0.25 },
-    )
-    clips.forEach((v) => io.observe(v))
-    return () => io.disconnect()
-  }, [lang])
+  useMediaPlayback(lang, heroPaused)
 
   /**
    * A project opens over the page rather than on its own route: the field
    * renderer owns a single continuous scroll, and routing away from it would
    * mean tearing down and rebuilding the canvas on every click.
    */
-  /**
-   * The work row, driven sideways by the page scrolling down.
-   *
-   * The shape is the standard one: a tall outer element, a stage stuck to the
-   * top of the viewport for as long as that element passes through it, and a
-   * track inside the stage moved with a transform. The outer height is set to
-   * the viewport plus exactly the distance the track has to travel, so one
-   * pixel of page scroll is one pixel sideways and the row neither races the
-   * scroll nor lags behind it.
-   *
-   * Three things this deliberately does NOT do:
-   *
-   * - It does not run under `prefers-reduced-motion`. Tying the viewport to a
-   *   transform is the exact thing that setting is for.
-   * - It does not run on a narrow screen. A finger already swipes the row
-   *   natively there, and pinning would take the page scroll away from it.
-   * - It does not hijack the wheel. Nothing calls preventDefault, so the page
-   *   keeps its own scrolling, its momentum and its scrollbar; the row simply
-   *   reads the position. A visitor who wants past it scrolls, as usual.
-   *
-   * In every case it falls back to the row this replaced, which scrolls
-   * sideways on its own and is perfectly usable.
-   */
-  useEffect(() => {
-    const pins = Array.from(document.querySelectorAll<HTMLElement>('.hpin'))
-    if (!pins.length) return
-
-    const narrow = matchMedia('(max-width: 820px)')
-    const still = matchMedia('(prefers-reduced-motion: reduce)')
-
-    const rigs = pins.map((pin) => {
-      const stage = pin.querySelector<HTMLElement>('.hstage')
-      const track = stage?.firstElementChild as HTMLElement | null
-      /* 1 means a pixel of page scroll is a pixel sideways. The film strip is
-         five thousand pixels long and at 1 it would hold the page for five
-         screens, so it is given a multiplier and travels faster than the
-         scroll that drives it. */
-      const speed = Number(pin.dataset.pinSpeed || 1)
-      return { pin, stage, track, speed, distance: 0, stuck: 0 }
-    })
-
-    let frame = 0
-
-    const draw = () => {
-      frame = 0
-      for (const r of rigs) {
-        if (!r.distance || !r.track) continue
-        /* The stage is not the height of the screen — it is the height of the
-           row, stuck at the offset that centres it. Progress is measured from
-           the point where it starts sticking, not from the top of the
-           viewport, or the row would begin moving before it is even still. */
-        const span = r.distance / r.speed
-        const past = r.stuck - r.pin.getBoundingClientRect().top
-        const p = Math.min(1, Math.max(0, past / span))
-        r.track.style.transform = `translate3d(${-p * r.distance}px,0,0)`
-      }
-    }
-
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(draw)
-    }
-
-    const measure = () => {
-      /* 100vw counts the scrollbar and would push the page sideways; the
-         documentElement's client width does not. */
-      document.documentElement.style.setProperty(
-        '--bleed-w',
-        `${document.documentElement.clientWidth}px`,
-      )
-      const on = !narrow.matches && !still.matches
-      for (const r of rigs) {
-        r.pin.classList.toggle('on', on)
-        if (!on || !r.stage || !r.track) {
-          r.distance = 0
-          r.stuck = 0
-          r.pin.style.height = ''
-          if (r.stage) r.stage.style.top = ''
-          if (r.track) r.track.style.transform = ''
-          continue
-        }
-        r.distance = Math.max(0, r.track.offsetWidth - r.stage.clientWidth)
-        /* A row 320px tall centred inside 100svh leaves a third of a screen
-           empty above it and a third below. The stage is the height of its own
-           content instead, and the sticky offset is what centres it. */
-        r.stuck = Math.max(0, Math.round((innerHeight - r.stage.offsetHeight) / 2))
-        r.stage.style.top = `${r.stuck}px`
-        r.pin.style.height = `${r.stage.offsetHeight + r.distance / r.speed}px`
-      }
-      draw()
-    }
-
-    /* The film strip is filtered in place, so its length changes without a
-       resize and without a re-render of this effect. Watching the track covers
-       that, and late web fonts, and anything else that moves it. */
-    const ro = new ResizeObserver(() => measure())
-    for (const r of rigs) if (r.track) ro.observe(r.track)
-
-    const onFocus = (e: FocusEvent) => {
-      const el = e.target as HTMLElement
-      const r = rigs.find((x) => x.track && x.track.contains(el))
-      if (!r || !r.distance || !r.track || !r.stage) return
-      const card = el.closest('.work, .film') as HTMLElement | null
-      if (!card) return
-      const top = r.pin.getBoundingClientRect().top + scrollY - r.stuck
-      const span = r.distance / r.speed
-      const seen = Math.min(r.distance, Math.max(0, (scrollY - top) * r.speed))
-      const w = r.stage.clientWidth
-      const left = card.offsetLeft
-      const right = left + card.offsetWidth
-      let want = seen
-      if (left < seen) want = left
-      else if (right > seen + w) want = right - w
-      if (want === seen) return
-      scrollTo({ top: top + Math.min(span, Math.max(0, want / r.speed)) })
-    }
-
-    measure()
-    addEventListener('scroll', onScroll, { passive: true })
-    addEventListener('resize', measure)
-    narrow.addEventListener('change', measure)
-    still.addEventListener('change', measure)
-    for (const r of rigs) r.track?.addEventListener('focusin', onFocus)
-    return () => {
-      if (frame) cancelAnimationFrame(frame)
-      ro.disconnect()
-      removeEventListener('scroll', onScroll)
-      removeEventListener('resize', measure)
-      narrow.removeEventListener('change', measure)
-      still.removeEventListener('change', measure)
-      for (const r of rigs) {
-        r.track?.removeEventListener('focusin', onFocus)
-        r.pin.classList.remove('on')
-        r.pin.style.height = ''
-        if (r.stage) r.stage.style.top = ''
-        if (r.track) r.track.style.transform = ''
-      }
-    }
-  }, [lang])
+  useHorizontalGalleries(lang)
 
   /* The sticky button stays out of the hero, where the hero has its own call
      to action, and appears once the visitor is past it. */
@@ -780,6 +563,7 @@ export default function App() {
   const [open, setOpen] = useState<number | null>(null)
   const project = open === null ? null : c.works.items[open]
   const media = open === null ? null : WORK_MEDIA[open]
+  useDialogFocus(open !== null, '.sheet')
 
   useEffect(() => {
     if (project === null) return
@@ -815,25 +599,22 @@ export default function App() {
       <div
         className="heroclip"
         aria-hidden="true"
-        style={{
-          backgroundImage: `url(${heroPoster()})`,
-        }}
+        style={{ '--hero-poster': `url(${heroPoster()})` } as CSSProperties}
       >
         <video
-          autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           poster={heroPoster()}
         >
           <source src={heroClip()} type="video/mp4" />
         </video>
       </div>
 
-      <canvas id="gl" />
-      <div id="progress" />
+      <canvas id="gl" aria-hidden="true" />
 
+      <a className="skip-link" href="#main">{LEGAL_COPY[lang].skip}</a>
       <nav>
         <div className="brand">
           <Mark />
@@ -859,7 +640,10 @@ export default function App() {
                 key={l}
                 type="button"
                 className={l === lang ? 'on' : ''}
-                onClick={() => setLang(l)}
+                onClick={() => {
+                  setLang(l)
+                  try { localStorage.setItem('stoari.lang', l) } catch { /* private mode */ }
+                }}
                 aria-pressed={l === lang}
               >
                 {l.toUpperCase()}
@@ -872,34 +656,27 @@ export default function App() {
         </div>
       </nav>
 
-      <main>
+      <main id="main">
         <section
           className={cls(0)}
           data-shape={s[0].shape}
           data-label={c.labels[0]}
         >
           <div className="col">
-            <div className="eyebrow rv">
-              <i />
-              {c.hero.eyebrow}
-            </div>
             <h1 className="rv">
-              {c.hero.title[0]}
-              <br />
-              {c.hero.title[1]}
+              {c.hero.title[0]}<br />{c.hero.title[1]}
             </h1>
             <p className="lede rv">{c.hero.lede}</p>
-            <div className="audience rv">{c.hero.audience}</div>
             {/* The hero points at the prices, not at the form. A visitor who
                 came to find out what this costs should not have to scroll
                 past six sections to learn it. */}
-            <a className="herocta rv" href="#packages">
-              {c.hero.cta}
-            </a>
-          </div>
-          <div className="cue">
-            <span className="bar" />
-            {c.hero.cue}
+            <div className="hero-actions">
+              <a className="herocta" href="#packages">{c.hero.cta}</a>
+              <a className="hero-prices" href="#work">{c.nav[0].label}</a>
+              <button type="button" className="hero-motion" aria-pressed={heroPaused} onClick={() => setHeroPaused((paused) => !paused)}>
+                {heroPaused ? LEGAL_COPY[lang].play : LEGAL_COPY[lang].pause}
+              </button>
+            </div>
           </div>
         </section>
 
@@ -910,19 +687,13 @@ export default function App() {
           data-label={c.labels[1]}
         >
           <div className={col(1)}>
-            <div className="eyebrow rv">
-              <i />
-              {c.works.eyebrow}
-            </div>
             <h2 className="rv">
-              {c.works.title[0]}
-              <br />
-              {c.works.title[1]}
+              {c.works.title.join(' ')}
             </h2>
             <p className="lede rv">{c.works.lede}</p>
-            <div className="hpin" data-pin-speed="0.55">
+            <div className="hpin" data-pin-speed="1.1">
               <div className="hstage">
-                <div className="works rv">
+                <div className="works gallery-track">
               {c.works.items.map((w, i) => (
                 <button
                   className="work"
@@ -959,6 +730,7 @@ export default function App() {
                 </button>
               ))}
                 </div>
+                <GalleryControls lang={lang} next="#packages" />
               </div>
             </div>
           </div>
@@ -993,14 +765,8 @@ export default function App() {
           data-label={c.labels[4]}
         >
           <div className={col(4)}>
-            <div className="eyebrow rv">
-              <i />
-              {c.services.eyebrow}
-            </div>
             <h2 className="rv">
-              {c.services.title[0]}
-              <br />
-              {c.services.title[1]}
+              {c.services.title.join(' ')}
             </h2>
             <p className="lede rv">{c.services.lede}</p>
             <div className="rule rv" />
@@ -1023,10 +789,6 @@ export default function App() {
                 The grid went with the old prices; the method did not change,
                 so it moved here, next to the Visualisation row it belongs to. */}
             <div className="passes rv">
-              <div className="gtitle">
-                <span className="bar" />
-                {c.method.eyebrow}
-              </div>
               <div className="steps">
                 {c.method.steps.map((st) => (
                   <div className="step" key={st.sn}>
@@ -1049,14 +811,8 @@ export default function App() {
           data-label={c.labels[5]}
         >
           <div className={col(5)}>
-            <div className="eyebrow rv">
-              <i />
-              {o.how.eyebrow}
-            </div>
             <h2 className="rv">
-              {o.how.title[0]}
-              <br />
-              {o.how.title[1]}
+              {o.how.title.join(' ')}
             </h2>
             <p className="lede rv">{o.how.lede}</p>
             <div className="steps rv">
@@ -1080,24 +836,14 @@ export default function App() {
           data-label={c.labels[6]}
         >
           <div className={col(6)}>
-            <div className="eyebrow rv">
-              <i />
-              {c.why.eyebrow}
-            </div>
             <h2 className="rv">
-              {c.why.title[0]}
-              <br />
-              {c.why.title[1]}
+              {c.why.title.join(' ')}
             </h2>
             <p className="lede rv">{c.why.lede}</p>
             <div className="stats rv">
               {c.why.stats.map((st) => (
                 <div className="stat" key={st.k}>
-                  {st.from === undefined ? (
-                    <div className="v">{st.v}</div>
-                  ) : (
-                    <Counter from={st.from} to={st.v} />
-                  )}
+                  <div className="v">{st.v}</div>
                   <div className="k">{st.k}</div>
                 </div>
               ))}
@@ -1112,14 +858,8 @@ export default function App() {
           data-label={c.labels[7]}
         >
           <div className={col(7)}>
-            <div className="eyebrow rv">
-              <i />
-              {o.faq.eyebrow}
-            </div>
             <h2 className="rv">
-              {o.faq.title[0]}
-              <br />
-              {o.faq.title[1]}
+              {o.faq.title.join(' ')}
             </h2>
             <p className="lede rv">{o.faq.lede}</p>
             {/* Native details: the answers stay in the page for search and for
@@ -1142,20 +882,12 @@ export default function App() {
           data-label={c.labels[8]}
         >
           <div className={col(8)}>
-            <div className="eyebrow rv">
-              <i />
-              {c.contact.eyebrow}
-            </div>
             <h2 className="rv">
-              {c.contact.title[0]}
-              <br />
-              {c.contact.title[1]}
+              {c.contact.title.join(' ')}
             </h2>
             <div className="formhead rv">
               <h3>
-                {c.form.title[0]}
-                <br />
-                {c.form.title[1]}
+                {c.form.title.join(' ')}
               </h3>
               <p className="lede">{c.form.lede}</p>
             </div>
@@ -1197,15 +929,11 @@ export default function App() {
           </div>
         </section>
       </main>
+      <LegalFooter lang={lang} />
 
       <a className={past ? 'stickycta on' : 'stickycta'} href="#contact">
         {c.stickyCta}
       </a>
-
-      <div id="counter">
-        <b id="cNow">01</b> / {String(s.length).padStart(2, '0')}&nbsp;&nbsp;
-        <span id="cLabel">{c.labels[0]}</span>
-      </div>
 
       {project && media && (
         <div
@@ -1226,10 +954,7 @@ export default function App() {
             </button>
 
             <div className="shead">
-              <div className="eyebrow">
-                <i />
-                {project.s}
-              </div>
+              <p className="project-type">{project.s}</p>
               <h3>{project.t}</h3>
               <div className="k">{project.k}</div>
               <p className="d">{project.d}</p>
@@ -1251,13 +976,6 @@ export default function App() {
         </div>
       )}
 
-      <div id="loader">
-        <div>{BRAND.name}</div>
-        <div id="bar">
-          <div id="barIn" />
-        </div>
-        <div id="pct">0%</div>
-      </div>
     </>
   )
 }
