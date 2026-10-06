@@ -1,6 +1,8 @@
-import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 
 import { createField } from './field'
+import { MobileMenu } from './MobileMenu'
+import { sendEnquiry, EnquiryRequestError, type EnquiryFailure } from './enquiryRequest'
 import { chooseHeroVariant, type HeroVariant } from './heroMedia'
 import { useHorizontalGalleries } from './useHorizontalGalleries'
 import { LegalFooter } from './legal'
@@ -138,11 +140,13 @@ function ServiceCard({
   p,
   shot,
   main = false,
+  onRequest,
 }: {
   sv: Service
   p: Prices
   shot: number
   main?: boolean
+  onRequest: (service: string) => void
 }) {
   return (
     <div
@@ -178,7 +182,7 @@ function ServiceCard({
         >
           {p.actions.wa}
         </a>
-        <a className="pcta" href="#contact" aria-label={`${p.actions.form}: ${sv.t}`}>
+        <a className="pcta" href="#contact" onClick={() => onRequest(sv.t)} aria-label={`${p.actions.form}: ${sv.t}`}>
           {p.actions.form}
         </a>
       </div>
@@ -187,7 +191,7 @@ function ServiceCard({
   )
 }
 
-function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
+function PriceBlock({ p, vat, onRequest }: { p: Prices; vat: string; onRequest: (service: string) => void }) {
   return (
     <>
       <h2 className="rv">
@@ -196,9 +200,9 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
       <p className="lede rv">{p.lede}</p>
 
       <div className="packs pricing-grid rv">
-        <ServiceCard sv={p.main} p={p} shot={1} main />
+        <ServiceCard sv={p.main} p={p} shot={1} main onRequest={onRequest} />
         {p.singles.map((sv, i) => (
-          <ServiceCard key={sv.t} sv={sv} p={p} shot={[2, 3][i] ?? 0} />
+          <ServiceCard key={sv.t} sv={sv} p={p} shot={[2, 3][i] ?? 0} onRequest={onRequest} />
         ))}
       </div>
       <div className="vat rv">{vat}</div>
@@ -217,7 +221,7 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
           <a className="crmbook" href={waLink(p.crm.wa)} target="_blank" rel="noreferrer">
             {p.crm.book}
           </a>
-          <a className="pcta" href="#contact">
+          <a className="pcta" href="#contact" onClick={() => onRequest(p.crm.t)}>
             {p.actions.form}
           </a>
         </div>
@@ -227,8 +231,13 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
 }
 
 /** Requests are acknowledged only after the handler confirms acceptance. */
-function Enquiry({ c }: { c: Copy }) {
+function Enquiry({ c, service, clearService }: { c: Copy; service: string; clearService: () => void }) {
   const [sent, setSent] = useState<'idle' | 'sending' | 'done' | 'failed'>('idle')
+  const [failure, setFailure] = useState<EnquiryFailure>('unavailable')
+  const statusRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (sent === 'done' || sent === 'failed') statusRef.current?.focus({ preventScroll: true })
+  }, [sent])
   const [f, setF] = useState({ name: '', email: '', company: '', object: '', when: '' })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF((p) => ({ ...p, [k]: e.target.value }))
@@ -237,25 +246,17 @@ function Enquiry({ c }: { c: Copy }) {
     e.preventDefault()
     if (sent === 'sending') return
     const botField = new FormData(e.currentTarget).get('bot-field')
-    const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT || '/'
+    const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT || `${import.meta.env.BASE_URL}api/enquiry.php`
     setSent('sending')
     const controller = new AbortController()
     const timeout = window.setTimeout(() => controller.abort(), 20000)
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          'form-name': 'enquiry', ...f, 'bot-field': String(botField || ''),
-        }).toString(),
-      })
-      const delivered = res.ok && (!import.meta.env.VITE_ENQUIRY_ENDPOINT || (await res.json()).ok === true)
-      if (!delivered) {
-        setSent('failed')
-        return
-      }
-    } catch {
+      await sendEnquiry(endpoint, {
+        'form-name': 'enquiry', ...Object.fromEntries(Object.entries(f).map(([key, value]) => [key, value.trim()])),
+        service, 'bot-field': String(botField || ''),
+      }, controller.signal)
+    } catch (error) {
+      setFailure(error instanceof EnquiryRequestError ? error.kind : 'unavailable')
       setSent('failed')
       return
     } finally {
@@ -266,7 +267,7 @@ function Enquiry({ c }: { c: Copy }) {
 
   /* Whatever they typed travels into the WhatsApp draft, so a visitor who
      prefers to carry on there does not have to say it twice. */
-  const draft = [f.name, f.company, f.object, f.when].filter(Boolean).join(', ')
+  const draft = [service, f.name, f.company, f.object, f.when].filter(Boolean).join(', ')
   const wa = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
     draft || c.contact.waText,
   )}`
@@ -275,7 +276,7 @@ function Enquiry({ c }: { c: Copy }) {
      the form still filled in, and never retypes the property twice. */
   if (sent === 'done')
     return (
-      <div className="formdone rv" role="status">
+      <div className="formdone rv" role="status" tabIndex={-1} ref={statusRef}>
         <div className="fdone">{c.form.done}</div>
         <p className="fnote">{c.form.doneNote}</p>
         <a className="wa" href={wa} target="_blank" rel="noreferrer">
@@ -293,6 +294,10 @@ function Enquiry({ c }: { c: Copy }) {
         </label>
       </p>
       <p className="form-required">{c.form.required}</p>
+      {service && <div className="form-service">
+        <p>{c.form.serviceLabel}: <strong>{service}</strong></p>
+        <button type="button" className="clear-service" onClick={clearService} disabled={sent === 'sending'}>{c.form.clearService}</button>
+      </div>}
       <fieldset disabled={sent === 'sending'} aria-label={c.form.title.join(' ')}>
       <div className="erow">
         <label className="form-field" htmlFor="enquiry-name">{c.form.name} <span>*</span>
@@ -318,8 +323,8 @@ function Enquiry({ c }: { c: Copy }) {
       </details>
       </fieldset>
       {sent === 'failed' && (
-        <div className="form-error" role="alert">
-          <p>{c.form.failed}</p><p>{c.form.failedNote}</p>
+        <div className="form-error" role="alert" tabIndex={-1} ref={statusRef}>
+          <p>{failure === 'rate-limit' ? c.form.failedRateLimit : failure === 'validation' ? c.form.failedValidation : c.form.failed}</p><p>{c.form.failedNote}</p>
           <a href={wa} target="_blank" rel="noreferrer">{c.form.wa}</a>
         </div>
       )}
@@ -362,7 +367,7 @@ function Films({ lang }: { lang: Lang }) {
 
   const film = open === null ? null : list[open]
   const isExcerpt = (id: string, expected: number) =>
-    durations[id] !== undefined && durations[id] < expected - 1
+    FILMS.find((item) => item.id === id)?.excerpt === true || (durations[id] !== undefined && durations[id] < expected - 1)
   const rememberDuration = (id: string) => (e: { currentTarget: HTMLVideoElement }) => {
     const duration = e.currentTarget.duration
     if (Number.isFinite(duration)) {
@@ -426,7 +431,7 @@ function Films({ lang }: { lang: Lang }) {
             type="button"
             className={x.vertical ? 'film v' : 'film h'}
             onClick={() => setOpen(i)}
-            aria-label={`${x.title} — ${isExcerpt(x.id, x.duration) ? t.excerpt : t.lines[x.id]}`}
+            aria-label={`${x.title} — ${t.lines[x.id]}${isExcerpt(x.id, x.duration) ? ` (${t.excerpt})` : ''}`}
           >
             <img
               src={filmPoster(x.id)}
@@ -455,7 +460,7 @@ function Films({ lang }: { lang: Lang }) {
             <span className="fmeta">
               <span className="fk">{t.kinds[x.kind]}</span>
               <span className="ft">{x.title}</span>
-              <span className="fl">{isExcerpt(x.id, x.duration) ? t.excerpt : t.lines[x.id]}</span>
+              <span className="fl">{t.lines[x.id]}</span>
             </span>
           </button>
         ))}
@@ -486,7 +491,7 @@ function Films({ lang }: { lang: Lang }) {
               <span className="fk">{t.kinds[film.kind]}</span>
               <span className="ft">{film.title}</span>
               <span className="fl">
-                {isExcerpt(film.id, film.duration) ? t.excerpt : t.lines[film.id]}
+                {t.lines[film.id]}{isExcerpt(film.id, film.duration) && ` · ${t.excerpt}`}
                 {durations[film.id] !== undefined && `, ${fmtTime(durations[film.id])}`}
               </span>
             </div>
@@ -523,6 +528,7 @@ export default function App() {
     return () => { preference.removeEventListener('change', refresh); dispose() }
   }, [])
 
+  const [enquiryService, setEnquiryService] = useState('')
   const [lang, setLang] = useState<Lang>(initialLang)
   const [heroVariant, setHeroVariant] = useState(heroKind)
   const c = COPY[lang]
@@ -567,7 +573,9 @@ export default function App() {
   useEffect(() => {
     const onScroll = () => {
       const contact = document.getElementById('contact')
-      setPast(scrollY > innerHeight * 0.8 && (!contact || contact.getBoundingClientRect().top >= innerHeight))
+      const prices = document.getElementById('packages')?.getBoundingClientRect()
+      const pricesVisible = prices && prices.top < innerHeight && prices.bottom > 0
+      setPast(scrollY > innerHeight * 0.8 && !pricesVisible && (!contact || contact.getBoundingClientRect().top >= innerHeight))
     }
     onScroll()
     addEventListener('scroll', onScroll, { passive: true })
@@ -650,6 +658,7 @@ export default function App() {
           <a className="navtel" href={BRAND.phoneHref}>
             {BRAND.phone}
           </a>
+          <MobileMenu lang={lang} links={c.nav} contactLabel={c.cta} />
           <div className="lang" role="group" aria-label="Language">
             {LANGS.map((l) => (
               <button
@@ -756,7 +765,7 @@ export default function App() {
           data-label={c.labels[2]}
         >
           <div className={col(2)}>
-            <PriceBlock p={o.prices} vat={o.vat} />
+            <PriceBlock p={o.prices} vat={o.vat} onRequest={setEnquiryService} />
           </div>
         </section>
 
@@ -787,6 +796,7 @@ export default function App() {
                 The grid went with the old prices; the method did not change,
                 so it moved here, next to the Visualisation row it belongs to. */}
             <div className="passes rv">
+              <h3>{c.method.title.join(' ')}</h3>
               <div className="steps">
                 {c.method.steps.map((st) => (
                   <div className="step" key={st.sn}>
@@ -875,14 +885,14 @@ export default function App() {
             </div>
             <div className="contact-form">
               <h3>{c.form.title.join(' ')}</h3>
-              <Enquiry c={c} />
+              <Enquiry c={c} service={enquiryService} clearService={() => setEnquiryService('')} />
             </div>
           </div>
         </section>
       </main>
       <LegalFooter lang={lang} />
 
-      <a className={past ? 'stickycta on' : 'stickycta'} href="#contact">
+      <a className={past ? 'stickycta on' : 'stickycta'} href="#contact" tabIndex={past ? 0 : -1} aria-hidden={!past}>
         {c.stickyCta}
       </a>
 

@@ -201,9 +201,13 @@ export type Copy = {
     privacy: string
     done: string
     doneNote: string
-    /** Shown when the POST did not actually reach Netlify. */
+    /** Submission failures keep the visitor’s entries available for retry. */
     failed: string
     failedNote: string
+    failedRateLimit: string
+    failedValidation: string
+    serviceLabel: string
+    clearService: string
     retry: string
     wa: string
   }
@@ -255,16 +259,16 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'QUESTIONS', href: '#faq' },
     ],
     cta: 'START A PROJECT',
-    stickyCta: 'SEND A PROPERTY',
+    stickyCta: 'CONTACT US',
     form: {
       title: ['Request a quote', ''],
-      lede: 'Share a listing link or tell us what you need. We’ll contact you to discuss the service and quote.',
+      lede: 'Tell us about the content you need or how your agency handles enquiries. We’ll discuss the scope and prepare a quote.',
       name: 'Your name',
       email: 'Email',
       company: 'Company',
       optional: 'Add company or timing (optional)',
       required: '* Required fields',
-      objectExample: 'A property in Marbella, photos for a new listing, monthly content…',
+      objectExample: 'A property video, monthly content, a CRM to follow up on enquiries…',
       object: 'What do you need?',
       when: 'When do you need it',
       submit: 'Request my quote',
@@ -275,6 +279,10 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'Your enquiry has been submitted. You can also contact us on WhatsApp.',
       failed: 'We couldn’t confirm your request.',
       failedNote: 'Your details are still here. Try again or send them directly on WhatsApp.',
+      failedRateLimit: 'Too many attempts. Wait ten minutes or contact us on WhatsApp.',
+      failedValidation: 'Check your name, email and project details, then try again.',
+      serviceLabel: 'Selected service',
+      clearService: 'Clear selection',
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
@@ -282,7 +290,7 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'REAL ESTATE MEDIA, COSTA DEL SOL',
       title: ['Make them want it', 'before they see it'],
-      lede: 'Film, photography and drone for estate agents and developers on the Costa del Sol.',
+      lede: 'Film, photography and drone on the Costa del Sol. CRM to manage your agency’s enquiries.',
       audience: 'For estate agents and developers. Based in Marbella.',
       cta: 'SEE THE PRICES',
       cue: 'SCROLL',
@@ -402,7 +410,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     method: {
       eyebrow: 'FOUR PASSES',
-      title: ['Four passes,', 'no guesswork'],
+      title: ['How we create', 'your visualisation'],
       steps: [
         {
           sn: '01',
@@ -428,7 +436,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACT',
-      title: ['Let’s plan your', 'next listing.'],
+      title: ['Let’s discuss content', 'or your agency CRM.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
       waText: 'Hi, I found STOARI online. I’d like a quote for a project on the Costa del Sol.',
       waLabel: 'Prefer WhatsApp? Write to us',
@@ -444,16 +452,16 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'PREGUNTAS', href: '#faq' },
     ],
     cta: 'EMPEZAR UN PROYECTO',
-    stickyCta: 'ENVIAR INMUEBLE',
+    stickyCta: 'CONTACTAR',
     form: {
       title: ['Pide un presupuesto', ''],
-      lede: 'Envíanos el enlace al inmueble o cuéntanos qué necesitas. Te contactaremos para concretar el servicio y el presupuesto.',
+      lede: 'Cuéntanos qué contenido necesitas o cómo gestionas las consultas de tu agencia. Concretamos el alcance y te preparamos un presupuesto.',
       name: 'Tu nombre',
       email: 'Email',
       company: 'Empresa',
       optional: 'Añadir empresa o fecha (opcional)',
       required: '* Campos obligatorios',
-      objectExample: 'Un inmueble en Marbella, fotos para un anuncio, contenido mensual…',
+      objectExample: 'Un vídeo de un inmueble, contenido mensual, un CRM para dar seguimiento a las consultas…',
       object: '¿Qué necesitas?',
       when: '¿Para cuándo lo necesitas?',
       submit: 'Recibir mi presupuesto',
@@ -464,6 +472,10 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'Tu consulta se ha enviado. También puedes contactarnos por WhatsApp.',
       failed: 'No hemos podido confirmar el envío.',
       failedNote: 'Tus datos siguen aquí. Reintenta o envíalos directamente por WhatsApp.',
+      failedRateLimit: 'Demasiados intentos. Espera diez minutos o contáctanos por WhatsApp.',
+      failedValidation: 'Revisa tu nombre, email y los detalles del proyecto antes de reintentar.',
+      serviceLabel: 'Servicio elegido',
+      clearService: 'Quitar selección',
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
@@ -471,7 +483,7 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'MARKETING INMOBILIARIO, COSTA DEL SOL',
       title: ['Que lo quieran', 'antes de visitarlo'],
-      lede: 'Vídeo, fotografía y dron para inmobiliarias y promotores de la Costa del Sol.',
+      lede: 'Vídeo, fotografía y dron en la Costa del Sol. CRM para gestionar las consultas de tu inmobiliaria.',
       audience: 'Para agentes inmobiliarios y promotores. Con base en Marbella.',
       cta: 'VER LOS PRECIOS',
       cue: 'BAJAR',
@@ -511,7 +523,7 @@ export const COPY: Record<Lang, Copy> = {
     works: {
       eyebrow: '01 — TRABAJOS',
       title: ['Proyectos seleccionados', ''],
-      lede: 'Abra uno para ver los fotogramas y lo que el cliente necesitaba.',
+      lede: 'Abre un proyecto para ver los fotogramas y lo que el cliente necesitaba.',
       more: 'VER PROYECTO',
       items: [
         {
@@ -591,7 +603,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     method: {
       eyebrow: 'CUATRO PASADAS',
-      title: ['Cuatro pasos,', 'sin suposiciones'],
+      title: ['Cómo preparamos', 'tu visualización'],
       steps: [
         {
           sn: '01',
@@ -601,12 +613,12 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '02',
           st: 'Volumen',
-          sd: 'Levantamos el volumen según sus planos y se lo enviamos para aprobación. Hasta que lo confirme, no seguimos.',
+          sd: 'Levantamos el volumen según tus planos y te lo enviamos para aprobación. Hasta que lo confirmes, no seguimos.',
         },
         {
           sn: '03',
           st: 'Luz y materiales',
-          sd: 'El sol se coloca por las coordenadas y la orientación reales de la parcela. Los acabados, según su memoria.',
+          sd: 'El sol se coloca por las coordenadas y la orientación reales de la parcela. Los acabados, según tu memoria de calidades.',
         },
         {
           sn: '04',
@@ -617,7 +629,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACTO',
-      title: ['Preparemos tu', 'próximo anuncio.'],
+      title: ['Hablemos de contenido', 'o CRM para tu agencia.'],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
       waText: 'Hola, os escribo desde la web de STOARI. Quiero un presupuesto para un proyecto en la Costa del Sol.',
       waLabel: '¿Prefieres WhatsApp? Escríbenos',
@@ -633,16 +645,16 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'ВОПРОСЫ', href: '#faq' },
     ],
     cta: 'НАЧАТЬ ПРОЕКТ',
-    stickyCta: 'ПРИСЛАТЬ ОБЪЕКТ',
+    stickyCta: 'СВЯЗАТЬСЯ С НАМИ',
     form: {
       title: ['Запросить стоимость', ''],
-      lede: 'Пришлите ссылку на объект или расскажите, что нужно. Мы свяжемся с вами, чтобы обсудить услугу и стоимость.',
+      lede: 'Расскажите, какой контент вам нужен или как вы обрабатываете заявки в агентстве. Обсудим объём работ и подготовим предложение.',
       name: 'Как вас зовут',
       email: 'Email',
       company: 'Компания',
       optional: 'Добавить компанию или сроки (необязательно)',
       required: '* Обязательные поля',
-      objectExample: 'Объект в Марбелье, фото для объявления, контент на месяц…',
+      objectExample: 'Видео объекта, контент на месяц, CRM для работы с заявками…',
       object: 'Что вам нужно?',
       when: 'К какому сроку нужно',
       submit: 'Запросить стоимость',
@@ -653,6 +665,10 @@ export const COPY: Record<Lang, Copy> = {
       doneNote: 'Ваш запрос отправлен. Вы также можете написать нам в WhatsApp.',
       failed: 'Не удалось подтвердить отправку.',
       failedNote: 'Ваши данные сохранены в форме. Попробуйте ещё раз или отправьте их в WhatsApp.',
+      failedRateLimit: 'Слишком много попыток. Подождите десять минут или напишите нам в WhatsApp.',
+      failedValidation: 'Проверьте имя, email и описание проекта, затем попробуйте ещё раз.',
+      serviceLabel: 'Выбранная услуга',
+      clearService: 'Убрать выбор',
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
@@ -660,7 +676,7 @@ export const COPY: Record<Lang, Copy> = {
     hero: {
       eyebrow: 'МАРКЕТИНГ НЕДВИЖИМОСТИ',
       title: ['Захотят', 'ещё до показа'],
-      lede: 'Видео, фото и съёмка с дрона для агентств недвижимости и застройщиков на Коста-дель-Соль.',
+      lede: 'Видео, фото и съёмка с дрона на Коста-дель-Соль. CRM для работы с заявками вашего агентства.',
       audience: 'Для агентов и застройщиков. Работаем из Марбельи.',
       cta: 'СМОТРЕТЬ ЦЕНЫ',
       cue: 'ВНИЗ',
@@ -780,7 +796,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     method: {
       eyebrow: 'ЧЕТЫРЕ ПРОХОДА',
-      title: ['Четыре прохода,', 'без догадок'],
+      title: ['Как мы создаём', 'визуализацию'],
       steps: [
         {
           sn: '01',
@@ -806,7 +822,7 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — КОНТАКТ',
-      title: ['Подготовим ваше', 'новое объявление.'],
+      title: ['Обсудим контент', 'или CRM для агентства.'],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
       waText: 'Здравствуйте! Пишу с сайта STOARI. Хочу узнать стоимость проекта на Коста-дель-Соль.',
       waLabel: 'Удобнее в WhatsApp? Напишите нам',

@@ -33,7 +33,7 @@ if (!empty($_POST['bot-field'])) {
     respond(200, true);
 }
 $fields = [];
-foreach (['name' => 120, 'email' => 254, 'company' => 120, 'object' => 2000, 'when' => 120] as $key => $limit) {
+foreach (['name' => 120, 'email' => 254, 'company' => 120, 'object' => 2000, 'when' => 120, 'service' => 120] as $key => $limit) {
     $value = $_POST[$key] ?? '';
     if (!is_string($value) || !preg_match('//u', $value)) {
         respond(422, false);
@@ -85,6 +85,7 @@ $message = "New enquiry from stoari.com\n\n"
     . "Name: {$fields['name']}\n"
     . "Email: {$fields['email']}\n"
     . "Company: {$fields['company']}\n"
+    . "Selected service: {$fields['service']}\n"
     . "Property / project: {$fields['object']}\n"
     . "When: {$fields['when']}\n";
 

@@ -7,9 +7,12 @@ Gli export integrali non sono stati trovati nelle copie accessibili.
 
 Le schede della seconda galleria e il lettore aperto usano entrambi
 `/films/<nome>.mp4`, senza limite di riproduzione. Finché il file è un estratto,
-la durata effettiva e l'etichetta «Extracto» vengono mostrate dopo il caricamento
-dei metadati. Sostituendo il file con l'export integrale, la durata si aggiorna
-automaticamente e l'etichetta scompare.
+l'etichetta «Extracto» viene mostrata anche prima del caricamento dei metadati,
+grazie al flag `excerpt: true` nel catalogo `src/films.ts`. La durata effettiva
+si legge dai metadati. Dopo avere sostituito e verificato un export integrale,
+rimuovere il flag `excerpt: true` dalla voce corrispondente e ricostruire il sito.
+Il confronto con la durata prevista resta una verifica aggiuntiva: non rimuovere
+il flag prima di avere controllato il file completo.
 
 | File da consegnare | Durata prevista circa | Formato |
 | --- | ---: | --- |

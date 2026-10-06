@@ -20,7 +20,7 @@ const php = spawn('php', ['-d', `sendmail_path=${sendmail}`, '-S', `127.0.0.1:${
   env: { ...process.env, TMPDIR: join(scratch, 'rates') }, stdio: 'ignore',
 })
 const endpoint = `http://127.0.0.1:${port}/api/enquiry.php`
-const valid = { name: 'Test', email: 'visitor@example.com', company: 'STOARI test', object: 'Synthetic property', when: 'Test only' }
+const valid = { name: 'Test', email: 'visitor@example.com', company: 'STOARI test', object: 'Synthetic property', when: 'Test only', service: 'CRM inmobiliario' }
 async function post(fields = valid, origin = 'https://stoari.com') {
   return fetch(endpoint, {
     method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', Origin: origin },
@@ -37,6 +37,7 @@ try {
   assert.equal((await post({ ...valid, email: '' })).status, 422, 'A reply address is required')
   assert.equal((await post({ ...valid, email: 'not-an-email' })).status, 422, 'Malformed addresses are rejected')
   assert.equal((await post({ ...valid, email: 'visitor@example.com\r\nBcc: injected@example.com' })).status, 422, 'Header injection is rejected')
+  assert.equal((await post({ ...valid, service: 'a'.repeat(121) })).status, 422, 'Service length is bounded')
   assert.equal((await post({ ...valid, name: 'a'.repeat(121) })).status, 422, 'Field lengths match the browser')
   assert.equal((await post({ ...valid, object: '🏠'.repeat(1001) })).status, 422, 'Emoji count matches browser maxlength')
   assert.equal((await post(valid, 'https://other.example')).status, 403, 'Unrelated origins are rejected')
@@ -51,6 +52,7 @@ try {
   assert.match(message, /^To: info@stoari\.com/m, 'Enquiries reach the professional mailbox')
   assert.match(message, /^From: STOARI <info@stoari\.com>/m, 'The sender uses the existing domain mailbox')
   assert.match(message, /Reply-To: visitor@example\.com/, 'Replies reach the validated visitor address')
+  assert.match(message, /Selected service: CRM inmobiliario/, 'The selected service reaches the mailbox')
   assert.match(message, /Email: visitor@example\.com/, 'The enquiry includes a usable reply address')
   assert.match(message, /Дом /, 'A full-length Cyrillic enquiry survives validation')
   await writeFile(join(scratch, 'fail-mail'), '')

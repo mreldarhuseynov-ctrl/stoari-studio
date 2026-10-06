@@ -12,3 +12,16 @@ References reviewed on 6 October 2026:
 - Array: explicit shoot booking action, https://www.arraymedia.com/
 
 Validation: lint, TypeScript, production build, backend mail-handler self-test without external mail; browser required-field validation, preserved inputs after mail failure, optional disclosure, synthetic local acknowledgement, responsive ES/EN/RU layouts. Real inbox receipt remains unverified.
+
+## Final review implementation — 6 October 2026
+
+- The hero and contact copy include content production and CRM, with the existing three required fields.
+- Package/CRM form links carry a visible, removable service selection into the form, PHP email and WhatsApp fallback. Draft text is not overwritten.
+- All builds use the real PHP endpoint by default. Only explicit JSON boolean `ok: true` can show success; HTML 200, false/string acknowledgements, malformed JSON and HTTP errors cannot.
+- Validation/rate-limit errors have localized explanations; failure keeps editable data. Status receives keyboard focus on failure/success. The existing 20-second timeout and double-submit prevention remain.
+- A mobile navigation disclosure provides section/contact links, Escape and 44px controls. Hidden sticky CTA is excluded from keyboard and assistive technology, and hides while pricing or contact is visible.
+- Canvas animation is clipped to the hero and scheduled only while the hero and document are visible.
+
+Validation: unit HTTP fixtures for the browser request contract; PHP synthetic success/failure/Unicode/service/rate-limit checks; browser isolated mail failure, retry/success, retained data and service context; menu Escape/navigation at 320px. No test-only router or mail transport is included in the public build. Real mailbox receipt is recorded separately after the deployment test.
+
+Live test: one authorized submission via the published browser form was accepted on 6 October 2026, with service CRM and marker `STOARI-TEST-061026-FORM`. The success panel received keyboard focus. This establishes browser → production PHP → accepted mail transport, not inbox arrival; owner confirmation was requested separately.

@@ -17,7 +17,7 @@ npm run lint
 
 | File | What is in it |
 |---|---|
-| `src/content.ts` | Identity copy — brand, nav, hero, work, services, why, method, contact, in all three languages. Also `SECTIONS`, which is the order of the page. |
+| `src/content.ts` | Identity copy — brand, nav, hero, work, services, method, contact, in all three languages. Also `SECTIONS`, which is the order of the page. |
 | `src/offer.ts` | Commercial copy — packages, agents, developers, leads & automation, travel, the four steps, the questions. Prices live here and nowhere else in the code. |
 | `src/field.ts` | The point field: geometry, shaders, physics, and `OFFSETS`, which pushes the cloud away from the text column section by section. |
 | `src/App.tsx` | Markup. Sections are rendered by index against `SECTIONS`. |
@@ -124,9 +124,7 @@ accepts the message. Acceptance does not verify delivery to the recipient's
 inbox; verify that separately with an authorised real enquiry. No enquiry text
 is saved by this handler. Private temporary counters contain only send counts.
 
-An ordinary `npm run build` retains the Netlify form endpoint for existing
-Netlify deployments. Local Vite previews simulate form success and do not send
-mail. Hostinger honours `.htaccess`; Netlify's `_headers` remains for Netlify.
+All builds default to `/api/enquiry.php`; `VITE_ENQUIRY_ENDPOINT` can override it only with a compatible JSON handler. Success requires an HTTP-success response with JSON `{ok:true}`. A page returning HTTP 200 cannot acknowledge an enquiry. Development previews do not simulate success. Use `npm run test:enquiry-client` and `npm run test:enquiry` for isolated transport checks; neither sends external mail.
 
 After uploading, check HTTPS, the `www` redirect, the hero, all film assets,
 the three languages and the contact form's error path. Publishing on Hostinger
