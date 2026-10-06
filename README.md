@@ -91,6 +91,7 @@ The old GitHub Pages and Netlify deployments are separate from this hosting.
 
 ```bash
 npm ci
+composer install --no-dev
 npm run test:enquiry   # PHP required; test mail never leaves the computer
 npm run lint
 npm run bundle:hostinger
@@ -118,10 +119,10 @@ explicitly retain the existing excerpt portfolio. Do not upload camera originals
 
 `build:hostinger` selects `/api/enquiry.php` for the enquiry
 form. PHP validates the request, ignores the honeypot and limits repeated sends;
-Hostinger's mail transport forwards to the studio's existing public address,
+Authenticated SMTP over verified TLS forwards to the studio's existing public address,
 `info@stoari.com`. The visitor sees success only when the transport
 accepts the message. Acceptance does not verify delivery to the recipient's
-inbox; verify that separately with an authorised real enquiry. No enquiry text
+inbox; verify that separately with an authorised real enquiry. SMTP credentials must exist at `~/domains/stoari.com/private/smtp.json`, outside `public_html`, with mode 0600. The handler fails closed if configuration, TLS, authentication or delivery acceptance fails; it never falls back to `mail()`. No enquiry text
 is saved by this handler. Private temporary counters contain only send counts.
 
 All builds default to `/api/enquiry.php`; `VITE_ENQUIRY_ENDPOINT` can override it only with a compatible JSON handler. Success requires an HTTP-success response with JSON `{ok:true}`. A page returning HTTP 200 cannot acknowledge an enquiry. Development previews do not simulate success. Use `npm run test:enquiry-client` and `npm run test:enquiry` for isolated transport checks; neither sends external mail.
@@ -153,7 +154,7 @@ files are retained; the page loads the separately named stable exports.
 The contact form requires a valid reply email. Run `npm run test:hero` for
 responsive film selection, `npm run test:gallery` for scroll geometry and
 `npm run test:enquiry` for PHP validation, rate limiting
-and mail success/failure using a fake local mail transport.
+and SMTP success/failure using an isolated local TLS mail server.
 
 SEO includes the primary-domain canonical, metadata in the selected language,
 favicon/app icons, sitemap, robots file and business structured data. Spanish
@@ -168,3 +169,18 @@ Actual end-to-end inbox delivery is still pending an authorised real enquiry;
 local tests capture mail using a fake transport and never send it externally.
 Website policy text does not replace the owner's provider agreements and
 actual operating duties.
+
+### Authenticated email setup
+
+On 6 October the first public enquiry reached Spam: `dkim=none`, `dmarc=fail`
+(SPF authenticated the generic hosting server, not stoari.com). The domain's
+Hostinger SPF and three DKIM CNAMEs were already present. Authenticated SMTP
+replaces that unauthenticated transport; no DNS bypass or mailbox allowlist is used.
+
+The owner runs `python3 scripts/configure-smtp.py` to enter the **existing mailbox**
+password in a hidden local prompt. It tests the login against `smtp.hostinger.com:465`
+with certificate verification, then stores the secret via SSH stdin outside the web root.
+It does not print/save the password locally, change it, send email, or publish code.
+`composer.lock` pins PHPMailer; `npm run build:hostinger` installs it before packaging.
+After setup and deployment, verify a real enquiry's inbox placement and original
+SPF/DKIM/DMARC results. SMTP acceptance alone is not proof of inbox placement.

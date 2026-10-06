@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^vendor(?:/|$) - [F,L]
+</IfModule>
+<Files "mail-transport.php">
+    Require all denied
+</Files>

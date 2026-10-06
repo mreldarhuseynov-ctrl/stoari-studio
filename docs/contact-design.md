@@ -11,7 +11,7 @@ References reviewed on 6 October 2026:
 - ReneGonzMedia: project-specific quote request, https://renegonzmedia.com/contact
 - Array: explicit shoot booking action, https://www.arraymedia.com/
 
-Validation: lint, TypeScript, production build, backend mail-handler self-test without external mail; browser required-field validation, preserved inputs after mail failure, optional disclosure, synthetic local acknowledgement, responsive ES/EN/RU layouts. Real inbox receipt remains unverified.
+Validation: lint, TypeScript, production build, backend mail-handler self-test without external mail; browser required-field validation, preserved inputs after mail failure, optional disclosure, synthetic local acknowledgement, responsive ES/EN/RU layouts. The later live test reached Spam; see delivery diagnosis below.
 
 ## Final review implementation — 6 October 2026
 
@@ -24,4 +24,4 @@ Validation: lint, TypeScript, production build, backend mail-handler self-test w
 
 Validation: unit HTTP fixtures for the browser request contract; PHP synthetic success/failure/Unicode/service/rate-limit checks; browser isolated mail failure, retry/success, retained data and service context; menu Escape/navigation at 320px. No test-only router or mail transport is included in the public build. Real mailbox receipt is recorded separately after the deployment test.
 
-Live test: one authorized submission via the published browser form was accepted on 6 October 2026, with service CRM and marker `STOARI-TEST-061026-FORM`. The success panel received keyboard focus. This establishes browser → production PHP → accepted mail transport, not inbox arrival; owner confirmation was requested separately.
+Live test: one authorized submission via the published browser form was accepted on 6 October 2026, with service CRM and marker `STOARI-TEST-061026-FORM`. The success panel received keyboard focus. Robert confirmed that this message arrived in Spam. The original message was inspected: `dkim=none`, `dmarc=fail` because the envelope sender was `noreply@srv2025.main-hosting.eu`, not the visible `stoari.com` sender. SPF/DKIM DNS records for Hostinger Mail already exist. Authenticated SMTP support and secure owner setup are implemented and tested; activation awaits the mailbox credential and a new real-delivery check. No spam-filter bypass or allowlist is applied.
