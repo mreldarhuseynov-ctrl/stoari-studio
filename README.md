@@ -184,3 +184,5 @@ It does not print/save the password locally, change it, send email, or publish c
 `composer.lock` pins PHPMailer; `npm run build:hostinger` installs it before packaging.
 After setup and deployment, verify a real enquiry's inbox placement and original
 SPF/DKIM/DMARC results. SMTP acceptance alone is not proof of inbox placement.
+
+SMTP activation was verified on 6 October 2026: a public-form test arrived in INBOX with SPF, DKIM and DMARC passing. Its envelope sender is info@stoari.com. The previous PHP backend backup is `~/stoari-releases/20261006-smtp/before-api.tar.gz`; credentials are outside that release/archive.
