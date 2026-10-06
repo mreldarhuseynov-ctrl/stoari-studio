@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     respond(405, false);
 }
-if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 16384) {
+if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 65536) {
     respond(413, false);
 }
 if (isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], [
@@ -33,11 +33,18 @@ if (!empty($_POST['bot-field'])) {
     respond(200, true);
 }
 $fields = [];
-foreach (['name' => 500, 'email' => 254, 'company' => 500, 'object' => 4000, 'when' => 500] as $key => $limit) {
+foreach (['name' => 120, 'email' => 254, 'company' => 120, 'object' => 2000, 'when' => 120] as $key => $limit) {
     $value = $_POST[$key] ?? '';
-    if (!is_string($value) || strlen($value) > $limit || !preg_match('//u', $value)) {
+    if (!is_string($value) || !preg_match('//u', $value)) {
         respond(422, false);
     }
+    // Browser maxlength counts UTF-16 units, including two for emoji.
+    $units = 0;
+    preg_match_all('/./us', $value, $characters);
+    foreach ($characters[0] as $character) {
+        $units += strlen($character) === 4 ? 2 : 1;
+    }
+    if ($units > $limit) respond(422, false);
     $fields[$key] = trim($value);
 }
 if ($fields['name'] === '' || $fields['object'] === ''

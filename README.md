@@ -142,7 +142,7 @@ posters and native horizontal browsing; short viewports keep controls accessible
 
 Fonts are self-hosted, licensed WOFF2 with Latin/Cyrillic coverage. Work and
 film assets retain their existing WebP/MP4 optimization. Visible clips pause
-offscreen, in hidden tabs and when reduced motion is requested. The hero has a
+offscreen, in hidden tabs and when reduced motion is requested. The hero has
 no pause button, per the owner's preference; reduced-motion visitors see its
 poster. Keyboard users can skip the page and access modal focus traps.
 The hero's original frame-to-frame wobble has been corrected within each shot,

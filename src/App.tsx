@@ -367,6 +367,7 @@ function Films({ lang }: { lang: Lang }) {
     if (open === null) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(null)
+      if (e.target instanceof HTMLMediaElement) return
       if (e.key === 'ArrowRight') setOpen((i) => (i === null ? i : (i + 1) % list.length))
       if (e.key === 'ArrowLeft')
         setOpen((i) => (i === null ? i : (i - 1 + list.length) % list.length))
@@ -533,6 +534,19 @@ export default function App() {
   }, [])
   useMediaPlayback(lang, heroVariant)
 
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>('section.hero')
+    if (!hero) return
+    const update = () => document.documentElement.style.setProperty('--hero-height', `${hero.offsetHeight}px`)
+    const observer = new ResizeObserver(update)
+    observer.observe(hero)
+    update()
+    return () => {
+      observer.disconnect()
+      document.documentElement.style.removeProperty('--hero-height')
+    }
+  }, [])
+
   /**
    * A project opens over the page rather than on its own route: the field
    * renderer owns a single continuous scroll, and routing away from it would
@@ -593,10 +607,11 @@ export default function App() {
       >
         <video
           key={heroVariant}
+          autoPlay
           muted
           loop
           playsInline
-          preload="none"
+          preload="metadata"
           poster={heroPoster(heroVariant)}
         >
           <source src={heroClip(heroVariant)} type="video/mp4" />

@@ -27,7 +27,7 @@ html[data-nav='dark'] nav {
 .skip-link:focus { transform: none; }
 
 /* Full-height footage and one scrim, only where the text needs it. */
-.heroclip { height: 100svh; z-index: 0; mask-image: none; -webkit-mask-image: none; }
+.heroclip { height: var(--hero-height, 100svh); z-index: 0; mask-image: none; -webkit-mask-image: none; }
 .heroclip video, .heroclip::after { inset: 0; height: 100%; }
 .heroclip { background-image: var(--hero-poster) !important; }
 .heroclip::after { background: linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.72) 100%); }
@@ -78,6 +78,9 @@ h2 { text-wrap: balance; }
 #services .passes .steps { margin-top: 0; gap: 20px 36px; }
 .list .row .n { display: none; }
 .work .shot, .film, .crm, .sheetin, .player video { border-radius: var(--radius-card); overflow: hidden; }
+.works > .work { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
+.work .shot { flex: none; }
+.work .more { align-self: flex-start; margin-top: auto; padding-top: 14px; }
 .navcta, .enq button, .wa, .stickycta, .sheetcta, .crmbook { border-radius: var(--radius-control); font-family: var(--body-face); letter-spacing: 0; }
 .sheetcta, .crmbook { padding: 13px 22px; border: 1px solid currentColor; text-decoration: none; }
 

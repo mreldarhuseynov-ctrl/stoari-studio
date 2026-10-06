@@ -7,7 +7,9 @@ export function useMediaPlayback(language: string, heroVariant: string) {
     const visible = new Set<HTMLVideoElement>()
     const sync = () => {
       for (const video of clips) {
-        if (!still.matches && !document.hidden && visible.has(video)) void video.play().catch(() => {})
+        if (!still.matches && !document.hidden && visible.has(video)) {
+          if (video.paused) void video.play().catch(() => {})
+        }
         else video.pause()
       }
     }
@@ -20,12 +22,16 @@ export function useMediaPlayback(language: string, heroVariant: string) {
       sync()
     }, { threshold: 0.2 })
     clips.forEach((clip) => observer.observe(clip))
+    clips.forEach((clip) => clip.addEventListener('canplay', sync))
     still.addEventListener('change', sync)
     document.addEventListener('visibilitychange', sync)
+    window.addEventListener('pageshow', sync)
     return () => {
       observer.disconnect()
+      clips.forEach((clip) => clip.removeEventListener('canplay', sync))
       still.removeEventListener('change', sync)
       document.removeEventListener('visibilitychange', sync)
+      window.removeEventListener('pageshow', sync)
       clips.forEach((clip) => clip.pause())
     }
   }, [language, heroVariant])
