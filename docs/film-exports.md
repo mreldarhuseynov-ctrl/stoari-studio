@@ -1,4 +1,41 @@
-# Export integrali per Eldar
+# Vídeos completos recibidos — 6 de octubre de 2026
+
+Los 15 MP4 completos se han descargado del borrador autenticado de GitHub
+`films-full-2026-10-06` (release 405159956, asset 616717813), archivo
+`stoari-films-full.zip`. La release sigue siendo un borrador.
+
+El ZIP contiene exactamente los 15 MP4 en su raíz, con CRC válido. Se han
+sustituido directamente en `public/films/`, conservando los pósteres `.webp`
+y los `-preview.mp4`, y sincronizado el publicDir del runtime local.
+`node scripts/check-film-durations.mjs public/films` verifica las 15 duraciones
+con el catálogo. Se han retirado los 15 flags `excerpt: true` únicamente después
+de verificar los archivos completos. El control de duración del reproductor
+sigue activo por si se vuelve a cargar un extracto por error.
+
+SHA-256 del ZIP original:
+`0e818bb21d0870cc160b564f9e32f7714fe680620c077b83643f6fa684b5f021`
+
+El paquete de Hostinger se genera con `npm run bundle:hostinger`, sin la opción
+`--preview-excerpts`. Los MP4 continúan fuera de Git; el ZIP se conserva como
+asset del borrador y los extractos anteriores tienen una copia local de seguridad.
+La generación del paquete no publica la release ni despliega automáticamente.
+
+## Recuperación en un checkout nuevo
+
+```bash
+gh release download films-full-2026-10-06 --repo mreldarhuseynov-ctrl/stoari-studio --pattern stoari-films-full.zip
+unzip -o stoari-films-full.zip -d public/films
+npm run bundle:hostinger
+```
+
+Se necesita acceso autenticado al borrador. Los pósteres y las previsualizaciones
+se recuperan del respaldo existente o de la rama `gh-pages`; sus MP4 principales
+son extractos antiguos y deben sustituirse por los completos antes del build.
+
+---
+
+## Historial anterior a la entrega
+
 
 Controllo del 6 ottobre 2026: tutti i 15 MP4 disponibili in GitHub Pages e nelle
 copie locali del sito durano 15 secondi. Il commit che li introduce è

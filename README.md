@@ -111,8 +111,10 @@ git fetch origin gh-pages
 git archive origin/gh-pages films | tar -x -C public
 ```
 
-GitHub Pages contains 15-second excerpts, not the integral films described by
-the catalogue. Full exports must be supplied separately. The packaging command
+GitHub Pages contains the older 15-second excerpts. The 15 complete web exports
+are available in the authenticated draft release `films-full-2026-10-06` as
+`stoari-films-full.zip`; download and replace the root MP4s in `public/films`
+after restoring the older portfolio assets. See `docs/film-exports.md`. The packaging command
 checks all 15 durations with `ffprobe` and rejects those excerpts by default.
 `node scripts/package-hostinger.mjs --preview-excerpts` is only for updates that
 explicitly retain the existing excerpt portfolio. Do not upload camera originals.

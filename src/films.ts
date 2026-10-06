@@ -2,10 +2,10 @@ import type { Lang } from './content'
 
 /**
  * Film catalogue. Cards and the player share the same web export, without a
- * playback time limit. Current GitHub assets are 15-second excerpts; the real
- * duration is read from each file and short exports are labelled as extracts.
- * Expected catalogue durations below allow packaging to reject excerpts when
- * publishing the complete films. See docs/film-exports.md for replacements.
+ * playback time limit. All 15 full web exports were verified on 6 October 2026.
+ * Badges read the actual media duration; the expected catalogue durations
+ * below also let packaging reject accidentally restored excerpts.
+ * See docs/film-exports.md for the authenticated release download.
  */
 
 export type Kind = 'villas' | 'fpv' | 'agents' | 'build' | 'ai'
@@ -23,21 +23,21 @@ export type Film = {
 }
 
 export const FILMS: Film[] = [
-  { id: 'villa-alfa-tour', kind: 'villas', vertical: false, duration: 180, excerpt: true, title: 'Villa Alfa' },
-  { id: 'cin-lento', kind: 'villas', vertical: true, duration: 58, excerpt: true, title: 'Cin Lento' },
-  { id: 'villa-alfa-agent', kind: 'villas', vertical: true, duration: 49, excerpt: true, title: 'Villa Alfa' },
-  { id: 'villa-hd', kind: 'villas', vertical: false, duration: 54, excerpt: true, title: 'Villa' },
-  { id: 'villa-alfa-detail', kind: 'villas', vertical: true, duration: 38, excerpt: true, title: 'Villa Alfa' },
-  { id: 'villa-alfa-short', kind: 'villas', vertical: true, duration: 29, excerpt: true, title: 'Villa Alfa' },
-  { id: 'fpv-villa', kind: 'fpv', vertical: false, duration: 77, excerpt: true, title: 'FPV Villa' },
-  { id: 'ultimo-llamada', kind: 'fpv', vertical: true, duration: 56, excerpt: true, title: 'Última llamada' },
-  { id: 'ignazio', kind: 'agents', vertical: true, duration: 20, excerpt: true, title: 'Ignazio' },
-  { id: 'madronal', kind: 'build', vertical: true, duration: 44, excerpt: true, title: 'Madronal' },
-  { id: 'project-3', kind: 'build', vertical: false, duration: 47, excerpt: true, title: 'Project 3.0' },
-  { id: 'mr-eh', kind: 'build', vertical: false, duration: 90, excerpt: true, title: 'By Mr. E.H.' },
-  { id: 'toro-negro', kind: 'ai', vertical: true, duration: 31, excerpt: true, title: 'El Toro Negro' },
-  { id: 'puerto-banus', kind: 'ai', vertical: true, duration: 34, excerpt: true, title: 'Puerto Banús' },
-  { id: 'zaceni-balam', kind: 'ai', vertical: true, duration: 35, excerpt: true, title: 'Zaceni Balam' },
+  { id: 'villa-alfa-tour', kind: 'villas', vertical: false, duration: 180, title: 'Villa Alfa' },
+  { id: 'cin-lento', kind: 'villas', vertical: true, duration: 58, title: 'Cin Lento' },
+  { id: 'villa-alfa-agent', kind: 'villas', vertical: true, duration: 49, title: 'Villa Alfa' },
+  { id: 'villa-hd', kind: 'villas', vertical: false, duration: 54, title: 'Villa' },
+  { id: 'villa-alfa-detail', kind: 'villas', vertical: true, duration: 38, title: 'Villa Alfa' },
+  { id: 'villa-alfa-short', kind: 'villas', vertical: true, duration: 29, title: 'Villa Alfa' },
+  { id: 'fpv-villa', kind: 'fpv', vertical: false, duration: 77, title: 'FPV Villa' },
+  { id: 'ultimo-llamada', kind: 'fpv', vertical: true, duration: 56, title: 'Última llamada' },
+  { id: 'ignazio', kind: 'agents', vertical: true, duration: 20, title: 'Ignazio' },
+  { id: 'madronal', kind: 'build', vertical: true, duration: 44, title: 'Madronal' },
+  { id: 'project-3', kind: 'build', vertical: false, duration: 47, title: 'Project 3.0' },
+  { id: 'mr-eh', kind: 'build', vertical: false, duration: 90, title: 'By Mr. E.H.' },
+  { id: 'toro-negro', kind: 'ai', vertical: true, duration: 31, title: 'El Toro Negro' },
+  { id: 'puerto-banus', kind: 'ai', vertical: true, duration: 34, title: 'Puerto Banús' },
+  { id: 'zaceni-balam', kind: 'ai', vertical: true, duration: 35, title: 'Zaceni Balam' },
 ]
 
 /** Same base-URL rule as the work cards: nothing on this site starts with `/`. */
