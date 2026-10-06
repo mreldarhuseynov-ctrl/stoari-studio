@@ -780,21 +780,17 @@ export default function App() {
             </h2>
             <p className="lede rv">{c.services.lede}</p>
             <div className="rule rv" />
-            <div className="list rv">
+            <ul className="list rv">
               {c.services.rows.map((r) => (
-                <div
-                  className="row"
-                  key={r.n}
-                  style={
-                    { '--shot': `url(${SERVICE_SHOT[r.n]})` } as CSSProperties
-                  }
-                >
-                  <span className="n">{r.n}</span>
-                  <span className="t">{r.t}</span>
-                  <span className="d">{r.d}</span>
-                </div>
+                <li className="row" key={r.n}>
+                  <img className="service-image" src={SERVICE_SHOT[r.n]} alt="" loading="lazy" width="128" height="88" />
+                  <div className="service-copy">
+                    <h3 className="t">{r.t}</h3>
+                    <p className="d">{r.d}</p>
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
             {/* The visualisation passes lived under the developers' price grid.
                 The grid went with the old prices; the method did not change,
                 so it moved here, next to the Visualisation row it belongs to. */}
