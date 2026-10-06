@@ -37,6 +37,8 @@ export const BRAND = {
    */
   phone: '+34 610 826 619',
   phoneHref: 'tel:+34610826619',
+  robertPhone: '+34 695 811 830',
+  robertPhoneHref: 'tel:+34695811830',
   /** Clean URL: the igsh/utm parameters on a shared link are QR tracking. */
   instagram: 'https://www.instagram.com/stoaristudio',
   instagramLabel: '@stoaristudio',
@@ -82,20 +84,9 @@ export const SECTIONS: Section[] = [
   { id: 'films', wide: true, shape: 5 },
   { id: 'services', rev: true, shape: 4 },
   { id: 'how', shape: 4 },
-  { id: 'why', rev: true, shape: 5 },
   { id: 'faq', shape: 3 },
   { id: 'contact', rev: true, shape: 0 },
 ]
-
-/**
- * Sides alternate strictly from `work` to `contact` — left, right, left, right.
- * Eight sections under the hero is an even number, so the alternation lands
- * `contact` on the right without a single repeat.
- *
- * `program` and `project` were removed as a pair, a left and a right, when the
- * old price grids came off the page. Taking them out together is what kept
- * every other section on the side it already had.
- */
 
 /**
  * Media is shared across languages — only the words change. Captions live in
@@ -239,13 +230,6 @@ export type Copy = {
     more: string
     items: { alt: string; t: string; k: string; s: string; d: string; caps: string[] }[]
   }
-  why: {
-    eyebrow: string
-    title: [string, string]
-    lede: string
-    /** `from` turns the value into a counter that runs down to `v` in view. */
-    stats: { v: string; k: string; from?: number }[]
-  }
   method: {
     eyebrow: string
     title: [string, string]
@@ -294,7 +278,7 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
-    labels: ['INDEX', 'WORK', 'PRICES', 'FILMS', 'SERVICES', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
+    labels: ['INDEX', 'WORK', 'PRICES', 'FILMS', 'SERVICES', 'HOW IT WORKS', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'REAL ESTATE MEDIA, COSTA DEL SOL',
       title: ['Make them want it', 'before they see it'],
@@ -416,16 +400,6 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — WHY',
-      title: ['Ready for your listings', ''],
-      lede: 'Vertical for Reels and Stories, landscape for the website, the portals and the sales deck, all from the same shoot. Nothing has to be cut twice.',
-      stats: [
-        { v: '7', k: 'DAYS TO FIRST LOOK', from: 30 },
-        { v: '9:16 + 16:9', k: 'BOTH, FROM THE START' },
-        { v: '5', k: 'SERVICES, ONE TEAM' },
-      ],
-    },
     method: {
       eyebrow: 'FOUR PASSES',
       title: ['Four passes,', 'no guesswork'],
@@ -448,7 +422,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '04',
           st: 'Delivery',
-          sd: 'Stills and film, vertical and landscape, in the formats your sales team already posts.',
+          sd: 'Stills and film in the formats agreed in your proposal, ready for the selected channels.',
         },
       ],
     },
@@ -493,7 +467,7 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
-    labels: ['INICIO', 'TRABAJOS', 'PRECIOS', 'PELÍCULAS', 'SERVICIOS', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
+    labels: ['INICIO', 'TRABAJOS', 'PRECIOS', 'PELÍCULAS', 'SERVICIOS', 'CÓMO FUNCIONA', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'MARKETING INMOBILIARIO, COSTA DEL SOL',
       title: ['Que lo quieran', 'antes de visitarlo'],
@@ -615,16 +589,6 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — POR QUÉ',
-      title: ['Listo para tus anuncios', ''],
-      lede: 'Vertical para Reels y Stories, horizontal para la web, los portales y la presentación de ventas, todo del mismo rodaje. No hay que volver a montar nada.',
-      stats: [
-        { v: '7', k: 'DÍAS HASTA LA PRIMERA VERSIÓN', from: 30 },
-        { v: '9:16 + 16:9', k: 'LOS DOS, DESDE EL PRINCIPIO' },
-        { v: '5', k: 'SERVICIOS, UN EQUIPO' },
-      ],
-    },
     method: {
       eyebrow: 'CUATRO PASADAS',
       title: ['Cuatro pasos,', 'sin suposiciones'],
@@ -647,7 +611,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '04',
           st: 'Entrega',
-          sd: 'Imágenes y vídeo en vertical y horizontal, en los formatos que su equipo comercial ya publica cada día.',
+          sd: 'Imágenes y vídeo en los formatos acordados en la propuesta, listos para los canales elegidos.',
         },
       ],
     },
@@ -692,7 +656,7 @@ export const COPY: Record<Lang, Copy> = {
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
-    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ЦЕНЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
+    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ЦЕНЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'КАК ЭТО УСТРОЕНО', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'МАРКЕТИНГ НЕДВИЖИМОСТИ',
       title: ['Захотят', 'ещё до показа'],
@@ -814,16 +778,6 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — ПОЧЕМУ МЫ',
-      title: ['Готово для ваших объявлений', ''],
-      lede: 'Вертикаль для Reels и Stories, горизонталь для сайта, порталов и презентации, всё с одной съёмки. Перемонтировать ничего не нужно.',
-      stats: [
-        { v: '7', k: 'ДНЕЙ ДО ПЕРВОГО ПОКАЗА', from: 30 },
-        { v: '9:16 + 16:9', k: 'ОБА ФОРМАТА СРАЗУ' },
-        { v: '5', k: 'УСЛУГ, ОДНА КОМАНДА' },
-      ],
-    },
     method: {
       eyebrow: 'ЧЕТЫРЕ ПРОХОДА',
       title: ['Четыре прохода,', 'без догадок'],
@@ -846,7 +800,7 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '04',
           st: 'Сдача',
-          sd: 'Отдаём кадры и видео вертикально и горизонтально — в тех форматах, которыми ваш отдел продаж пользуется каждый день.',
+          sd: 'Передаём изображения и видео в форматах, согласованных в предложении, для выбранных каналов публикации.',
         },
       ],
     },

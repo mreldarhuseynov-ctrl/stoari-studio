@@ -54,15 +54,14 @@ const SERVICE_SHOT: Record<string, string> = {
   '02': WORK_MEDIA[2].img, // the interiors, as a photographer sees them
   '03': WORK_MEDIA[3].img, // the marina, flown
   '04': WORK_MEDIA[0].img, // the bare plot, then the volume standing on it
-  '05': WORK_MEDIA[4].img, // the footprint drawn on the land: the system behind the sale
 }
 
-function ServicesCatalog({ services }: { services: Copy['services'] }) {
+function ServicesCatalog({ services, lang }: { services: Copy['services']; lang: Lang }) {
   return (
     <ul className="service-catalog">
       {services.rows.map((row) => (
         <li className="service-entry" key={row.n}>
-          <img src={SERVICE_SHOT[row.n]} alt="" loading="lazy" decoding="async" width="720" height="900" />
+          <img className={row.n === '05' ? 'service-crm-visual' : undefined} src={row.n === '05' ? `${import.meta.env.BASE_URL}services/crm-workflow-${lang}.svg` : SERVICE_SHOT[row.n]} alt="" loading="lazy" decoding="async" width="720" height="900" />
           <div className="service-copy">
             <h3>{row.t}</h3>
             <p>{row.d}</p>
@@ -783,7 +782,7 @@ export default function App() {
               <h2>{c.services.title.join(' ')}</h2>
               <p className="lede">{c.services.lede}</p>
             </div>
-            <ServicesCatalog services={c.services} />
+            <ServicesCatalog services={c.services} lang={lang} />
             {/* The visualisation passes lived under the developers' price grid.
                 The grid went with the old prices; the method did not change,
                 so it moved here, next to the Visualisation row it belongs to. */}
@@ -836,28 +835,6 @@ export default function App() {
         >
           <div className={col(6)}>
             <h2 className="rv">
-              {c.why.title.join(' ')}
-            </h2>
-            <p className="lede rv">{c.why.lede}</p>
-            <div className="stats rv">
-              {c.why.stats.map((st) => (
-                <div className="stat" key={st.k}>
-                  <div className="v">{st.v}</div>
-                  <div className="k">{st.k}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section
-          id={s[7].id}
-          className={cls(7)}
-          data-shape={s[7].shape}
-          data-label={c.labels[7]}
-        >
-          <div className={col(7)}>
-            <h2 className="rv">
               {o.faq.title.join(' ')}
             </h2>
             <p className="lede rv">{o.faq.lede}</p>
@@ -875,10 +852,10 @@ export default function App() {
         </section>
 
         <section
-          id={s[8].id}
-          className={cls(8)}
-          data-shape={s[8].shape}
-          data-label={c.labels[8]}
+          id={s[7].id}
+          className={cls(7)}
+          data-shape={s[7].shape}
+          data-label={c.labels[7]}
         >
           <div className="col contact-layout">
             <div className="contact-intro">
@@ -890,7 +867,8 @@ export default function App() {
               </a>
               <div className="contact-direct">
                 <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
-                <a href={BRAND.phoneHref}>{BRAND.phone}</a>
+                <a href={BRAND.phoneHref}>Eldar · {BRAND.phone}</a>
+                <a href={BRAND.robertPhoneHref}>Robert · {BRAND.robertPhone}</a>
               </div>
               <img className="contact-photo" src={WORK_MEDIA[2].img} alt="" width="720" height="900" loading="lazy" decoding="async" />
               <a className="contact-instagram" href={BRAND.instagram} target="_blank" rel="noreferrer">Instagram {BRAND.instagramLabel}</a>

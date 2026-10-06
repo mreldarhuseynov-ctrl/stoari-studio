@@ -50,12 +50,12 @@ export function createField(): () => void {
 
   /* alpha: true is what lets the hero film show through the field. The canvas
      covers the whole page, so with an opaque drawing buffer nothing behind it
-     can ever be seen — no z-index arrangement helps. Unpremultiplied, because
-     the composite pass below writes colour and coverage separately. */
+     can ever be seen — no z-index arrangement helps. Use premultiplied output for WebKit compositors; transparent pixels
+     must contain zero RGB as well as zero alpha. */
   const gl = canvas.getContext('webgl', {
     antialias: false,
     alpha: true,
-    premultipliedAlpha: false,
+    premultipliedAlpha: true,
   })
   if (!gl) {
     document.getElementById('loader')?.classList.add('hide')
@@ -162,13 +162,12 @@ void main(){
   vec2 q = vUv - 0.5;
   c *= 1.0 - dot(q,q) * 0.42;
   c = c / (c + vec3(1.25)) * 2.05;
-  /* Coverage, not a flat one. The page composites source-over, so writing
-     alpha = the brightest channel and un-multiplying the colour gives
-     final = c + page * (1 - a): the field adds light where it burns and
-     leaves the frame behind it untouched where it is dark. Without this the
-     canvas is a black sheet over everything. */
+  /* Premultiplied source-over: ink*a + page*(1-a). WebKit can treat
+     unpremultiplied WebGL buffers as premultiplied (WebKit bug 200026),
+     turning transparent white RGB into a full-screen white layer. Keep
+     the context flag and this RGB multiplication in sync. */
   float a = clamp(max(max(c.r, c.g), c.b) * uGain, 0.0, 1.0);
-  gl_FragColor = vec4(uInk, a);
+  gl_FragColor = vec4(uInk * a, a);
 }`
   )
 
@@ -664,28 +663,13 @@ void main(){
   addEventListener('touchmove', onTouch, { passive: true })
 
   let shapeIdx = 0, morphT = 1
-  /**
-   * Horizontal push of the field, one entry per section, in SECTIONS order.
-   * Positive pushes the cloud away from a left-hand text column, negative away
-   * from a right-hand one — so this array has to be re-checked whenever a
-   * section is added or a column changes side, or the shape ends up sitting
-   * behind the copy.
-   *
-   *   0 index    hero, centred      1 work      left, wide
-   *   2 packages  right, wide        3 films     left, wide
-   *   4 services  right              5 how       left
-   *   6 why       right              7 faq       left
-   *   8 contact   right
-   *
-   * Strict alternation the whole way down. Eight sections under the hero is an
-   * even count, which is what lets `contact` land on the right with no repeat.
-   * `program` and `project` went out together, a left and a right, so nothing
-   * after them had to change side.
-   */
+  // Horizontal offsets follow rendered SECTIONS: hero, work, packages,
+  // films, services, how, FAQ and contact. The removed "why" section
+  // must not leave an extra offset before FAQ/contact.
   const OFFSETS = [
     [0, 170],
     [250, 30], [-250, 30], [250, 30], [-250, 30],
-    [250, 30], [-250, 30], [250, 20], [-250, 0],
+    [250, 30], [250, 20], [-250, 0],
   ]
   let tgtOX = 0, tgtOY = isCoarse ? 268 : 170
   let offX = 0, offY = isCoarse ? 268 : 170
