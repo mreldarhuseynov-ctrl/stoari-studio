@@ -86,7 +86,7 @@ export const OFFER: Record<Lang, Offer> = {
     prices: {
       eyebrow: '02 — PRICES',
       title: ['Services & prices', ''],
-      lede: 'The monthly package keeps your listings and your profile moving: Reels, a campaign, Stories and drone footage, written and posted for you. Photography and FPV can be booked on their own.',
+      lede: 'Monthly content, property photography or an FPV flight. Choose what your project needs.',
       included: 'Included',
       main: {
         tag: 'MAIN PACKAGE',
@@ -211,7 +211,7 @@ export const OFFER: Record<Lang, Offer> = {
     prices: {
       eyebrow: '02 — PRECIOS',
       title: ['Servicios y precios', ''],
-      lede: 'El paquete mensual mantiene en movimiento sus inmuebles y su perfil: Reels, una campaña, Stories y tomas con dron, escritos y publicados por nosotros. La fotografía y el FPV se pueden contratar por separado.',
+      lede: 'Contenido mensual, fotografía de inmuebles o un vuelo FPV. Elige lo que necesita tu proyecto.',
       included: 'Incluye',
       main: {
         tag: 'PAQUETE PRINCIPAL',
@@ -336,7 +336,7 @@ export const OFFER: Record<Lang, Offer> = {
     prices: {
       eyebrow: '02 — ЦЕНЫ',
       title: ['Услуги и цены', ''],
-      lede: 'Пакет на месяц держит ваши объекты и профиль в движении: Reels, кампания, Stories и съёмка с дрона, пишем и публикуем за вас. Фотосъёмку и FPV можно заказать отдельно.',
+      lede: 'Контент на месяц, фотосъёмка недвижимости или FPV-полёт. Выберите услугу для вашего проекта.',
       included: 'Что входит',
       main: {
         tag: 'ОСНОВНОЙ ПАКЕТ',

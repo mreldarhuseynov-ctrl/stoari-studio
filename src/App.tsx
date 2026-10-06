@@ -22,7 +22,6 @@ import {
   FILMS,
   FILMS_COPY,
   filmPoster,
-  filmPreview,
   filmSrc,
   fmtTime,
   type Kind,
@@ -348,19 +347,29 @@ function Enquiry({ c }: { c: Copy }) {
  * wide and one row tall, and `grid-auto-flow: dense` packs them. Every tile is
  * cropped only slightly; the film itself always plays uncropped.
  *
- * Nothing heavy loads until it is asked for: posters on the page, a four-second
- * silent preview on hover, and the film itself only when it is opened.
+ * Visible cards play the entire supplied export silently. Offscreen cards stay
+ * unloaded until visible; the player opens that export with sound and controls.
  */
 function Films({ lang }: { lang: Lang }) {
   const t = FILMS_COPY[lang]
   const [kind, setKind] = useState<Kind | 'all'>('all')
   const [open, setOpen] = useState<number | null>(null)
+  const [durations, setDurations] = useState<Record<string, number>>({})
   const list = FILMS.filter((x) => kind === 'all' || x.kind === kind)
   const kinds = (['villas', 'fpv', 'agents', 'build', 'ai'] as Kind[]).filter((k) =>
     FILMS.some((x) => x.kind === k),
   )
 
   const film = open === null ? null : list[open]
+  const isExcerpt = (id: string, expected: number) =>
+    durations[id] !== undefined && durations[id] < expected - 1
+  const rememberDuration = (id: string) => (e: { currentTarget: HTMLVideoElement }) => {
+    const duration = e.currentTarget.duration
+    if (Number.isFinite(duration)) {
+      setDurations((saved) => saved[id] === duration ? saved : { ...saved, [id]: duration })
+    }
+  }
+  useMediaPlayback(lang, kind, '.film video', open !== null)
   useDialogFocus(open !== null, '.player')
 
   useEffect(() => {
@@ -380,16 +389,6 @@ function Films({ lang }: { lang: Lang }) {
       document.body.style.overflow = prev
     }
   }, [open, list.length])
-
-  const hover = (on: boolean) => (e: { currentTarget: HTMLElement }) => {
-    const v = e.currentTarget.querySelector('video')
-    if (!v) return
-    if (on && !matchMedia('(prefers-reduced-motion: reduce)').matches) void v.play().catch(() => {})
-    else {
-      v.pause()
-      v.currentTime = 0
-    }
-  }
 
   return (
     <>
@@ -427,9 +426,7 @@ function Films({ lang }: { lang: Lang }) {
             type="button"
             className={x.vertical ? 'film v' : 'film h'}
             onClick={() => setOpen(i)}
-            onMouseEnter={hover(true)}
-            onMouseLeave={hover(false)}
-            aria-label={`${x.title} — ${t.lines[x.id]}`}
+            aria-label={`${x.title} — ${isExcerpt(x.id, x.duration) ? t.excerpt : t.lines[x.id]}`}
           >
             <img
               src={filmPoster(x.id)}
@@ -439,18 +436,26 @@ function Films({ lang }: { lang: Lang }) {
                 e.currentTarget.hidden = true
               }}
             />
-            <video muted loop playsInline preload="none" aria-hidden="true">
-              <source src={filmPreview(x.id)} type="video/mp4" />
-            </video>
+            <video
+              muted
+              loop
+              playsInline
+              preload="none"
+              poster={filmPoster(x.id)}
+              src={filmSrc(x.id)}
+              onLoadedMetadata={rememberDuration(x.id)}
+              aria-hidden="true"
+            />
             <span className="fplay" aria-hidden="true" />
             <span className="fbadges">
-              <span>{fmtTime(x.duration)}</span>
+              {durations[x.id] !== undefined && <span>{fmtTime(durations[x.id])}</span>}
+              {isExcerpt(x.id, x.duration) && <span>{t.excerpt}</span>}
               <span>{x.vertical ? '9:16' : '16:9'}</span>
             </span>
             <span className="fmeta">
               <span className="fk">{t.kinds[x.kind]}</span>
               <span className="ft">{x.title}</span>
-              <span className="fl">{t.lines[x.id]}</span>
+              <span className="fl">{isExcerpt(x.id, x.duration) ? t.excerpt : t.lines[x.id]}</span>
             </span>
           </button>
         ))}
@@ -475,12 +480,14 @@ function Films({ lang }: { lang: Lang }) {
               controls
               autoPlay
               playsInline
+              onLoadedMetadata={rememberDuration(film.id)}
             />
             <div className="pcap">
               <span className="fk">{t.kinds[film.kind]}</span>
               <span className="ft">{film.title}</span>
               <span className="fl">
-                {t.lines[film.id]}, {fmtTime(film.duration)}
+                {isExcerpt(film.id, film.duration) ? t.excerpt : t.lines[film.id]}
+                {durations[film.id] !== undefined && `, ${fmtTime(durations[film.id])}`}
               </span>
             </div>
           </div>

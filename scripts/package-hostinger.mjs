@@ -10,6 +10,10 @@ for (const id of ids) {
     await access(`dist/films/${id}${suffix}`)
   }
 }
+// GitHub Pages contains 15-second excerpts, despite the full-film catalogue.
+// Presence alone must never qualify those excerpts as integral films.
+const excerpts = process.argv.includes('--preview-excerpts')
+if (!excerpts) execFileSync(process.execPath, ['scripts/check-film-durations.mjs'], { stdio: 'inherit' })
 const assets = await readdir('dist/assets')
 const bundle = (await Promise.all(assets.filter((file) => file.endsWith('.js'))
   .map((file) => readFile(`dist/assets/${file}`, 'utf8')))).join('\n')
@@ -26,4 +30,4 @@ await mkdir('dist-hostinger', { recursive: true })
 const archive = resolve('dist-hostinger/stoari-hostinger.zip')
 await rm(archive, { force: true })
 execFileSync('zip', ['-qr', archive, '.'], { cwd: 'dist' })
-console.log(`Hostinger bundle ready: ${archive} (${ids.length} full films)`)
+console.log(`Hostinger bundle ready: ${archive} (${ids.length} ${excerpts ? 'preview excerpts' : 'verified full films'})`)

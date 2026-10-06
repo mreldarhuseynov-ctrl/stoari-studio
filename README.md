@@ -110,8 +110,11 @@ git fetch origin gh-pages
 git archive origin/gh-pages films | tar -x -C public
 ```
 
-The packaging command refuses an archive without all 15 films, their previews
-and posters. Do not upload the large camera originals.
+GitHub Pages contains 15-second excerpts, not the integral films described by
+the catalogue. Full exports must be supplied separately. The packaging command
+checks all 15 durations with `ffprobe` and rejects those excerpts by default.
+`node scripts/package-hostinger.mjs --preview-excerpts` is only for updates that
+explicitly retain the existing excerpt portfolio. Do not upload camera originals.
 
 `build:hostinger` selects `/api/enquiry.php` for the enquiry
 form. PHP validates the request, ignores the honeypot and limits repeated sends;

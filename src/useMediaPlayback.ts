@@ -1,13 +1,18 @@
 import { useEffect } from 'react'
 
-export function useMediaPlayback(language: string, heroVariant: string) {
+export function useMediaPlayback(
+  language: string,
+  variant: string,
+  selector = '.heroclip video, .work video',
+  suspended = false,
+) {
   useEffect(() => {
     const still = matchMedia('(prefers-reduced-motion: reduce)')
-    const clips = [...document.querySelectorAll<HTMLVideoElement>('.heroclip video, .work video')]
+    const clips = [...document.querySelectorAll<HTMLVideoElement>(selector)]
     const visible = new Set<HTMLVideoElement>()
     const sync = () => {
       for (const video of clips) {
-        if (!still.matches && !document.hidden && visible.has(video)) {
+        if (!suspended && !still.matches && !document.hidden && visible.has(video)) {
           if (video.paused) void video.play().catch(() => {})
         }
         else video.pause()
@@ -16,7 +21,7 @@ export function useMediaPlayback(language: string, heroVariant: string) {
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement
-        if (entry.isIntersecting) visible.add(video)
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.2) visible.add(video)
         else visible.delete(video)
       }
       sync()
@@ -34,5 +39,5 @@ export function useMediaPlayback(language: string, heroVariant: string) {
       window.removeEventListener('pageshow', sync)
       clips.forEach((clip) => clip.pause())
     }
-  }, [language, heroVariant])
+  }, [language, variant, selector, suspended])
 }
