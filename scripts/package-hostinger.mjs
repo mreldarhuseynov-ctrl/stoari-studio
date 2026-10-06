@@ -16,6 +16,12 @@ const bundle = (await Promise.all(assets.filter((file) => file.endsWith('.js'))
 if (!bundle.includes('/api/enquiry.php')) throw new Error('Run npm run build:hostinger first')
 await access('dist/api/enquiry.php')
 await access('dist/.htaccess')
+for (const variant of ['', '-landscape', '-portrait']) {
+  await access(`dist/hero/hero-15s-stable${variant}.mp4`)
+}
+for (const variant of ['', '-portrait']) {
+  await access(`dist/hero/hero-poster-stable${variant}.jpg`)
+}
 await mkdir('dist-hostinger', { recursive: true })
 const archive = resolve('dist-hostinger/stoari-hostinger.zip')
 await rm(archive, { force: true })

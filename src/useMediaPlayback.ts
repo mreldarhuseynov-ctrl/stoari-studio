@@ -1,14 +1,13 @@
 import { useEffect } from 'react'
 
-export function useMediaPlayback(language: string, heroPaused: boolean, heroVariant: string) {
+export function useMediaPlayback(language: string, heroVariant: string) {
   useEffect(() => {
     const still = matchMedia('(prefers-reduced-motion: reduce)')
     const clips = [...document.querySelectorAll<HTMLVideoElement>('.heroclip video, .work video')]
     const visible = new Set<HTMLVideoElement>()
     const sync = () => {
       for (const video of clips) {
-        const pausedByVisitor = heroPaused && !!video.closest('.heroclip')
-        if (!still.matches && !document.hidden && !pausedByVisitor && visible.has(video)) void video.play().catch(() => {})
+        if (!still.matches && !document.hidden && visible.has(video)) void video.play().catch(() => {})
         else video.pause()
       }
     }
@@ -29,5 +28,5 @@ export function useMediaPlayback(language: string, heroPaused: boolean, heroVari
       document.removeEventListener('visibilitychange', sync)
       clips.forEach((clip) => clip.pause())
     }
-  }, [language, heroPaused, heroVariant])
+  }, [language, heroVariant])
 }

@@ -29,16 +29,16 @@ import {
 } from './films'
 
 // Portrait phones use the portrait crop. Narrow landscape panels and touch
-// tablets use a 720p landscape encode; wide desktops keep the original film.
+// tablets use a 720p landscape encode; wide desktops use the 1080p film.
 // Width alone used to load a tightly cropped portrait film in desktop panels.
 const heroKind = () => chooseHeroVariant(
   matchMedia('(max-width: 820px)').matches,
   matchMedia('(orientation: portrait)').matches,
   matchMedia('(pointer: coarse)').matches,
 )
-const heroClip = (variant: HeroVariant) => `${import.meta.env.BASE_URL}hero/hero-15s${variant}.mp4`
+const heroClip = (variant: HeroVariant) => `${import.meta.env.BASE_URL}hero/hero-15s-stable${variant}.mp4`
 const heroPoster = (variant: HeroVariant) =>
-  `${import.meta.env.BASE_URL}hero/hero-poster${variant === '-portrait' ? '-portrait' : ''}.jpg`
+  `${import.meta.env.BASE_URL}hero/hero-poster-stable${variant === '-portrait' ? '-portrait' : ''}.jpg`
 
 /**
  * A still behind each service row, keyed by the row's number rather than its
@@ -516,7 +516,6 @@ export default function App() {
   }, [])
 
   const [lang, setLang] = useState<Lang>(initialLang)
-  const [heroPaused, setHeroPaused] = useState(false)
   const [heroVariant, setHeroVariant] = useState(heroKind)
   const c = COPY[lang]
   const o = OFFER[lang]
@@ -532,7 +531,7 @@ export default function App() {
     queries.forEach((query) => query.addEventListener('change', update))
     return () => queries.forEach((query) => query.removeEventListener('change', update))
   }, [])
-  useMediaPlayback(lang, heroPaused, heroVariant)
+  useMediaPlayback(lang, heroVariant)
 
   /**
    * A project opens over the page rather than on its own route: the field
@@ -665,9 +664,6 @@ export default function App() {
             <div className="hero-actions">
               <a className="herocta" href="#packages">{c.hero.cta}</a>
               <a className="hero-prices" href="#work">{c.nav[0].label}</a>
-              <button type="button" className="hero-motion" aria-pressed={heroPaused} onClick={() => setHeroPaused((paused) => !paused)}>
-                {heroPaused ? LEGAL_COPY[lang].play : LEGAL_COPY[lang].pause}
-              </button>
             </div>
           </div>
         </section>

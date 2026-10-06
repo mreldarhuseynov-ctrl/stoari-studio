@@ -32,3 +32,33 @@ solely from frame counts or a still screenshot. The user's visual comparison
 of the corrected preview determines whether further footage work is needed.
 
 [FFmpeg interpolation documentation](https://ffmpeg.org/ffmpeg-filters.html#minterpolate)
+
+## 6 October: source wobble corrected
+
+The owner confirmed that the unwanted movement remained after correcting the
+format and described it as bad stabilization. Sparse feature tracking in the
+original file found alternating global subpixel translations inside individual
+shots, including the opening architecture shot. A 60 fps conversion does not
+remove this underlying spatial wobble and is not used in the site.
+
+The new stable master smooths the measured camera trajectory within each shot.
+The five hard-cut boundaries remain at frames 79, 169, 248, 333 and 406; smoothing
+never crosses them. A fixed 1% safety crop prevents exposed borders, retaining
+the original duration, 455 frames and 30 fps cadence. Desktop, landscape and
+portrait exports derive from the same corrected master, with matching posters.
+Original files are retained and separately named URLs prevent a cached old
+video from being reused. The hero pause button was removed at the owner's
+request; hidden-tab/offscreen pausing and reduced-motion posters remain.
+
+The same independent motion estimator was run on the original and corrected
+masters. Within-shot P95 changes in global translation fell by 79–96%, depending
+on the shot. This is a geometric motion measure, not a perceptual quality score.
+All three exports fully decode and retain the original frame count/cadence.
+Measurements and export details are in [hero-stabilization-report.json](hero-stabilization-report.json).
+The offline regression check in `scripts/check-hero-stability.py` compares the
+original and corrected masters and rejects an export unless irregular global
+translation falls by at least 65% in every shot. It requires NumPy and OpenCV
+only in the authoring environment; the website has no Python dependency.
+
+The measurement uses [OpenCV sparse optical flow](https://docs.opencv.org/4.x/dc/d6b/group__video__track.html)
+and [partial affine estimation](https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html).

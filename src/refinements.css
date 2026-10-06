@@ -39,8 +39,6 @@ section.hero .lede { color: #fff; font-size: 16px; line-height: 1.55; max-width:
 .hero-actions .herocta { margin-top: 0; padding: 13px 22px; border: 1px solid rgba(255,255,255,0.75); background: transparent; color: white; font-family: var(--body-face); font-size: 14px; letter-spacing: 0; border-radius: var(--radius-control); }
 .hero-actions .herocta:hover { background: white; color: #15171b; }
 .hero-prices { color: white; font-size: 14px; text-decoration-thickness: 1px; text-underline-offset: 5px; }
-.hero-motion { border: 0; padding: 8px 0; min-height: 44px; background: transparent; color: white; font: 13px var(--body-face); cursor: pointer; }
-.hero-motion:hover { text-decoration: underline; text-underline-offset: 5px; }
 h2 { text-wrap: balance; }
 .lede { font-size: 15px; line-height: 1.7; max-width: 65ch; }
 
@@ -152,7 +150,6 @@ h2 { text-wrap: balance; }
   html { scroll-behavior: auto; }
   canvas#gl { display: none; }
   .heroclip video { display: none; }
-  .hero-motion { display: none; }
   .work video, .film video { display: none; }
   *, *::before, *::after { transition-duration: 0s !important; }
 }

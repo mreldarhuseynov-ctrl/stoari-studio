@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-06",
+  "measure": "P95 consecutive-frame change in optical-flow translation, pixels at 640x360; cuts excluded.",
+  "method": "OpenCV sparse LK features + RANSAC partial affine, shot-local Gaussian trajectory smoothing, fixed 1% safety crop.",
+  "shots": [
+    {
+      "startFrame": 0,
+      "endFrameExclusive": 79,
+      "originalP95": 0.5874424680829013,
+      "stableP95": 0.02224109355512828,
+      "reductionPercent": 96.2
+    },
+    {
+      "startFrame": 79,
+      "endFrameExclusive": 169,
+      "originalP95": 0.6837428605931151,
+      "stableP95": 0.14134923942270786,
+      "reductionPercent": 79.3
+    },
+    {
+      "startFrame": 169,
+      "endFrameExclusive": 248,
+      "originalP95": 0.5147122464694786,
+      "stableP95": 0.1003058869943778,
+      "reductionPercent": 80.5
+    },
+    {
+      "startFrame": 248,
+      "endFrameExclusive": 333,
+      "originalP95": 0.5815011996367542,
+      "stableP95": 0.0586272273947363,
+      "reductionPercent": 89.9
+    },
+    {
+      "startFrame": 333,
+      "endFrameExclusive": 406,
+      "originalP95": 0.4923245992796714,
+      "stableP95": 0.027015627881468544,
+      "reductionPercent": 94.5
+    },
+    {
+      "startFrame": 406,
+      "endFrameExclusive": 455,
+      "originalP95": 0.4410361190289256,
+      "stableP95": 0.03995482160901101,
+      "reductionPercent": 90.9
+    }
+  ],
+  "exports": {
+    "hero-15s-stable.mp4": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 455,
+      "bytes": 3113413
+    },
+    "hero-15s-stable-landscape.mp4": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "frames": 455,
+      "bytes": 1503637
+    },
+    "hero-15s-stable-portrait.mp4": {
+      "width": 720,
+      "height": 1280,
+      "fps": 30,
+      "frames": 455,
+      "bytes": 1423950
+    }
+  },
+  "sourceFrames": 455,
+  "previewOnly": true
+}

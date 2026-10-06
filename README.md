@@ -143,7 +143,11 @@ posters and native horizontal browsing; short viewports keep controls accessible
 Fonts are self-hosted, licensed WOFF2 with Latin/Cyrillic coverage. Work and
 film assets retain their existing WebP/MP4 optimization. Visible clips pause
 offscreen, in hidden tabs and when reduced motion is requested. The hero has a
-pause control; keyboard users can skip the page and access modal focus traps.
+no pause button, per the owner's preference; reduced-motion visitors see its
+poster. Keyboard users can skip the page and access modal focus traps.
+The hero's original frame-to-frame wobble has been corrected within each shot,
+with a fixed 1% safety crop and the original 30 fps cadence. Original source
+files are retained; the page loads the separately named stable exports.
 
 The contact form requires a valid reply email. Run `npm run test:hero` for
 responsive film selection, `npm run test:gallery` for scroll geometry and
