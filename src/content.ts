@@ -198,6 +198,9 @@ export type Copy = {
     name: string
     email: string
     company: string
+    optional: string
+    required: string
+    objectExample: string
     object: string
     when: string
     submit: string
@@ -254,6 +257,7 @@ export type Copy = {
     meta: string[]
     /** Pre-filled into the WhatsApp draft so the first message is not blank. */
     waText: string
+    waLabel: string
   }
   close: string
 }
@@ -270,20 +274,23 @@ export const COPY: Record<Lang, Copy> = {
     stickyCta: 'SEND A PROPERTY',
     form: {
       title: ['Request a quote', ''],
-      lede: 'An address or a link to the listing is enough to start. Photos and drawings can follow.',
+      lede: 'Share a listing link or tell us what you need. We’ll contact you to discuss the service and quote.',
       name: 'Your name',
       email: 'Email',
       company: 'Company',
-      object: 'The property: address, link, or a line about it',
+      optional: 'Add company or timing (optional)',
+      required: '* Required fields',
+      objectExample: 'A property in Marbella, photos for a new listing, monthly content…',
+      object: 'What do you need?',
       when: 'When do you need it',
-      submit: 'SEND',
+      submit: 'Request my quote',
       sending: 'SENDING…',
-      note: 'Robert Di Gaetano uses these details to answer your enquiry. Required fields are marked *. Read the privacy notice for recipients, retention and your rights.',
+      note: 'Robert Di Gaetano uses these details to answer your enquiry. Read the privacy notice for recipients, retention and your rights.',
       privacy: 'How we handle your data',
       done: 'Got it.',
       doneNote: 'Your enquiry has been submitted. You can also contact us on WhatsApp.',
-      failed: 'That did not send.',
-      failedNote: 'Nothing reached us. What you wrote is still in the form below, so try again, or write on WhatsApp, which does not depend on this.',
+      failed: 'We couldn’t confirm your request.',
+      failedNote: 'Your details are still here. Try again or send them directly on WhatsApp.',
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
@@ -447,9 +454,10 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACT',
-      title: ['Tell us about your property', ''],
+      title: ['Let’s plan your', 'next listing.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
-      waText: 'Hi Eldar, I found STOARI online. I have a property on the Costa del Sol.',
+      waText: 'Hi, I found STOARI online. I’d like a quote for a project on the Costa del Sol.',
+      waLabel: 'Prefer WhatsApp? Write to us',
     },
     close: 'CLOSE',
   },
@@ -465,20 +473,23 @@ export const COPY: Record<Lang, Copy> = {
     stickyCta: 'ENVIAR INMUEBLE',
     form: {
       title: ['Pide un presupuesto', ''],
-      lede: 'Con una dirección o el enlace al anuncio es suficiente para empezar. Las fotos y los planos pueden venir después.',
-      name: 'Su nombre',
+      lede: 'Envíanos el enlace al inmueble o cuéntanos qué necesitas. Te contactaremos para concretar el servicio y el presupuesto.',
+      name: 'Tu nombre',
       email: 'Email',
       company: 'Empresa',
-      object: 'El inmueble: dirección, enlace o una línea sobre él',
-      when: 'Para cuándo lo necesita',
-      submit: 'ENVIAR',
+      optional: 'Añadir empresa o fecha (opcional)',
+      required: '* Campos obligatorios',
+      objectExample: 'Un inmueble en Marbella, fotos para un anuncio, contenido mensual…',
+      object: '¿Qué necesitas?',
+      when: '¿Para cuándo lo necesitas?',
+      submit: 'Recibir mi presupuesto',
       sending: 'ENVIANDO…',
-      note: 'Robert Di Gaetano utiliza estos datos para responder a tu consulta. Los campos con * son obligatorios. Consulta la política de privacidad para conocer los destinatarios, la conservación y tus derechos.',
-      privacy: 'Cómo tratamos sus datos',
+      note: 'Robert Di Gaetano utiliza estos datos para responder a tu consulta. Consulta la política de privacidad para conocer los destinatarios, la conservación y tus derechos.',
+      privacy: 'Cómo tratamos tus datos',
       done: 'Recibido.',
       doneNote: 'Tu consulta se ha enviado. También puedes contactarnos por WhatsApp.',
-      failed: 'No se ha enviado.',
-      failedNote: 'No nos ha llegado nada. Lo que escribió sigue en el formulario: inténtelo otra vez o escríbanos por WhatsApp, que no depende de esto.',
+      failed: 'No hemos podido confirmar el envío.',
+      failedNote: 'Tus datos siguen aquí. Reintenta o envíalos directamente por WhatsApp.',
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
@@ -642,9 +653,10 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — CONTACTO',
-      title: ['Hablemos de tu inmueble', ''],
+      title: ['Preparemos tu', 'próximo anuncio.'],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
-      waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
+      waText: 'Hola, os escribo desde la web de STOARI. Quiero un presupuesto para un proyecto en la Costa del Sol.',
+      waLabel: '¿Prefieres WhatsApp? Escríbenos',
     },
     close: 'CERRAR',
   },
@@ -660,20 +672,23 @@ export const COPY: Record<Lang, Copy> = {
     stickyCta: 'ПРИСЛАТЬ ОБЪЕКТ',
     form: {
       title: ['Запросить стоимость', ''],
-      lede: 'Для начала достаточно адреса или ссылки на объявление. Фото и чертежи можно прислать потом.',
+      lede: 'Пришлите ссылку на объект или расскажите, что нужно. Мы свяжемся с вами, чтобы обсудить услугу и стоимость.',
       name: 'Как вас зовут',
       email: 'Email',
       company: 'Компания',
-      object: 'Объект — адрес, ссылка или строка о нём',
+      optional: 'Добавить компанию или сроки (необязательно)',
+      required: '* Обязательные поля',
+      objectExample: 'Объект в Марбелье, фото для объявления, контент на месяц…',
+      object: 'Что вам нужно?',
       when: 'К какому сроку нужно',
-      submit: 'ОТПРАВИТЬ',
+      submit: 'Запросить стоимость',
       sending: 'ОТПРАВЛЯЕМ…',
-      note: 'Robert Di Gaetano использует эти данные для ответа на ваш запрос. Поля со знаком * обязательны. Получатели, сроки хранения и ваши права описаны в политике конфиденциальности.',
+      note: 'Robert Di Gaetano использует эти данные для ответа на ваш запрос. Получатели, сроки хранения и ваши права описаны в политике конфиденциальности.',
       privacy: 'Как мы обращаемся с данными',
       done: 'Получили.',
       doneNote: 'Ваш запрос отправлен. Вы также можете написать нам в WhatsApp.',
-      failed: 'Не отправилось.',
-      failedNote: 'До нас ничего не дошло — то, что вы написали, осталось в форме. Попробуйте ещё раз или напишите в WhatsApp: он от этого не зависит.',
+      failed: 'Не удалось подтвердить отправку.',
+      failedNote: 'Ваши данные сохранены в форме. Попробуйте ещё раз или отправьте их в WhatsApp.',
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
@@ -837,9 +852,10 @@ export const COPY: Record<Lang, Copy> = {
     },
     contact: {
       eyebrow: '08 — КОНТАКТ',
-      title: ['Расскажите о вашем объекте', ''],
+      title: ['Подготовим ваше', 'новое объявление.'],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
-      waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',
+      waText: 'Здравствуйте! Пишу с сайта STOARI. Хочу узнать стоимость проекта на Коста-дель-Соль.',
+      waLabel: 'Удобнее в WhatsApp? Напишите нам',
     },
     close: 'ЗАКРЫТЬ',
   },

@@ -227,20 +227,7 @@ function PriceBlock({ p, vat }: { p: Prices; vat: string }) {
   )
 }
 
-/**
- * The enquiry form.
- *
- * Hostinger builds use VITE_ENQUIRY_ENDPOINT=/api/enquiry.php. Other builds
- * retain Netlify's POST and static form in index.html. Hostinger must return
- * an explicit JSON acknowledgement, so an HTML fallback cannot lose a lead
- * while showing a thank-you.
- *
- * On localhost there is nothing to POST to, so in dev the send is treated as
- * successful and the thank-you still shows — the flow can be checked without
- * deploying. In production the opposite rule holds: `fetch` does NOT reject on
- * a 404 or a 500, so the response is checked explicitly. A failed send must
- * never be acknowledged, or the enquiry is lost with nobody the wiser.
- */
+/** Requests are acknowledged only after the handler confirms acceptance. */
 function Enquiry({ c }: { c: Copy }) {
   const [sent, setSent] = useState<'idle' | 'sending' | 'done' | 'failed'>('idle')
   const [f, setF] = useState({ name: '', email: '', company: '', object: '', when: '' })
@@ -253,27 +240,27 @@ function Enquiry({ c }: { c: Copy }) {
     const botField = new FormData(e.currentTarget).get('bot-field')
     const endpoint = import.meta.env.VITE_ENQUIRY_ENDPOINT || '/'
     setSent('sending')
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 20000)
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           'form-name': 'enquiry', ...f, 'bot-field': String(botField || ''),
         }).toString(),
       })
-      /* There is no form handler in front of `vite dev`, so the 404 it returns
-         is the expected answer and not a failure worth showing. */
       const delivered = res.ok && (!import.meta.env.VITE_ENQUIRY_ENDPOINT || (await res.json()).ok === true)
-      if (!delivered && !import.meta.env.DEV) {
+      if (!delivered) {
         setSent('failed')
         return
       }
     } catch {
-      /* Offline, DNS, a blocked request — nothing arrived. Say so. */
-      if (!import.meta.env.DEV) {
-        setSent('failed')
-        return
-      }
+      setSent('failed')
+      return
+    } finally {
+      window.clearTimeout(timeout)
     }
     setSent('done')
   }
@@ -287,22 +274,6 @@ function Enquiry({ c }: { c: Copy }) {
 
   /* The typed values are deliberately kept in state: the visitor retries with
      the form still filled in, and never retypes the property twice. */
-  if (sent === 'failed')
-    return (
-      <div className="formdone rv" role="alert">
-        <div className="fdone ffail">{c.form.failed}</div>
-        <p className="fnote">{c.form.failedNote}</p>
-        <div className="frecover">
-          <button type="button" className="fretry" onClick={() => setSent('idle')}>
-            {c.form.retry}
-          </button>
-          <a className="wa" href={wa} target="_blank" rel="noreferrer">
-            {c.form.wa}
-          </a>
-        </div>
-      </div>
-    )
-
   if (sent === 'done')
     return (
       <div className="formdone rv" role="status">
@@ -315,13 +286,15 @@ function Enquiry({ c }: { c: Copy }) {
     )
 
   return (
-    <form className="enq rv" name="enquiry" onSubmit={submit}>
+    <form className="enq rv" name="enquiry" onSubmit={submit} aria-busy={sent === 'sending'}>
       <input type="hidden" name="form-name" value="enquiry" />
       <p className="hidden">
         <label>
           <input name="bot-field" tabIndex={-1} autoComplete="off" />
         </label>
       </p>
+      <p className="form-required">{c.form.required}</p>
+      <fieldset disabled={sent === 'sending'} aria-label={c.form.title.join(' ')}>
       <div className="erow">
         <label className="form-field" htmlFor="enquiry-name">{c.form.name} <span>*</span>
           <input id="enquiry-name" name="name" required maxLength={120} autoComplete="name" value={f.name} onChange={set('name')} />
@@ -330,17 +303,29 @@ function Enquiry({ c }: { c: Copy }) {
           <input id="enquiry-email" name="email" type="email" required maxLength={254} autoComplete="email" value={f.email} onChange={set('email')} />
         </label>
       </div>
+      <label className="form-field" htmlFor="enquiry-object">{c.form.object} <span>*</span>
+        <textarea id="enquiry-object" name="object" required maxLength={2000} rows={3} placeholder={c.form.objectExample} value={f.object} onChange={set('object')} />
+      </label>
+      <details className="form-optional">
+        <summary>{c.form.optional}</summary>
+        <div className="erow">
       <label className="form-field" htmlFor="enquiry-company">{c.form.company}
         <input id="enquiry-company" name="company" maxLength={120} autoComplete="organization" value={f.company} onChange={set('company')} />
-      </label>
-      <label className="form-field" htmlFor="enquiry-object">{c.form.object} <span>*</span>
-        <textarea id="enquiry-object" name="object" required maxLength={2000} rows={3} value={f.object} onChange={set('object')} />
       </label>
       <label className="form-field" htmlFor="enquiry-when">{c.form.when}
         <input id="enquiry-when" name="when" maxLength={120} value={f.when} onChange={set('when')} />
       </label>
+        </div>
+      </details>
+      </fieldset>
+      {sent === 'failed' && (
+        <div className="form-error" role="alert">
+          <p>{c.form.failed}</p><p>{c.form.failedNote}</p>
+          <a href={wa} target="_blank" rel="noreferrer">{c.form.wa}</a>
+        </div>
+      )}
       <button type="submit" disabled={sent === 'sending'}>
-        {sent === 'sending' ? c.form.sending : c.form.submit}
+        {sent === 'sending' ? c.form.sending : sent === 'failed' ? c.form.retry : c.form.submit}
       </button>
       <p className="fnote">
         {c.form.note}
@@ -581,7 +566,10 @@ export default function App() {
      to action, and appears once the visitor is past it. */
   const [past, setPast] = useState(false)
   useEffect(() => {
-    const onScroll = () => setPast(scrollY > innerHeight * 0.8)
+    const onScroll = () => {
+      const contact = document.getElementById('contact')
+      setPast(scrollY > innerHeight * 0.8 && (!contact || contact.getBoundingClientRect().top >= innerHeight))
+    }
     onScroll()
     addEventListener('scroll', onScroll, { passive: true })
     return () => removeEventListener('scroll', onScroll)
@@ -892,50 +880,24 @@ export default function App() {
           data-shape={s[8].shape}
           data-label={c.labels[8]}
         >
-          <div className={col(8)}>
-            <h2 className="rv">
-              {c.contact.title.join(' ')}
-            </h2>
-            <div className="formhead rv">
-              <h3>
-                {c.form.title.join(' ')}
-              </h3>
-              <p className="lede">{c.form.lede}</p>
+          <div className="col contact-layout">
+            <div className="contact-intro">
+              <h2>{c.contact.title.join(' ')}</h2>
+              <p className="contact-lede">{c.form.lede}</p>
+              <a className="contact-whatsapp" href={waLink(c.contact.waText)} target="_blank" rel="noreferrer">
+                {c.contact.waLabel}
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+              </a>
+              <div className="contact-direct">
+                <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
+                <a href={BRAND.phoneHref}>{BRAND.phone}</a>
+              </div>
+              <img className="contact-photo" src={WORK_MEDIA[2].img} alt="" width="720" height="900" loading="lazy" decoding="async" />
+              <a className="contact-instagram" href={BRAND.instagram} target="_blank" rel="noreferrer">Instagram {BRAND.instagramLabel}</a>
             </div>
-            <Enquiry c={c} />
-
-            <a className="bigmail rv" href={`mailto:${BRAND.email}`}>
-              {BRAND.email}
-            </a>
-            {/* On this coast a developer answers WhatsApp and ignores email,
-                so the number sits at the same weight as the address. */}
-            <div className="reach rv">
-              <a
-                className="wa"
-                href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
-                  c.contact.waText,
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                WHATSAPP {BRAND.whatsappLabel}
-              </a>
-              <a
-                className="wa"
-                href={BRAND.instagram}
-                target="_blank"
-                rel="noreferrer"
-              >
-                INSTAGRAM {BRAND.instagramLabel}
-              </a>
-              <a className="wa" href={BRAND.phoneHref}>
-                {BRAND.phone}
-              </a>
-            </div>
-            <div className="meta rv">
-              {c.contact.meta.map((m) => (
-                <span key={m}>{m}</span>
-              ))}
+            <div className="contact-form">
+              <h3>{c.form.title.join(' ')}</h3>
+              <Enquiry c={c} />
             </div>
           </div>
         </section>
