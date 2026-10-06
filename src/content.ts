@@ -299,32 +299,32 @@ export const COPY: Record<Lang, Copy> = {
     services: {
       eyebrow: '04 — SERVICES',
       title: ['What we do', ''],
-      lede: 'Film, photos, social media and the system that answers buyers usually come from four different suppliers. With us it is one team, one style and one WhatsApp group for all of it.',
+      lede: 'Photography, film and drone footage for your properties. Content for your social media and a CRM to manage enquiries.',
       rows: [
         {
           n: '01',
-          t: 'Content & social media',
-          d: 'Reels, campaigns, Stories and the words under them, planned and posted every month.',
+          t: 'Content & social',
+          d: 'Reels, campaigns and Stories, created and published every month.',
         },
         {
           n: '02',
           t: 'Photography',
-          d: 'Villas and apartments on a professional camera, delivered within five working days.',
+          d: 'Professional property photography, delivered in five working days.',
         },
         {
           n: '03',
           t: 'Drone & FPV',
-          d: 'A standard drone for the view and the setting. FPV when the house should be shown in one unbroken flight.',
+          d: 'Aerial views and FPV tours through the property in one flight.',
         },
         {
           n: '04',
           t: 'Visualisation',
-          d: 'For what is not built yet: the house standing on your plot, from your drawings, in stills and film.',
+          d: 'Images and films of your unbuilt project, made from your plans.',
         },
         {
           n: '05',
-          t: 'CRM for agencies',
-          d: 'Leads, properties and captación in one system, with a WhatsApp bot and AI calls, so no enquiry waits until Monday.',
+          t: 'Agency CRM',
+          d: 'Properties, leads and prospecting, with a WhatsApp bot and AI calls.',
         },
       ],
     },
@@ -494,32 +494,32 @@ export const COPY: Record<Lang, Copy> = {
     services: {
       eyebrow: '04 — SERVICIOS',
       title: ['Nuestros servicios', ''],
-      lede: 'El vídeo, las fotos, las redes y el sistema que atiende a los compradores suelen venir de cuatro proveedores distintos. Con nosotros es un solo equipo, un mismo estilo y un solo grupo de WhatsApp para todo.',
+      lede: 'Fotografía, vídeo y dron para tus inmuebles. Contenido para tus redes y un CRM para gestionar las consultas.',
       rows: [
         {
           n: '01',
           t: 'Contenido y redes',
-          d: 'Reels, campañas, Stories y los textos que los acompañan, planificados y publicados cada mes.',
+          d: 'Reels, campañas y Stories: creación y publicación mensual.',
         },
         {
           n: '02',
           t: 'Fotografía',
-          d: 'Villas y apartamentos con cámara profesional, entregados en cinco días laborables.',
+          d: 'Fotografía profesional de inmuebles. Entrega en cinco días laborables.',
         },
         {
           n: '03',
           t: 'Dron y FPV',
-          d: 'Dron estándar para las vistas y el entorno. FPV cuando la casa tiene que verse en un solo vuelo continuo.',
+          d: 'Vistas aéreas y recorridos FPV en un solo vuelo.',
         },
         {
           n: '04',
           t: 'Visualización',
-          d: 'Para lo que aún no está construido: la casa sobre su parcela, a partir de sus planos, en imagen y en vídeo.',
+          d: 'Imágenes y vídeo del proyecto a partir de tus planos.',
         },
         {
           n: '05',
-          t: 'CRM para inmobiliarias',
-          d: 'Leads, inmuebles y captación en un solo sistema, con bot de WhatsApp y llamadas con IA, para que ninguna consulta espere al lunes.',
+          t: 'CRM inmobiliario',
+          d: 'Inmuebles, leads y captación, con bot de WhatsApp y llamadas con IA.',
         },
       ],
     },
@@ -689,32 +689,32 @@ export const COPY: Record<Lang, Copy> = {
     services: {
       eyebrow: '04 — УСЛУГИ',
       title: ['Наши услуги', ''],
-      lede: 'Видео, фото, соцсети и систему, которая отвечает покупателям, обычно заказывают у четырёх разных подрядчиков. У нас это одна команда, один стиль и одна группа в WhatsApp на всё.',
+      lede: 'Фото, видео и съёмка с дрона для ваших объектов. Контент для соцсетей и CRM для работы с заявками.',
       rows: [
         {
           n: '01',
           t: 'Контент и соцсети',
-          d: 'Reels, кампании, Stories и тексты к ним: планируем и публикуем каждый месяц.',
+          d: 'Reels, кампании и Stories: создаём и публикуем каждый месяц.',
         },
         {
           n: '02',
           t: 'Фотосъёмка',
-          d: 'Виллы и апартаменты на профессиональную камеру, готово за пять рабочих дней.',
+          d: 'Профессиональные фото объектов. Готово за пять рабочих дней.',
         },
         {
           n: '03',
           t: 'Дрон и FPV',
-          d: 'Обычный дрон для вида и окружения. FPV, когда дом нужно показать одним непрерывным пролётом.',
+          d: 'Виды с воздуха и FPV-тур по дому одним непрерывным пролётом.',
         },
         {
           n: '04',
           t: 'Визуализация',
-          d: 'Для того, что ещё не построено: дом на вашем участке по вашим чертежам, в кадрах и на видео.',
+          d: 'Изображения и видео будущего проекта по вашим чертежам.',
         },
         {
           n: '05',
           t: 'CRM для агентств',
-          d: 'Лиды, объекты и captación в одной системе, с ботом в WhatsApp и звонками с ИИ, чтобы ни одна заявка не ждала понедельника.',
+          d: 'Объекты, лиды и привлечение клиентов, с ботом WhatsApp и звонками с ИИ.',
         },
       ],
     },

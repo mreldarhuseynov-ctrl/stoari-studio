@@ -40,7 +40,7 @@ const heroPoster = (variant: HeroVariant) =>
   `${import.meta.env.BASE_URL}hero/hero-poster-stable${variant === '-portrait' ? '-portrait' : ''}.jpg`
 
 /**
- * A still behind each service row, keyed by the row's number rather than its
+ * A service photograph, keyed by the row's number rather than its
  * position, so the three languages cannot drift apart and reordering the rows
  * cannot silently reassign the pictures.
  *
@@ -55,6 +55,22 @@ const SERVICE_SHOT: Record<string, string> = {
   '03': WORK_MEDIA[3].img, // the marina, flown
   '04': WORK_MEDIA[0].img, // the bare plot, then the volume standing on it
   '05': WORK_MEDIA[4].img, // the footprint drawn on the land: the system behind the sale
+}
+
+function ServicesCatalog({ services }: { services: Copy['services'] }) {
+  return (
+    <ul className="service-catalog">
+      {services.rows.map((row) => (
+        <li className="service-entry" key={row.n}>
+          <img src={SERVICE_SHOT[row.n]} alt="" loading="lazy" decoding="async" width="720" height="900" />
+          <div className="service-copy">
+            <h3>{row.t}</h3>
+            <p>{row.d}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 function GalleryControls({ lang, next }: { lang: Lang; next: string }) {
@@ -775,22 +791,11 @@ export default function App() {
           data-label={c.labels[4]}
         >
           <div className={col(4)}>
-            <h2 className="rv">
-              {c.services.title.join(' ')}
-            </h2>
-            <p className="lede rv">{c.services.lede}</p>
-            <div className="rule rv" />
-            <ul className="list rv">
-              {c.services.rows.map((r) => (
-                <li className="row" key={r.n}>
-                  <img className="service-image" src={SERVICE_SHOT[r.n]} alt="" loading="lazy" width="128" height="88" />
-                  <div className="service-copy">
-                    <h3 className="t">{r.t}</h3>
-                    <p className="d">{r.d}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div className="service-heading">
+              <h2>{c.services.title.join(' ')}</h2>
+              <p className="lede">{c.services.lede}</p>
+            </div>
+            <ServicesCatalog services={c.services} />
             {/* The visualisation passes lived under the developers' price grid.
                 The grid went with the old prices; the method did not change,
                 so it moved here, next to the Visualisation row it belongs to. */}
