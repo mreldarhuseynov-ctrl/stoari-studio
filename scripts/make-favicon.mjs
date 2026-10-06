@@ -4,7 +4,7 @@ import sharp from 'sharp'
 
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#f3f0ea"/><path fill="#15171b" fill-rule="evenodd" d="M22 6H78V94H22ZM45.5 24H54.5V70H45.5Z"/></svg>\n'
 for (const name of ['favicon.svg', 'stoari-favicon.svg']) await writeFile(`public/${name}`, svg)
-for (const [name, size] of [['favicon-32.png', 32], ['stoari-favicon-32.png', 32], ['apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-512.png', 512]]) {
+for (const [name, size] of [['favicon-32.png', 32], ['stoari-favicon-32.png', 32], ['apple-touch-icon.png', 180], ['stoari-apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-512.png', 512]]) {
   await sharp(Buffer.from(svg)).resize(size, size).png().toFile(`public/${name}`)
 }
 // ICO directory with PNG-encoded 16, 32 and 48px images for legacy/root requests.
