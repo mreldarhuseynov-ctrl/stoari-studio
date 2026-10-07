@@ -5,28 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
     <meta name="color-scheme" content="light" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/logo/avatar-512.png" />
+    <link rel="icon" href="/favicon.ico?v=stoari-20261006" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/stoari-favicon-32.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/stoari-favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/stoari-apple-touch-icon.png" />
 
-    <title>STOARI — Property Film, Photography &amp; Marketing, Costa del Sol</title>
+    <title>STOARI | Property Video &amp; Photography in Marbella</title>
     <meta
       name="description"
       content="Film, photography, drone and social media for villas, apartments and new developments on the Costa del Sol, and a CRM for estate agencies. Based in Marbella."
     />
-    <link rel="canonical" href="https://bespoke-bombolone-459790.netlify.app/" />
+    <link rel="canonical" href="https://stoari.com/" />
 
     <!-- The link preview is the first thing a developer sees when this URL
          arrives in a DM, so it carries the most explanatory frame the studio
          has: a real plot at night with the building footprint drawn on it. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="STOARI" />
-    <meta property="og:url" content="https://bespoke-bombolone-459790.netlify.app/" />
-    <meta property="og:title" content="STOARI — make them want it before they see it" />
+    <meta property="og:url" content="https://stoari.com/" />
+    <meta property="og:title" content="STOARI | Property Video &amp; Photography in Marbella" />
     <meta
       property="og:description"
       content="Film, photography, drone and social media for property on the Costa del Sol. Based in Marbella."
     />
-    <meta property="og:image" content="https://bespoke-bombolone-459790.netlify.app/og.jpg" />
+    <meta property="og:image" content="https://stoari.com/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -38,30 +40,19 @@
     <meta property="og:locale:alternate" content="ru_RU" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="STOARI — make them want it before they see it" />
+    <meta name="twitter:title" content="STOARI | Property Video &amp; Photography in Marbella" />
     <meta
       name="twitter:description"
       content="Film, photography, drone and social media for property on the Costa del Sol."
     />
-    <meta name="twitter:image" content="https://bespoke-bombolone-459790.netlify.app/og.jpg" />
-      <!-- Bahnschrift is the approved wordmark face but ships only with Windows.
-         Archivo is the DIN descendant named as its fallback in START-HERE.md —
-         loading it means a visitor on a Mac or a phone sees the same letterforms
-         rather than whatever generic sans the system picks. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Cormorant Garamond sets the headings. The body stays monospace: that
-         is the studio's voice and the contrast between the two is the point —
-         a serif everywhere would read as any other property site. Cyrillic is
-         not optional, the site has a Russian version, and Archivo has no
-         Cyrillic at all; Cormorant does. `display=swap` so the headings are
-         never invisible while it loads. -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400&family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="twitter:image" content="https://stoari.com/og.jpg" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="manifest" href="/site.webmanifest?v=stoari-20261006" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","@id":"https://stoari.com/#studio","name":"STOARI","legalName":"Robert Di Gaetano","url":"https://stoari.com/","image":"https://stoari.com/og.jpg","email":"info@stoari.com","telephone":"+34610826619","address":{"@type":"PostalAddress","streetAddress":"Calle Aragón 7, bajo","addressLocality":"Benalmádena","addressRegion":"Málaga","addressCountry":"ES"},"areaServed":["Marbella","Costa del Sol"],"description":"Property video, photography, drone and social media."}</script>
   </head>
   <body>
+    <noscript><div class="noscript"><h1>STOARI — Property video &amp; photography in Marbella</h1><p>Film, photography, drone and social media for estate agents and developers on the Costa del Sol.</p><p>Contact: <a href="mailto:info@stoari.com">info@stoari.com</a> · <a href="tel:+34610826619">+34 610 826 619</a></p><a href="/privacy/">Privacy</a> · <a href="/legal/">Legal notice</a> · <a href="/cookies/">Cookies</a></div></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
@@ -76,6 +67,7 @@
            which is the rule stated right above, applied to itself. -->
       <input type="text" name="bot-field" />
       <input type="text" name="name" />
+      <input type="email" name="email" />
       <input type="text" name="company" />
       <input type="text" name="object" />
       <input type="text" name="when" />

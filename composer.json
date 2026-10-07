@@ -1,0 +1,7 @@
+{
+  "name": "stoari/site-mail",
+  "description": "Authenticated transport for STOARI website enquiries",
+  "type": "project",
+  "require": { "phpmailer/phpmailer": "^7.0" },
+  "config": { "vendor-dir": "public/api/vendor", "allow-plugins": false }
+}

@@ -18,6 +18,15 @@
  */
 
 export function createField(): () => void {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.getElementById('loader')?.classList.add('hide')
+    document.querySelectorAll('main section').forEach((section) => section.classList.add('in'))
+    const root = document.documentElement
+    const tone = () => { root.dataset.nav = scrollY < innerHeight - 80 ? 'dark' : 'light' }
+    tone()
+    addEventListener('scroll', tone, { passive: true })
+    return () => removeEventListener('scroll', tone)
+  }
   const isCoarse =
     matchMedia('(pointer: coarse)').matches || innerWidth < 820
   /* A phone pays for this field three times over: the physics loop runs on one
@@ -41,17 +50,21 @@ export function createField(): () => void {
 
   /* alpha: true is what lets the hero film show through the field. The canvas
      covers the whole page, so with an opaque drawing buffer nothing behind it
-     can ever be seen — no z-index arrangement helps. Unpremultiplied, because
-     the composite pass below writes colour and coverage separately. */
+     can ever be seen — no z-index arrangement helps. Use premultiplied output for WebKit compositors; transparent pixels
+     must contain zero RGB as well as zero alpha. */
   const gl = canvas.getContext('webgl', {
     antialias: false,
     alpha: true,
-    premultipliedAlpha: false,
+    premultipliedAlpha: true,
   })
   if (!gl) {
-    const l = document.getElementById('loader')
-    if (l) l.innerHTML = 'WEBGL NOT AVAILABLE'
-    return () => {}
+    document.getElementById('loader')?.classList.add('hide')
+    document.querySelectorAll('main section').forEach((section) => section.classList.add('in'))
+    const root = document.documentElement
+    const tone = () => { root.dataset.nav = scrollY < innerHeight - 80 ? 'dark' : 'light' }
+    tone()
+    addEventListener('scroll', tone, { passive: true })
+    return () => removeEventListener('scroll', tone)
   }
 
   const compile = (t: number, src: string) => {
@@ -149,13 +162,12 @@ void main(){
   vec2 q = vUv - 0.5;
   c *= 1.0 - dot(q,q) * 0.42;
   c = c / (c + vec3(1.25)) * 2.05;
-  /* Coverage, not a flat one. The page composites source-over, so writing
-     alpha = the brightest channel and un-multiplying the colour gives
-     final = c + page * (1 - a): the field adds light where it burns and
-     leaves the frame behind it untouched where it is dark. Without this the
-     canvas is a black sheet over everything. */
+  /* Premultiplied source-over: ink*a + page*(1-a). WebKit can treat
+     unpremultiplied WebGL buffers as premultiplied (WebKit bug 200026),
+     turning transparent white RGB into a full-screen white layer. Keep
+     the context flag and this RGB multiplication in sync. */
   float a = clamp(max(max(c.r, c.g), c.b) * uGain, 0.0, 1.0);
-  gl_FragColor = vec4(uInk, a);
+  gl_FragColor = vec4(uInk * a, a);
 }`
   )
 
@@ -651,29 +663,9 @@ void main(){
   addEventListener('touchmove', onTouch, { passive: true })
 
   let shapeIdx = 0, morphT = 1
-  /**
-   * Horizontal push of the field, one entry per section, in SECTIONS order.
-   * Positive pushes the cloud away from a left-hand text column, negative away
-   * from a right-hand one — so this array has to be re-checked whenever a
-   * section is added or a column changes side, or the shape ends up sitting
-   * behind the copy.
-   *
-   *   0 index    hero, centred      1 work      left, wide
-   *   2 packages  right, wide        3 films     left, wide
-   *   4 services  right              5 how       left
-   *   6 why       right              7 faq       left
-   *   8 contact   right
-   *
-   * Strict alternation the whole way down. Eight sections under the hero is an
-   * even count, which is what lets `contact` land on the right with no repeat.
-   * `program` and `project` went out together, a left and a right, so nothing
-   * after them had to change side.
-   */
-  const OFFSETS = [
-    [0, 170],
-    [250, 30], [-250, 30], [250, 30], [-250, 30],
-    [250, 30], [-250, 30], [250, 20], [-250, 0],
-  ]
+  // The visible field belongs to the hero. Keep its wordmark and position
+  // when visitors browse later sections, so returning never reveals a house
+  // or a half-finished morph from an animation they could not see.
   let tgtOX = 0, tgtOY = isCoarse ? 268 : 170
   let offX = 0, offY = isCoarse ? 268 : 170
 
@@ -701,9 +693,9 @@ void main(){
     let idx = 0
     for (let i = 0; i < sections.length; i++)
       if (sections[i].offsetTop <= mid) idx = i
-    morphTo(+(sections[idx].dataset.shape || 0))
-    const o = OFFSETS[Math.min(idx, OFFSETS.length - 1)]
-    if (isCoarse) { tgtOX = 0; tgtOY = 268 } else { tgtOX = o[0]; tgtOY = o[1] }
+    morphTo(0)
+    tgtOX = 0
+    tgtOY = isCoarse ? 268 : 170
     if (elNow) elNow.textContent = String(idx + 1).padStart(2, '0')
     if (elLabel) elLabel.textContent = sections[idx].dataset.label || ''
   }
@@ -748,6 +740,9 @@ void main(){
     const el = document.querySelector('section.hero') as HTMLElement | null
     if (el) heroH = el.offsetHeight || innerHeight
     const y = scrollY
+    // Confine the fixed canvas to the visible part of the hero while scrolling.
+    // The particles must never cover headings or photographs in later sections.
+    canvas.style.clipPath = `inset(0 0 ${Math.max(0, innerHeight - Math.max(0, heroH - y))}px 0)`
     /* 1 = over the film, 0 = over paper */
     const k = Math.min(1, Math.max(0, 1 - (y - heroH * 0.3) / (heroH * 0.5)))
     inkR = INK[0] + (1 - INK[0]) * k
@@ -913,24 +908,36 @@ void main(){
 
   let raf = 0
   let alive = true
+  let lastDraw = 0
+  let animationTime = 0
+  const hero = document.querySelector<HTMLElement>('section.hero')
+  const heroBounds = hero?.getBoundingClientRect()
+  let heroVisible = !!heroBounds && heroBounds.bottom > 0 && heroBounds.top < innerHeight
 
   const frame = (now: number) => {
-    if (!alive) return
+    raf = 0
+    if (!alive || document.hidden || !heroVisible) return
     raf = requestAnimationFrame(frame)
     if (canvas.width < 1) return
+    // Keep the opening STOARI wordmark animated, with a 30 fps frame budget.
+    if (now - lastDraw < 33) {
+      return
+    }
+    lastDraw = now
 
     const dt = prevT ? Math.min(now - prevT, 50) : 16.7
     prevT = now
+    animationTime += dt
     const idle = now - lastInput > 2800
     if (idle) {
-      const t = now * 0.0002
+      const t = animationTime * 0.0002
       ndcX = Math.sin(t * 1.7) * 0.52
       ndcY = Math.sin(t * 1.1 + 1.3) * 0.34
     }
     offX += (tgtOX - offX) * 0.055
     offY += (tgtOY - offY) * 0.055
-    rotY = Math.sin(now * 0.00012) * 0.16 + scrollN * 0.5
-    rotX = Math.sin(now * 0.00009) * 0.06
+    rotY = Math.sin(animationTime * 0.00012) * 0.16 + scrollN * 0.5
+    rotX = Math.sin(animationTime * 0.00009) * 0.06
 
     const halfH = Math.tan(FOV / 2) * CAM_Z
     const wx = ndcX * halfH * (innerWidth / innerHeight) - offX
@@ -981,7 +988,7 @@ void main(){
         glow[i] += ((g > sp ? g : sp) - glow[i]) * 0.24
       }
 
-    const wt = now * 0.0011
+    const wt = animationTime * 0.0011
     for (let i = 0; i < RINGN; i++) {
       const r = ringR[i]
       let w = Math.sin(r * 0.0135 - wt * 1.9)
@@ -995,51 +1002,45 @@ void main(){
     post()
   }
 
-  /* A tab switched away still gets the odd frame, and the accumulator wakes up
-     holding whole seconds of debt it then tries to simulate at once. Stopping
-     the loop outright and clearing the debt is what keeps the page from
-     stuttering for a moment every time someone comes back to it. */
-  const onVisibility = () => {
-    if (document.hidden) {
+  // CSS can hide the canvas without stopping WebGL. Pause the actual work
+  // outside the hero and in background tabs, keeping particle positions and
+  // animation phase but discarding time spent away from the visible scene.
+  const syncPlayback = () => {
+    if (!alive || document.hidden || !heroVisible) {
       if (raf) cancelAnimationFrame(raf)
       raf = 0
-    } else if (alive && !raf) {
       prevT = 0
       acc = 0
+      lastDraw = 0
+    } else if (!raf) {
+      prevT = 0
+      acc = 0
+      lastDraw = 0
       raf = requestAnimationFrame(frame)
     }
   }
-  document.addEventListener('visibilitychange', onVisibility)
-
-  /* Loader — timers keep running where rAF does not, so the curtain always lifts. */
-  let p = 0
-  const barIn = document.getElementById('barIn')
-  const pct = document.getElementById('pct')
-  const tick = setInterval(() => {
-    p = Math.min(100, p + 8 + Math.random() * 14)
-    if (barIn) barIn.style.width = p + '%'
-    if (pct) pct.textContent = Math.round(p) + '%'
-    if (p >= 100) {
-      clearInterval(tick)
-      document.getElementById('loader')?.classList.add('hide')
-      sections[0]?.classList.add('in')
-    }
-  }, 70)
+  const heroObserver = new IntersectionObserver(([entry]) => {
+    heroVisible = entry.isIntersecting
+    syncPlayback()
+  })
+  if (hero) heroObserver.observe(hero)
+  document.addEventListener('visibilitychange', syncPlayback)
 
   onScroll()
-  raf = requestAnimationFrame(frame)
+  syncPlayback()
 
   return () => {
     alive = false
     cancelAnimationFrame(raf)
-    clearInterval(tick)
+    heroObserver.disconnect()
     ios.forEach((o) => o.disconnect())
     ro?.disconnect()
-    document.removeEventListener('visibilitychange', onVisibility)
+    document.removeEventListener('visibilitychange', syncPlayback)
     removeEventListener('pointermove', onPointer)
     removeEventListener('touchmove', onTouch)
     removeEventListener('scroll', onScroll)
     removeEventListener('scroll', setTone)
+    removeEventListener('resize', setTone)
     removeEventListener('resize', onResize)
   }
 }

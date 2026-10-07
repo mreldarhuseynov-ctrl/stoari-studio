@@ -6,6 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:hostinger": "composer install --no-dev --no-interaction --prefer-dist && VITE_ENQUIRY_ENDPOINT=/api/enquiry.php npm run build",
+    "test:enquiry-client": "node --experimental-strip-types scripts/enquiry-client-selftest.mjs",
+    "test:enquiry": "node scripts/enquiry-selftest.mjs",
+    "test:gallery": "node --experimental-strip-types scripts/gallery-selftest.mjs",
+    "test:hero": "node --experimental-strip-types scripts/hero-selftest.mjs",
+    "bundle:hostinger": "npm run build:hostinger && node scripts/package-hostinger.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

@@ -1,5 +1,5 @@
-node_modules/
-dist/
+node_modules
+dist
 
 # Сборка выкладывается автоматически из репозитория, в git её не держим.
 .DS_Store
@@ -11,6 +11,8 @@ Thumbs.db
 # Рабочие копии, которые остаются после правок
 *.bak
 dist-preview/
+dist-hostinger
 
 # Полные фильмы весят сотни мегабайт — в git не держим, решим с хостингом отдельно.
 public/films/
+public/api/vendor/

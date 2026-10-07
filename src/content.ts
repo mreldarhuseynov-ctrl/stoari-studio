@@ -26,7 +26,7 @@ export const BRAND = {
    * particle field cannot drift apart.
    */
   descriptor: 'REAL ESTATE MEDIA',
-  email: 'mreldarhuseynov@gmail.com',
+  email: 'info@stoari.com',
   /** Digits only, country code first — that is the format wa.me expects. */
   whatsapp: '34610826619',
   whatsappLabel: '+34 610 826 619',
@@ -37,6 +37,8 @@ export const BRAND = {
    */
   phone: '+34 610 826 619',
   phoneHref: 'tel:+34610826619',
+  robertPhone: '+34 695 811 830',
+  robertPhoneHref: 'tel:+34695811830',
   /** Clean URL: the igsh/utm parameters on a shared link are QR tracking. */
   instagram: 'https://www.instagram.com/stoaristudio',
   instagramLabel: '@stoaristudio',
@@ -47,7 +49,7 @@ export const BRAND = {
    * basis. Until that page exists this stays empty, and the form prints its
    * one-line notice without a link rather than pointing at a 404.
    */
-  privacyUrl: '',
+  privacyUrl: '/privacy/',
 } as const
 
 export const LANGS = ['en', 'es', 'ru'] as const
@@ -82,20 +84,9 @@ export const SECTIONS: Section[] = [
   { id: 'films', wide: true, shape: 5 },
   { id: 'services', rev: true, shape: 4 },
   { id: 'how', shape: 4 },
-  { id: 'why', rev: true, shape: 5 },
   { id: 'faq', shape: 3 },
   { id: 'contact', rev: true, shape: 0 },
 ]
-
-/**
- * Sides alternate strictly from `work` to `contact` — left, right, left, right.
- * Eight sections under the hero is an even number, so the alternation lands
- * `contact` on the right without a single repeat.
- *
- * `program` and `project` were removed as a pair, a left and a right, when the
- * old price grids came off the page. Taking them out together is what kept
- * every other section on the side it already had.
- */
 
 /**
  * Media is shared across languages — only the words change. Captions live in
@@ -196,7 +187,11 @@ export type Copy = {
     title: [string, string]
     lede: string
     name: string
+    email: string
     company: string
+    optional: string
+    required: string
+    objectExample: string
     object: string
     when: string
     submit: string
@@ -206,9 +201,13 @@ export type Copy = {
     privacy: string
     done: string
     doneNote: string
-    /** Shown when the POST did not actually reach Netlify. */
+    /** Submission failures keep the visitor’s entries available for retry. */
     failed: string
     failedNote: string
+    failedRateLimit: string
+    failedValidation: string
+    serviceLabel: string
+    clearService: string
     retry: string
     wa: string
   }
@@ -235,13 +234,6 @@ export type Copy = {
     more: string
     items: { alt: string; t: string; k: string; s: string; d: string; caps: string[] }[]
   }
-  why: {
-    eyebrow: string
-    title: [string, string]
-    lede: string
-    /** `from` turns the value into a counter that runs down to `v` in view. */
-    stats: { v: string; k: string; from?: number }[]
-  }
   method: {
     eyebrow: string
     title: [string, string]
@@ -253,6 +245,7 @@ export type Copy = {
     meta: string[]
     /** Pre-filled into the WhatsApp draft so the first message is not blank. */
     waText: string
+    waLabel: string
   }
   close: string
 }
@@ -266,69 +259,77 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'QUESTIONS', href: '#faq' },
     ],
     cta: 'START A PROJECT',
-    stickyCta: 'SEND A PROPERTY',
+    stickyCta: 'CONTACT US',
     form: {
-      title: ['Four lines are enough.', 'We reply the same day.'],
-      lede: 'An address or a link to the listing is enough to start. Photos and drawings can follow.',
+      title: ['Request a quote', ''],
+      lede: 'Tell us about the content you need or how your agency handles enquiries. We’ll discuss the scope and prepare a quote.',
       name: 'Your name',
+      email: 'Email',
       company: 'Company',
-      object: 'The property: address, link, or a line about it',
+      optional: 'Add company or timing (optional)',
+      required: '* Required fields',
+      objectExample: 'A property video, monthly content, a CRM to follow up on enquiries…',
+      object: 'What do you need?',
       when: 'When do you need it',
-      submit: 'SEND',
+      submit: 'Request my quote',
       sending: 'SENDING…',
-      note: 'We use what you write here to answer you, and for nothing else.',
+      note: 'Robert Di Gaetano uses these details to answer your enquiry. Read the privacy notice for recipients, retention and your rights.',
       privacy: 'How we handle your data',
       done: 'Got it.',
-      doneNote: 'A quote comes back the same day. If it is faster on WhatsApp, write there.',
-      failed: 'That did not send.',
-      failedNote: 'Nothing reached us. What you wrote is still in the form below, so try again, or write on WhatsApp, which does not depend on this.',
+      doneNote: 'Your enquiry has been submitted. You can also contact us on WhatsApp.',
+      failed: 'We couldn’t confirm your request.',
+      failedNote: 'Your details are still here. Try again or send them directly on WhatsApp.',
+      failedRateLimit: 'Too many attempts. Wait ten minutes or contact us on WhatsApp.',
+      failedValidation: 'Check your name, email and project details, then try again.',
+      serviceLabel: 'Selected service',
+      clearService: 'Clear selection',
       retry: 'TRY AGAIN',
       wa: 'CONTINUE ON WHATSAPP',
     },
-    labels: ['INDEX', 'WORK', 'PRICES', 'FILMS', 'SERVICES', 'HOW IT WORKS', 'WHY', 'QUESTIONS', 'CONTACT'],
+    labels: ['INDEX', 'WORK', 'PRICES', 'FILMS', 'SERVICES', 'HOW IT WORKS', 'QUESTIONS', 'CONTACT'],
     hero: {
       eyebrow: 'REAL ESTATE MEDIA, COSTA DEL SOL',
       title: ['Make them want it', 'before they see it'],
-      lede: 'Film, photography, drone and social media for villas, apartments and new developments. Many buyers here decide from another country, on a phone. Our job is to make what they see there worth a flight.',
+      lede: 'Film, photography and drone on the Costa del Sol. CRM to manage your agency’s enquiries.',
       audience: 'For estate agents and developers. Based in Marbella.',
       cta: 'SEE THE PRICES',
       cue: 'SCROLL',
     },
     services: {
       eyebrow: '04 — SERVICES',
-      title: ['One team, from the first', 'frame to the first enquiry'],
-      lede: 'Film, photos, social media and the system that answers buyers usually come from four different suppliers. With us it is one team, one style and one WhatsApp group for all of it.',
+      title: ['What we do', ''],
+      lede: 'Photography, film and drone footage for your properties. Content for your social media and a CRM to manage enquiries.',
       rows: [
         {
           n: '01',
-          t: 'Content & social media',
-          d: 'Reels, campaigns, Stories and the words under them, planned and posted every month.',
+          t: 'Content & social',
+          d: 'Reels, campaigns and Stories, created and published every month.',
         },
         {
           n: '02',
           t: 'Photography',
-          d: 'Villas and apartments on a professional camera, delivered within five working days.',
+          d: 'Professional property photography, delivered in five working days.',
         },
         {
           n: '03',
           t: 'Drone & FPV',
-          d: 'A standard drone for the view and the setting. FPV when the house should be shown in one unbroken flight.',
+          d: 'Aerial views and FPV tours through the property in one flight.',
         },
         {
           n: '04',
           t: 'Visualisation',
-          d: 'For what is not built yet: the house standing on your plot, from your drawings, in stills and film.',
+          d: 'Images and films of your unbuilt project, made from your plans.',
         },
         {
           n: '05',
-          t: 'CRM for agencies',
-          d: 'Leads, properties and captación in one system, with a WhatsApp bot and AI calls, so no enquiry waits until Monday.',
+          t: 'Agency CRM',
+          d: 'Properties, leads and prospecting, with a WhatsApp bot and AI calls.',
         },
       ],
     },
     works: {
       eyebrow: '01 — WORK',
-      title: ['Six projects,', 'two of them not built yet'],
+      title: ['Selected projects', ''],
       lede: 'Open one to see the frames and what the client needed from it.',
       more: 'VIEW PROJECT',
       items: [
@@ -407,19 +408,9 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — WHY',
-      title: ['A first look in a week,', 'in every format you post'],
-      lede: 'Vertical for Reels and Stories, landscape for the website, the portals and the sales deck, all from the same shoot. Nothing has to be cut twice.',
-      stats: [
-        { v: '7', k: 'DAYS TO FIRST LOOK', from: 30 },
-        { v: '9:16 + 16:9', k: 'BOTH, FROM THE START' },
-        { v: '5', k: 'SERVICES, ONE TEAM' },
-      ],
-    },
     method: {
       eyebrow: 'FOUR PASSES',
-      title: ['Four passes,', 'no guesswork'],
+      title: ['How we create', 'your visualisation'],
       steps: [
         {
           sn: '01',
@@ -439,15 +430,16 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '04',
           st: 'Delivery',
-          sd: 'Stills and film, vertical and landscape, in the formats your sales team already posts.',
+          sd: 'Stills and film in the formats agreed in your proposal, ready for the selected channels.',
         },
       ],
     },
     contact: {
       eyebrow: '08 — CONTACT',
-      title: ['Got a property', 'to sell?'],
+      title: ['Let’s discuss content', 'or your agency CRM.'],
       meta: ['ELDAR HUSEYNOV', 'REAL ESTATE MEDIA', 'COSTA DEL SOL'],
-      waText: 'Hi Eldar, I found STOARI online. I have a property on the Costa del Sol.',
+      waText: 'Hi, I found STOARI online. I’d like a quote for a project on the Costa del Sol.',
+      waLabel: 'Prefer WhatsApp? Write to us',
     },
     close: 'CLOSE',
   },
@@ -460,70 +452,78 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'PREGUNTAS', href: '#faq' },
     ],
     cta: 'EMPEZAR UN PROYECTO',
-    stickyCta: 'ENVIAR INMUEBLE',
+    stickyCta: 'CONTACTAR',
     form: {
-      title: ['Con cuatro líneas basta.', 'Respondemos el mismo día.'],
-      lede: 'Con una dirección o el enlace al anuncio es suficiente para empezar. Las fotos y los planos pueden venir después.',
-      name: 'Su nombre',
+      title: ['Pide un presupuesto', ''],
+      lede: 'Cuéntanos qué contenido necesitas o cómo gestionas las consultas de tu agencia. Concretamos el alcance y te preparamos un presupuesto.',
+      name: 'Tu nombre',
+      email: 'Email',
       company: 'Empresa',
-      object: 'El inmueble: dirección, enlace o una línea sobre él',
-      when: 'Para cuándo lo necesita',
-      submit: 'ENVIAR',
+      optional: 'Añadir empresa o fecha (opcional)',
+      required: '* Campos obligatorios',
+      objectExample: 'Un vídeo de un inmueble, contenido mensual, un CRM para dar seguimiento a las consultas…',
+      object: '¿Qué necesitas?',
+      when: '¿Para cuándo lo necesitas?',
+      submit: 'Recibir mi presupuesto',
       sending: 'ENVIANDO…',
-      note: 'Usamos lo que escriba aquí para responderle y para nada más.',
-      privacy: 'Cómo tratamos sus datos',
+      note: 'Robert Di Gaetano utiliza estos datos para responder a tu consulta. Consulta la política de privacidad para conocer los destinatarios, la conservación y tus derechos.',
+      privacy: 'Cómo tratamos tus datos',
       done: 'Recibido.',
-      doneNote: 'El presupuesto sale el mismo día. Si por WhatsApp le resulta más rápido, escríbanos ahí.',
-      failed: 'No se ha enviado.',
-      failedNote: 'No nos ha llegado nada. Lo que escribió sigue en el formulario: inténtelo otra vez o escríbanos por WhatsApp, que no depende de esto.',
+      doneNote: 'Tu consulta se ha enviado. También puedes contactarnos por WhatsApp.',
+      failed: 'No hemos podido confirmar el envío.',
+      failedNote: 'Tus datos siguen aquí. Reintenta o envíalos directamente por WhatsApp.',
+      failedRateLimit: 'Demasiados intentos. Espera diez minutos o contáctanos por WhatsApp.',
+      failedValidation: 'Revisa tu nombre, email y los detalles del proyecto antes de reintentar.',
+      serviceLabel: 'Servicio elegido',
+      clearService: 'Quitar selección',
       retry: 'REINTENTAR',
       wa: 'SEGUIR POR WHATSAPP',
     },
-    labels: ['INICIO', 'TRABAJOS', 'PRECIOS', 'PELÍCULAS', 'SERVICIOS', 'CÓMO FUNCIONA', 'POR QUÉ', 'PREGUNTAS', 'CONTACTO'],
+    labels: ['INICIO', 'TRABAJOS', 'PRECIOS', 'PELÍCULAS', 'SERVICIOS', 'CÓMO FUNCIONA', 'PREGUNTAS', 'CONTACTO'],
     hero: {
       eyebrow: 'MARKETING INMOBILIARIO, COSTA DEL SOL',
       title: ['Que lo quieran', 'antes de visitarlo'],
-      lede: 'Vídeo, fotografía, dron y redes sociales para villas, apartamentos y obra nueva. Aquí muchos compradores deciden desde otro país, en el móvil. Nuestro trabajo es que lo que vean ahí merezca el viaje.',
+      lede: 'Vídeo, fotografía y dron en la Costa del Sol. CRM para gestionar las consultas de tu inmobiliaria.',
       audience: 'Para agentes inmobiliarios y promotores. Con base en Marbella.',
       cta: 'VER LOS PRECIOS',
       cue: 'BAJAR',
     },
     services: {
       eyebrow: '04 — SERVICIOS',
-      title: ['Un solo equipo, del primer', 'plano a la primera consulta'],
-      lede: 'El vídeo, las fotos, las redes y el sistema que atiende a los compradores suelen venir de cuatro proveedores distintos. Con nosotros es un solo equipo, un mismo estilo y un solo grupo de WhatsApp para todo.',
+      title: ['Nuestros servicios', ''],
+      lede: 'Fotografía, vídeo y dron para tus inmuebles. Contenido para tus redes y un CRM para gestionar las consultas.',
       rows: [
         {
           n: '01',
           t: 'Contenido y redes',
-          d: 'Reels, campañas, Stories y los textos que los acompañan, planificados y publicados cada mes.',
+          d: 'Reels, campañas y Stories: creación y publicación mensual.',
         },
         {
           n: '02',
           t: 'Fotografía',
-          d: 'Villas y apartamentos con cámara profesional, entregados en cinco días laborables.',
+          d: 'Fotografía profesional de inmuebles. Entrega en cinco días laborables.',
         },
         {
           n: '03',
           t: 'Dron y FPV',
-          d: 'Dron estándar para las vistas y el entorno. FPV cuando la casa tiene que verse en un solo vuelo continuo.',
+          d: 'Vistas aéreas y recorridos FPV en un solo vuelo.',
         },
         {
           n: '04',
           t: 'Visualización',
-          d: 'Para lo que aún no está construido: la casa sobre su parcela, a partir de sus planos, en imagen y en vídeo.',
+          d: 'Imágenes y vídeo del proyecto a partir de tus planos.',
         },
         {
           n: '05',
-          t: 'CRM para inmobiliarias',
-          d: 'Leads, inmuebles y captación en un solo sistema, con bot de WhatsApp y llamadas con IA, para que ninguna consulta espere al lunes.',
+          t: 'CRM inmobiliario',
+          d: 'Inmuebles, leads y captación, con bot de WhatsApp y llamadas con IA.',
         },
       ],
     },
     works: {
       eyebrow: '01 — TRABAJOS',
-      title: ['Seis proyectos,', 'dos aún sin construir'],
-      lede: 'Abra uno para ver los fotogramas y lo que el cliente necesitaba.',
+      title: ['Proyectos seleccionados', ''],
+      lede: 'Abre un proyecto para ver los fotogramas y lo que el cliente necesitaba.',
       more: 'VER PROYECTO',
       items: [
         {
@@ -601,19 +601,9 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — POR QUÉ',
-      title: ['Primera vista en una semana,', 'en todos los formatos'],
-      lede: 'Vertical para Reels y Stories, horizontal para la web, los portales y la presentación de ventas, todo del mismo rodaje. No hay que volver a montar nada.',
-      stats: [
-        { v: '7', k: 'DÍAS HASTA LA PRIMERA VERSIÓN', from: 30 },
-        { v: '9:16 + 16:9', k: 'LOS DOS, DESDE EL PRINCIPIO' },
-        { v: '5', k: 'SERVICIOS, UN EQUIPO' },
-      ],
-    },
     method: {
       eyebrow: 'CUATRO PASADAS',
-      title: ['Cuatro pasos,', 'sin suposiciones'],
+      title: ['Cómo preparamos', 'tu visualización'],
       steps: [
         {
           sn: '01',
@@ -623,25 +613,26 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '02',
           st: 'Volumen',
-          sd: 'Levantamos el volumen según sus planos y se lo enviamos para aprobación. Hasta que lo confirme, no seguimos.',
+          sd: 'Levantamos el volumen según tus planos y te lo enviamos para aprobación. Hasta que lo confirmes, no seguimos.',
         },
         {
           sn: '03',
           st: 'Luz y materiales',
-          sd: 'El sol se coloca por las coordenadas y la orientación reales de la parcela. Los acabados, según su memoria.',
+          sd: 'El sol se coloca por las coordenadas y la orientación reales de la parcela. Los acabados, según tu memoria de calidades.',
         },
         {
           sn: '04',
           st: 'Entrega',
-          sd: 'Imágenes y vídeo en vertical y horizontal, en los formatos que su equipo comercial ya publica cada día.',
+          sd: 'Imágenes y vídeo en los formatos acordados en la propuesta, listos para los canales elegidos.',
         },
       ],
     },
     contact: {
       eyebrow: '08 — CONTACTO',
-      title: ['¿Tiene un inmueble', 'que vender?'],
+      title: ['Hablemos de contenido', 'o CRM para tu agencia.'],
       meta: ['ELDAR HUSEYNOV', 'CONTENIDO INMOBILIARIO', 'COSTA DEL SOL'],
-      waText: 'Hola Eldar, le escribo desde la web de STOARI. Tengo un proyecto en la Costa del Sol.',
+      waText: 'Hola, os escribo desde la web de STOARI. Quiero un presupuesto para un proyecto en la Costa del Sol.',
+      waLabel: '¿Prefieres WhatsApp? Escríbenos',
     },
     close: 'CERRAR',
   },
@@ -654,69 +645,77 @@ export const COPY: Record<Lang, Copy> = {
       { label: 'ВОПРОСЫ', href: '#faq' },
     ],
     cta: 'НАЧАТЬ ПРОЕКТ',
-    stickyCta: 'ПРИСЛАТЬ ОБЪЕКТ',
+    stickyCta: 'СВЯЗАТЬСЯ С НАМИ',
     form: {
-      title: ['Хватит четырёх строк.', 'Отвечаем в тот же день.'],
-      lede: 'Для начала достаточно адреса или ссылки на объявление. Фото и чертежи можно прислать потом.',
+      title: ['Запросить стоимость', ''],
+      lede: 'Расскажите, какой контент вам нужен или как вы обрабатываете заявки в агентстве. Обсудим объём работ и подготовим предложение.',
       name: 'Как вас зовут',
+      email: 'Email',
       company: 'Компания',
-      object: 'Объект — адрес, ссылка или строка о нём',
+      optional: 'Добавить компанию или сроки (необязательно)',
+      required: '* Обязательные поля',
+      objectExample: 'Видео объекта, контент на месяц, CRM для работы с заявками…',
+      object: 'Что вам нужно?',
       when: 'К какому сроку нужно',
-      submit: 'ОТПРАВИТЬ',
+      submit: 'Запросить стоимость',
       sending: 'ОТПРАВЛЯЕМ…',
-      note: 'То, что вы напишете здесь, используем только чтобы ответить.',
+      note: 'Robert Di Gaetano использует эти данные для ответа на ваш запрос. Получатели, сроки хранения и ваши права описаны в политике конфиденциальности.',
       privacy: 'Как мы обращаемся с данными',
       done: 'Получили.',
-      doneNote: 'Смета вернётся в тот же день. Если в WhatsApp быстрее — напишите туда.',
-      failed: 'Не отправилось.',
-      failedNote: 'До нас ничего не дошло — то, что вы написали, осталось в форме. Попробуйте ещё раз или напишите в WhatsApp: он от этого не зависит.',
+      doneNote: 'Ваш запрос отправлен. Вы также можете написать нам в WhatsApp.',
+      failed: 'Не удалось подтвердить отправку.',
+      failedNote: 'Ваши данные сохранены в форме. Попробуйте ещё раз или отправьте их в WhatsApp.',
+      failedRateLimit: 'Слишком много попыток. Подождите десять минут или напишите нам в WhatsApp.',
+      failedValidation: 'Проверьте имя, email и описание проекта, затем попробуйте ещё раз.',
+      serviceLabel: 'Выбранная услуга',
+      clearService: 'Убрать выбор',
       retry: 'ПОПРОБОВАТЬ СНОВА',
       wa: 'ПРОДОЛЖИТЬ В WHATSAPP',
     },
-    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ЦЕНЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'КАК ЭТО УСТРОЕНО', 'ПОЧЕМУ МЫ', 'ВОПРОСЫ', 'КОНТАКТ'],
+    labels: ['ГЛАВНАЯ', 'РАБОТЫ', 'ЦЕНЫ', 'ФИЛЬМЫ', 'УСЛУГИ', 'КАК ЭТО УСТРОЕНО', 'ВОПРОСЫ', 'КОНТАКТ'],
     hero: {
       eyebrow: 'МАРКЕТИНГ НЕДВИЖИМОСТИ',
       title: ['Захотят', 'ещё до показа'],
-      lede: 'Видео, фото, дрон и соцсети для вилл, апартаментов и новостроек. Многие покупатели здесь выбирают из другой страны, с телефона. Наша задача, чтобы после увиденного им захотелось купить билет.',
+      lede: 'Видео, фото и съёмка с дрона на Коста-дель-Соль. CRM для работы с заявками вашего агентства.',
       audience: 'Для агентов и застройщиков. Работаем из Марбельи.',
       cta: 'СМОТРЕТЬ ЦЕНЫ',
       cue: 'ВНИЗ',
     },
     services: {
       eyebrow: '04 — УСЛУГИ',
-      title: ['Одна команда: от первого', 'кадра до первой заявки'],
-      lede: 'Видео, фото, соцсети и систему, которая отвечает покупателям, обычно заказывают у четырёх разных подрядчиков. У нас это одна команда, один стиль и одна группа в WhatsApp на всё.',
+      title: ['Наши услуги', ''],
+      lede: 'Фото, видео и съёмка с дрона для ваших объектов. Контент для соцсетей и CRM для работы с заявками.',
       rows: [
         {
           n: '01',
           t: 'Контент и соцсети',
-          d: 'Reels, кампании, Stories и тексты к ним: планируем и публикуем каждый месяц.',
+          d: 'Reels, кампании и Stories: создаём и публикуем каждый месяц.',
         },
         {
           n: '02',
           t: 'Фотосъёмка',
-          d: 'Виллы и апартаменты на профессиональную камеру, готово за пять рабочих дней.',
+          d: 'Профессиональные фото объектов. Готово за пять рабочих дней.',
         },
         {
           n: '03',
           t: 'Дрон и FPV',
-          d: 'Обычный дрон для вида и окружения. FPV, когда дом нужно показать одним непрерывным пролётом.',
+          d: 'Виды с воздуха и FPV-тур по дому одним непрерывным пролётом.',
         },
         {
           n: '04',
           t: 'Визуализация',
-          d: 'Для того, что ещё не построено: дом на вашем участке по вашим чертежам, в кадрах и на видео.',
+          d: 'Изображения и видео будущего проекта по вашим чертежам.',
         },
         {
           n: '05',
           t: 'CRM для агентств',
-          d: 'Лиды, объекты и captación в одной системе, с ботом в WhatsApp и звонками с ИИ, чтобы ни одна заявка не ждала понедельника.',
+          d: 'Объекты, лиды и привлечение клиентов, с ботом WhatsApp и звонками с ИИ.',
         },
       ],
     },
     works: {
       eyebrow: '01 — РАБОТЫ',
-      title: ['Шесть проектов,', 'два из них ещё не построены'],
+      title: ['Избранные проекты', ''],
       lede: 'Откройте любой: внутри кадры и задача, с которой пришёл клиент.',
       more: 'СМОТРЕТЬ ПРОЕКТ',
       items: [
@@ -795,19 +794,9 @@ export const COPY: Record<Lang, Copy> = {
         },
       ],
     },
-    why: {
-      eyebrow: '06 — ПОЧЕМУ МЫ',
-      title: ['Первый результат за неделю,', 'сразу во всех форматах'],
-      lede: 'Вертикаль для Reels и Stories, горизонталь для сайта, порталов и презентации, всё с одной съёмки. Перемонтировать ничего не нужно.',
-      stats: [
-        { v: '7', k: 'ДНЕЙ ДО ПЕРВОГО ПОКАЗА', from: 30 },
-        { v: '9:16 + 16:9', k: 'ОБА ФОРМАТА СРАЗУ' },
-        { v: '5', k: 'УСЛУГ, ОДНА КОМАНДА' },
-      ],
-    },
     method: {
       eyebrow: 'ЧЕТЫРЕ ПРОХОДА',
-      title: ['Четыре прохода,', 'без догадок'],
+      title: ['Как мы создаём', 'визуализацию'],
       steps: [
         {
           sn: '01',
@@ -827,15 +816,16 @@ export const COPY: Record<Lang, Copy> = {
         {
           sn: '04',
           st: 'Сдача',
-          sd: 'Отдаём кадры и видео вертикально и горизонтально — в тех форматах, которыми ваш отдел продаж пользуется каждый день.',
+          sd: 'Передаём изображения и видео в форматах, согласованных в предложении, для выбранных каналов публикации.',
         },
       ],
     },
     contact: {
       eyebrow: '08 — КОНТАКТ',
-      title: ['Есть объект,', 'который нужно продать?'],
+      title: ['Обсудим контент', 'или CRM для агентства.'],
       meta: ['ЭЛЬДАР ХУСЕЙНОВ', 'МЕДИА ДЛЯ НЕДВИЖИМОСТИ', 'КОСТА-ДЕЛЬ-СОЛЬ'],
-      waText: 'Здравствуйте, Эльдар! Пишу с сайта STOARI — есть проект на Коста-дель-Соль.',
+      waText: 'Здравствуйте! Пишу с сайта STOARI. Хочу узнать стоимость проекта на Коста-дель-Соль.',
+      waLabel: 'Удобнее в WhatsApp? Напишите нам',
     },
     close: 'ЗАКРЫТЬ',
   },

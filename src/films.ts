@@ -1,18 +1,11 @@
 import type { Lang } from './content'
 
 /**
- * Full films. The work section above shows three seconds on a loop and stays
- * as it is — those are presentation pieces and are not to be touched. This is
- * the other half: every film whole, with sound, sorted by direction.
- *
- * Directions come straight from how the originals are filed in
- * `EldarLending/videos`: villa shoots, FPV, agents, AI construction, AI films.
- *
- * Web versions are made by `scratchpad/encode_films.py` from the originals:
- * vertical films at 720×1280 (they are watched to the height of the screen),
- * horizontal ones at 1080p (they are watched to its width), each with a poster
- * and a four-second silent preview for the card. The originals are 60–525 MB
- * and must never be put on the site as they are.
+ * Film catalogue. Cards and the player share the same web export, without a
+ * playback time limit. All 15 full web exports were verified on 6 October 2026.
+ * Badges read the actual media duration; the expected catalogue durations
+ * below also let packaging reject accidentally restored excerpts.
+ * See docs/film-exports.md for the authenticated release download.
  */
 
 export type Kind = 'villas' | 'fpv' | 'agents' | 'build' | 'ai'
@@ -21,8 +14,10 @@ export type Film = {
   id: string
   kind: Kind
   vertical: boolean
-  /** Seconds, for the badge on the card. */
+  /** Expected full-export duration; badges use actual media metadata. */
   duration: number
+  /** Explicit for supplied excerpts, including before media metadata loads. */
+  excerpt?: boolean
   /** Proper name — the same in every language. */
   title: string
 }
@@ -47,9 +42,9 @@ export const FILMS: Film[] = [
 
 /** Same base-URL rule as the work cards: nothing on this site starts with `/`. */
 const f = (file: string) => `${import.meta.env.BASE_URL}films/${file}`
-export const filmSrc = (id: string) => f(`${id}.mp4`)
+// A new URL also replaces the old 15-second files in returning visitors' caches.
+export const filmSrc = (id: string) => f(`${id}.mp4?v=full-20261006`)
 export const filmPoster = (id: string) => f(`${id}.webp`)
-export const filmPreview = (id: string) => f(`${id}-preview.mp4`)
 
 export const fmtTime = (s: number) =>
   `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`
@@ -65,23 +60,24 @@ type FilmsCopy = {
   close: string
   prev: string
   next: string
+  excerpt: string
 }
 
 export const FILMS_COPY: Record<Lang, FilmsCopy> = {
   en: {
     eyebrow: '03 — FILMS',
-    title: ['The full films,', 'with sound'],
-    lede: 'Villas shot in a day, FPV flights through a house, agents on camera, a house shown before it is built, and short films made entirely with AI.',
+    title: ['The films', ''],
+    lede: 'Property tours, FPV flights and films with agents. Open a video for sound and playback controls. Concept films are generated digitally with AI.',
     all: 'All',
     kinds: {
       villas: 'Villas',
       fpv: 'FPV',
       agents: 'Agents',
       build: 'Before it is built',
-      ai: 'AI films',
+      ai: 'Concept films',
     },
     lines: {
-      'villa-alfa-tour': 'The full tour, three minutes',
+      'villa-alfa-tour': 'The property tour',
       'cin-lento': 'Slow cinema',
       'villa-alfa-agent': 'With the agent',
       'villa-hd': 'Interiors',
@@ -100,21 +96,22 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
     close: 'CLOSE',
     prev: 'PREVIOUS',
     next: 'NEXT',
+    excerpt: 'Extract',
   },
   es: {
     eyebrow: '03 — PELÍCULAS',
-    title: ['Las películas enteras,', 'con sonido'],
-    lede: 'Villas rodadas en un día, vuelos FPV por dentro de una casa, agentes delante de la cámara, una casa enseñada antes de construirse y cortos hechos por completo con IA.',
+    title: ['Los vídeos', ''],
+    lede: 'Recorridos de inmuebles, vuelos FPV y vídeos con agentes. Abre un vídeo para activar el sonido y los controles. Los conceptos visuales se generan digitalmente con IA.',
     all: 'Todo',
     kinds: {
       villas: 'Villas',
       fpv: 'FPV',
       agents: 'Agentes',
       build: 'Antes de construir',
-      ai: 'Cine IA',
+      ai: 'Conceptos visuales',
     },
     lines: {
-      'villa-alfa-tour': 'El recorrido completo, tres minutos',
+      'villa-alfa-tour': 'El recorrido del inmueble',
       'cin-lento': 'Cine lento',
       'villa-alfa-agent': 'Con el agente',
       'villa-hd': 'Interiores',
@@ -133,21 +130,22 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
     close: 'CERRAR',
     prev: 'ANTERIOR',
     next: 'SIGUIENTE',
+    excerpt: 'Extracto',
   },
   ru: {
     eyebrow: '03 — ФИЛЬМЫ',
-    title: ['Фильмы целиком,', 'со звуком'],
-    lede: 'Виллы, снятые за один день, FPV-пролёты сквозь дом, агенты в кадре, дом, показанный до стройки, и короткие фильмы, целиком сделанные с ИИ.',
+    title: ['Фильмы', ''],
+    lede: 'Туры по объектам, FPV-пролёты и видео с агентами. Откройте видео, чтобы включить звук и управление воспроизведением. Концептуальные фильмы созданы с помощью ИИ.',
     all: 'Все',
     kinds: {
       villas: 'Виллы',
       fpv: 'FPV',
       agents: 'Агенты',
       build: 'До стройки',
-      ai: 'ИИ-кино',
+      ai: 'Концептуальные фильмы',
     },
     lines: {
-      'villa-alfa-tour': 'Полный тур, три минуты',
+      'villa-alfa-tour': 'Тур по объекту',
       'cin-lento': 'Медленное кино',
       'villa-alfa-agent': 'С агентом',
       'villa-hd': 'Интерьеры',
@@ -166,5 +164,6 @@ export const FILMS_COPY: Record<Lang, FilmsCopy> = {
     close: 'ЗАКРЫТЬ',
     prev: 'НАЗАД',
     next: 'ДАЛЬШЕ',
+    excerpt: 'Фрагмент',
   },
 }

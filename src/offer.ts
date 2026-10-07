@@ -85,8 +85,8 @@ export const OFFER: Record<Lang, Offer> = {
   en: {
     prices: {
       eyebrow: '02 — PRICES',
-      title: ['Content every month,', 'or just the shoot you need'],
-      lede: 'The monthly package keeps your listings and your profile moving: Reels, a campaign, Stories and drone footage, written and posted for you. Photography and FPV can be booked on their own.',
+      title: ['Services & prices', ''],
+      lede: 'Monthly content, property photography or an FPV flight. Choose what your project needs.',
       included: 'Included',
       main: {
         tag: 'MAIN PACKAGE',
@@ -94,7 +94,7 @@ export const OFFER: Record<Lang, Offer> = {
         price: { amount: '€1,500', per: 'per month' },
         rows: [
           '4 Reels videos',
-          '1 marketing campaign',
+          'Management of one campaign; advertising budget detailed in the proposal',
           'Help with Instagram Stories',
           'Drone aerials, photo and video',
           'Publishing on social media',
@@ -115,7 +115,7 @@ export const OFFER: Record<Lang, Offer> = {
           tag: 'SEPARATE SERVICE',
           t: 'FPV drone',
           price: { pre: 'from', amount: '€450' },
-          rows: ['1 horizontal video + 1 vertical video', 'Length: 30–60 seconds'],
+          rows: ['Deliverables and formats agreed in the proposal', 'Length: 30–60 seconds'],
           wa: 'Hi Eldar, I am interested in the FPV drone.',
         },
       ],
@@ -123,11 +123,11 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'FOR ESTATE AGENCIES',
         t: 'A personalised CRM for estate agencies',
-        lede: 'Every enquiry answered, qualified and kept in one place, set up around the way your agency works:',
+        lede: 'Enquiry management and follow-up, configured around the way your agency works:',
         rows: [
-          'Propiedades: managing your properties',
-          'Captación: bringing in new properties',
-          'Leads: managing your leads',
+          'Property management',
+          'Property acquisition',
+          'Lead management',
           'Enquiry capture forms',
           'Lead qualification',
           'WhatsApp bot',
@@ -140,7 +140,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — HOW IT WORKS',
-      title: ['Four steps, and', 'nothing to prepare'],
+      title: ['From brief to delivery', ''],
       lede: 'From the first message to the finished files. Dates are agreed in writing before anything is booked.',
       steps: [
         {
@@ -161,13 +161,13 @@ export const OFFER: Record<Lang, Offer> = {
         {
           sn: '04',
           st: 'Delivery',
-          sd: 'Five working days, in vertical and landscape, ready to post.',
+          sd: 'Five working days, in the formats agreed before the shoot, ready to post.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — QUESTIONS',
-      title: ['The questions that', 'come up every time'],
+      title: ['Common questions', ''],
       lede: 'What clients usually ask before the first shoot.',
       items: [
         {
@@ -175,7 +175,7 @@ export const OFFER: Record<Lang, Offer> = {
           a: 'Five working days after the shoot day. For visualisation, the first view comes back in seven days.',
         },
         {
-          q: 'How many rounds of revisions are included?',
+          q: 'How many revision rounds are included in visualisation?',
           a: 'Two. The first after the massing is agreed, the second after light and materials. Anything after that is quoted separately. Once the massing is signed off, moving walls is a new quote, not a revision.',
         },
         {
@@ -199,7 +199,7 @@ export const OFFER: Record<Lang, Offer> = {
           a: 'Half on booking the day, half on delivery. The monthly package is billed monthly.',
         },
         {
-          q: 'What if the weather goes?',
+          q: 'What happens if the weather is bad?',
           a: 'The day moves, at no cost, as long as you tell us the day before.',
         },
       ],
@@ -210,8 +210,8 @@ export const OFFER: Record<Lang, Offer> = {
   es: {
     prices: {
       eyebrow: '02 — PRECIOS',
-      title: ['Contenido cada mes', 'o solo el rodaje que necesita'],
-      lede: 'El paquete mensual mantiene en movimiento sus inmuebles y su perfil: Reels, una campaña, Stories y tomas con dron, escritos y publicados por nosotros. La fotografía y el FPV se pueden contratar por separado.',
+      title: ['Servicios y precios', ''],
+      lede: 'Contenido mensual, fotografía de inmuebles o un vuelo FPV. Elige lo que necesita tu proyecto.',
       included: 'Incluye',
       main: {
         tag: 'PAQUETE PRINCIPAL',
@@ -219,7 +219,7 @@ export const OFFER: Record<Lang, Offer> = {
         price: { amount: '1.500 €', per: 'al mes' },
         rows: [
           '4 vídeos Reels',
-          '1 campaña de marketing',
+          'Gestión de una campaña; inversión publicitaria detallada en la propuesta',
           'Ayuda con las Stories de Instagram',
           'Grabación aérea con dron, foto y vídeo',
           'Publicación en redes sociales',
@@ -240,7 +240,7 @@ export const OFFER: Record<Lang, Offer> = {
           tag: 'SERVICIO APARTE',
           t: 'Dron FPV',
           price: { pre: 'desde', amount: '450 €' },
-          rows: ['1 vídeo horizontal + 1 vídeo vertical', 'Duración: 30–60 segundos'],
+          rows: ['Entregables y formatos acordados en la propuesta', 'Duración: 30–60 segundos'],
           wa: 'Hola Eldar, me interesa el dron FPV.',
         },
       ],
@@ -248,7 +248,7 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'PARA INMOBILIARIAS',
         t: 'CRM personalizado para inmobiliarias',
-        lede: 'Cada consulta atendida, cualificada y en un solo sitio, configurado según la forma de trabajar de su inmobiliaria:',
+        lede: 'Gestión y seguimiento de consultas, configurados según la forma de trabajar de tu inmobiliaria:',
         rows: [
           'Propiedades: gestión de inmuebles',
           'Captación: captación de nuevos inmuebles',
@@ -265,34 +265,34 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — CÓMO FUNCIONA',
-      title: ['Cuatro pasos, y', 'nada que preparar'],
+      title: ['Del encargo a la entrega', ''],
       lede: 'Del primer mensaje a los archivos terminados. Las fechas quedan por escrito antes de reservar nada.',
       steps: [
         {
           sn: '01',
-          st: 'Envíe el inmueble',
+          st: 'Envía el inmueble',
           sd: 'Una dirección, el enlace al anuncio o los planos. El presupuesto llega el mismo día.',
         },
         {
           sn: '02',
-          st: 'Elija el servicio',
+          st: 'Elige el servicio',
           sd: 'El paquete mensual o un servicio suelto. Lo que entra queda por escrito antes de reservar nada.',
         },
         {
           sn: '03',
           st: 'Día de rodaje',
-          sd: 'Venimos con un plan y un guion. Usted solo tiene que darnos acceso.',
+          sd: 'Venimos con un plan y un guion. Solo tienes que darnos acceso.',
         },
         {
           sn: '04',
           st: 'Entrega',
-          sd: 'Cinco días laborables, en vertical y horizontal, listo para publicar.',
+          sd: 'Cinco días laborables, en los formatos acordados antes del rodaje, listo para publicar.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — PREGUNTAS',
-      title: ['Las preguntas que', 'salen siempre'],
+      title: ['Preguntas frecuentes', ''],
       lede: 'Lo que suelen preguntar los clientes antes del primer rodaje.',
       items: [
         {
@@ -300,23 +300,23 @@ export const OFFER: Record<Lang, Offer> = {
           a: 'Cinco días laborables tras la jornada de rodaje. En visualización, la primera vista vuelve en siete días.',
         },
         {
-          q: '¿Cuántas rondas de correcciones entran?',
+          q: '¿Cuántas rondas de correcciones incluye la visualización?',
           a: 'Dos. La primera tras aprobar el volumen, la segunda tras luz y materiales. Lo que venga después se presupuesta aparte. Una vez aprobado el volumen, mover muros es presupuesto nuevo, no corrección.',
         },
         {
           q: 'El edificio todavía no existe.',
-          a: 'Entonces es visualización. Levantamos la casa sobre su parcela a partir de sus planos, con el sol donde lo ponen sus coordenadas reales.',
+          a: 'Entonces es visualización. Levantamos la casa sobre tu parcela a partir de tus planos, con el sol donde lo ponen sus coordenadas reales.',
         },
         {
           q: '¿De quién es el material?',
-          a: 'Suyo. Si queremos mostrar el trabajo en nuestro portfolio, lo pedimos aparte y por escrito.',
+          a: 'Tuyo. Si queremos mostrar el trabajo en nuestro portfolio, te pedimos permiso aparte y por escrito.',
         },
         {
-          q: '¿Qué necesitan de nosotros ese día?',
+          q: '¿Qué necesitáis de nosotros ese día?',
           a: 'Acceso, llaves y la franja horaria. En visualización: planos, levantamiento, fotos del solar y la memoria de calidades, todo antes de empezar a modelar.',
         },
         {
-          q: '¿Se desplazan?',
+          q: '¿Os desplazáis?',
           a: 'Sí. La base es la Costa del Sol; fuera de ella, vuelos y alojamiento se facturan a coste.',
         },
         {
@@ -324,8 +324,8 @@ export const OFFER: Record<Lang, Offer> = {
           a: 'La mitad al reservar la jornada, la mitad a la entrega. El paquete mensual se factura cada mes.',
         },
         {
-          q: '¿Y si el tiempo se estropea?',
-          a: 'Se cambia el día, sin coste, si nos avisa el día antes.',
+          q: '¿Y si hace mal tiempo?',
+          a: 'Se cambia el día, sin coste, si nos avisas el día antes.',
         },
       ],
     },
@@ -335,8 +335,8 @@ export const OFFER: Record<Lang, Offer> = {
   ru: {
     prices: {
       eyebrow: '02 — ЦЕНЫ',
-      title: ['Контент каждый месяц', 'или только нужная съёмка'],
-      lede: 'Пакет на месяц держит ваши объекты и профиль в движении: Reels, кампания, Stories и съёмка с дрона, пишем и публикуем за вас. Фотосъёмку и FPV можно заказать отдельно.',
+      title: ['Услуги и цены', ''],
+      lede: 'Контент на месяц, фотосъёмка недвижимости или FPV-полёт. Выберите услугу для вашего проекта.',
       included: 'Что входит',
       main: {
         tag: 'ОСНОВНОЙ ПАКЕТ',
@@ -344,7 +344,7 @@ export const OFFER: Record<Lang, Offer> = {
         price: { amount: '1 500 €', per: 'в месяц' },
         rows: [
           '4 видео Reels',
-          '1 маркетинговая кампания',
+          'Ведение одной кампании; рекламный бюджет указываем в предложении',
           'Помощь с Instagram Stories',
           'Аэросъёмка с дрона, фото и видео',
           'Публикация в социальных сетях',
@@ -365,7 +365,7 @@ export const OFFER: Record<Lang, Offer> = {
           tag: 'ОТДЕЛЬНАЯ УСЛУГА',
           t: 'FPV-дрон',
           price: { pre: 'от', amount: '450 €' },
-          rows: ['1 горизонтальное видео + 1 вертикальное видео', 'Длительность: 30–60 секунд'],
+          rows: ['Материалы и форматы согласовываются в предложении', 'Длительность: 30–60 секунд'],
           wa: 'Здравствуйте, Эльдар! Интересует FPV-дрон.',
         },
       ],
@@ -373,11 +373,11 @@ export const OFFER: Record<Lang, Offer> = {
       crm: {
         eyebrow: 'ДЛЯ АГЕНТСТВ НЕДВИЖИМОСТИ',
         t: 'Персонализированная CRM для агентств недвижимости',
-        lede: 'Каждая заявка получает ответ, проходит квалификацию и хранится в одном месте. Настраивается под то, как работает ваше агентство:',
+        lede: 'Управление заявками и дальнейшая работа с клиентами, с настройкой под процессы вашего агентства:',
         rows: [
-          'Propiedades: управление объектами',
-          'Captación: привлечение объектов',
-          'Leads: управление лидами',
+          'Управление объектами',
+          'Привлечение объектов',
+          'Управление лидами',
           'Формы захвата заявок',
           'Квалификация лидов',
           'Бот в WhatsApp',
@@ -390,7 +390,7 @@ export const OFFER: Record<Lang, Offer> = {
     },
     how: {
       eyebrow: '05 — КАК ЭТО УСТРОЕНО',
-      title: ['Четыре шага,', 'готовить ничего не надо'],
+      title: ['От заявки до готовых файлов', ''],
       lede: 'От первого сообщения до готовых файлов. Сроки фиксируем письменно до брони.',
       steps: [
         {
@@ -411,13 +411,13 @@ export const OFFER: Record<Lang, Offer> = {
         {
           sn: '04',
           st: 'Сдача',
-          sd: 'Пять рабочих дней, вертикаль и горизонталь, сразу к публикации.',
+          sd: 'Пять рабочих дней, в форматах, согласованных до съёмки, готово к публикации.',
         },
       ],
     },
     faq: {
       eyebrow: '07 — ВОПРОСЫ',
-      title: ['Вопросы, которые', 'задают каждый раз'],
+      title: ['Частые вопросы', ''],
       lede: 'О чём обычно спрашивают перед первой съёмкой.',
       items: [
         {
@@ -425,8 +425,8 @@ export const OFFER: Record<Lang, Offer> = {
           a: 'Пять рабочих дней после смены. По визуализации первый вид возвращается за семь дней.',
         },
         {
-          q: 'Сколько волн правок входит?',
-          a: 'Две. Первая после согласования объёма, вторая после света и материалов. Всё дальнейшее считается отдельно — а после утверждения объёма передвинуть стены значит новую смету, а не правку.',
+          q: 'Сколько этапов правок входит в визуализацию?',
+          a: 'Два. Первый после согласования объёма, второй после света и материалов. Всё дальнейшее считается отдельно — а после утверждения объёма передвинуть стены значит новую смету, а не правку.',
         },
         {
           q: 'Объект ещё не построен.',
