@@ -42,7 +42,8 @@ export const FILMS: Film[] = [
 
 /** Same base-URL rule as the work cards: nothing on this site starts with `/`. */
 const f = (file: string) => `${import.meta.env.BASE_URL}films/${file}`
-export const filmSrc = (id: string) => f(`${id}.mp4`)
+// A new URL also replaces the old 15-second files in returning visitors' caches.
+export const filmSrc = (id: string) => f(`${id}.mp4?v=full-20261006`)
 export const filmPoster = (id: string) => f(`${id}.webp`)
 
 export const fmtTime = (s: number) =>

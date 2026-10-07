@@ -20,6 +20,20 @@ El paquete de Hostinger se genera con `npm run bundle:hostinger`, sin la opción
 asset del borrador y los extractos anteriores tienen una copia local de seguridad.
 La generación del paquete no publica la release ni despliega automáticamente.
 
+## Publicación — 7 de octubre de 2026
+
+Los 15 vídeos completos están publicados en `https://stoari.com/films/`.
+Se han verificado las duraciones sobre las URL públicas y las 15 respuestas
+HTTP 206 para reproducción y búsqueda por rangos. El lector de Villa Alfa
+muestra 3:00. Las URL de reproducción incluyen `?v=full-20261006` para evitar
+que visitantes anteriores reutilicen los extractos almacenados en caché.
+
+Los 238 archivos publicados coinciden con el manifiesto SHA-256 del paquete.
+HTML, JavaScript y CSS públicos coinciden con el build. La configuración SMTP
+privada se conserva fuera de `public_html`. Copia de recuperación del sitio
+anterior: `~/stoari-releases/20261007-full-films/before-site.tar.gz`.
+La release de GitHub se conserva como borrador.
+
 ## Recuperación en un checkout nuevo
 
 ```bash
